@@ -1,4 +1,4 @@
 # Sesac_LMS
 
-[v] pull
-[] push
+-[x] pull
+-[x] push
