@@ -1,5 +1,6 @@
 package com.sesac.backend.assignment.domain;
 
+import com.sesac.backend.course.domain.CourseDummy;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -14,6 +15,8 @@ public class AssignmentsDo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-
-    // TODO
+    @ManyToOne
+    private CourseDummy courseDummy;
+    private String title;
+    private String description;
 }

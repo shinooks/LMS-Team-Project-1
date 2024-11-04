@@ -1,5 +1,6 @@
 package com.sesac.backend.assignment.dto;
 
+import com.sesac.backend.course.domain.CourseDummy;
 import lombok.*;
 
 @Getter
@@ -9,6 +10,7 @@ import lombok.*;
 @AllArgsConstructor
 public class AssignmentsDto {
     private long id;
-
-    // TODO
+    private CourseDummy courseDummy;
+    private String title;
+    private String description;
 }
