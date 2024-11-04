@@ -8,7 +8,6 @@ import lombok.Builder;
 import java.util.UUID;
 
 @Entity
-@Table(name = "department")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

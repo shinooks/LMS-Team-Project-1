@@ -9,20 +9,19 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "syllabus")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Syllabus extends BaseTimeEntity { // BaseTimeEntity 상속으로 생성/수정 시간 자동화
+public class Syllabus {
 
     @Id
     @GeneratedValue
     private UUID syllabusId; // 계획서ID
 
-    @OneToOne(fetch = FetchType.LAZY, optional = false)  // optional = false 추가
-    @JoinColumn(name = "opening_id")  // openingId -> opening_id로 수정
-    private CourseOpening courseOpening;  // CourseOpening과의 일대일 관계
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "courseId", nullable = false)
+    private Course course; // 강의ID
 
     @Column(columnDefinition = "TEXT")
     private String learningObjectives; // 학습목표
@@ -31,14 +30,13 @@ public class Syllabus extends BaseTimeEntity { // BaseTimeEntity 상속으로 �
     private String weeklyPlan; // 주차별계획
 
     @Column(columnDefinition = "TEXT")
-    private String evaluationMethod; // 평가방법
+    private String evaluationMethods; // 평가방법
 
     @Column(columnDefinition = "TEXT")
-    private String textbooks;  // 교재
+    private String textbooks; // 교재
 
-    // 연관관계 편의 메서드 추가
-    public void setCourseOpening(CourseOpening courseOpening) {
-        this.courseOpening = courseOpening;
-        courseOpening.setSyllabus(this);  // 양방향 관계 설정
-    }
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt = LocalDateTime.now(); // 생성일시
+
+    private LocalDateTime updatedAt = LocalDateTime.now(); // 수정일시
 }
