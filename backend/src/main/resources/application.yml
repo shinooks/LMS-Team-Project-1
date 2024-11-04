@@ -4,9 +4,10 @@ spring:
 
   jpa:
     generate-ddl: true
+    database: postgresql
     show-sql: true
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
   datasource:
