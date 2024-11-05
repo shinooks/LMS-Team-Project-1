@@ -11,6 +11,10 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: create
+    properties:
+      hibernate:
+        format_sql: true
+        default_schema: public  # 스키마 설정 추가
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
   datasource:
