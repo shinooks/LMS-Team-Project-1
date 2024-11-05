@@ -1,6 +1,5 @@
-package com.sesac.backend.assignment.domain;
+package com.sesac.backend.entity;
 
-import com.sesac.backend.course.domain.Course;
 import jakarta.persistence.*;
 import java.util.*;
 import lombok.*;
@@ -16,7 +15,8 @@ public class Assignment {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID assignId;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "courseId", nullable = false)
     private Course course;
     private String title;
     private String description;
