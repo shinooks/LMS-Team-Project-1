@@ -22,6 +22,13 @@ spring:
       force: true
 
 server:
-  port: 8081
-  servlet:
-    context-path: /api
+  port: 8080
+
+my_value:
+  key: "my_Secret_Key"
+
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG

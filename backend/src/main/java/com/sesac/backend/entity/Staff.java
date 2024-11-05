@@ -1,5 +1,6 @@
 package com.sesac.backend.entity;
 
+import com.sesac.backend.usermgmt.domain.UserData;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,7 +22,7 @@ public class Staff {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId", nullable = false)
-    private UserAuthentication user; // 사용자ID
+    private UserData user; // 사용자ID
 
     @Column(nullable = false, unique = true)
     private String staffNumber; // 직원번호

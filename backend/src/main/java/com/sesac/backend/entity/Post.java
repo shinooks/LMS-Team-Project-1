@@ -1,5 +1,6 @@
 package com.sesac.backend.entity;
 
+import com.sesac.backend.usermgmt.domain.UserData;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -25,7 +26,7 @@ public class Post {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "authorId", nullable = false)
-    private UserAuthentication author; // 작성자ID
+    private UserData author; // 작성자ID
 
     @Column(nullable = false)
     private String title; // 제목
