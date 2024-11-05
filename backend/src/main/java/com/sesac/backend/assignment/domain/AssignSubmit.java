@@ -20,11 +20,11 @@ public class AssignSubmit {
     private UUID assignSubmitId;
     @ManyToOne
     @JoinColumn(name = "assignId", nullable = false)
-    private Assignment assignment;
+    private Assignment assignment; // 과제
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "studentId", nullable = false)
-    private Student student;
-    private String answer;
+    private Student student; // 학생
+    private String answer; // 제출답안
     @Column(nullable = false, updatable = false)
     private LocalDateTime submitAt = LocalDateTime.now(); // 제출일시
 }

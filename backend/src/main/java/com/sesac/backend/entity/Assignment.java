@@ -1,6 +1,7 @@
 package com.sesac.backend.entity;
 
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 import java.util.*;
 import lombok.*;
 
@@ -17,7 +18,8 @@ public class Assignment {
     private UUID assignId;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "courseId", nullable = false)
-    private Course course;
-    private String title;
-    private String description;
+    private Course course; // 출제 강의
+    private String title; // 제목
+    private String description; // 문제
+    private LocalDateTime deadline; // 제출기한
 }
