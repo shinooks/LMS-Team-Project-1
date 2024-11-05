@@ -1,6 +1,9 @@
 package com.sesac.backend.assignment.domain;
 
+import com.sesac.backend.entity.Assignment;
+import com.sesac.backend.entity.Student;
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.*;
 
@@ -15,6 +18,13 @@ public class AssignSubmit {
     @Id
     @GeneratedValue
     private UUID assignSubmitId;
-
-    // TODO
+    @ManyToOne
+    @JoinColumn(name = "assignId", nullable = false)
+    private Assignment assignment;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "studentId", nullable = false)
+    private Student student;
+    private String answer;
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime submitAt = LocalDateTime.now(); // 제출일시
 }
