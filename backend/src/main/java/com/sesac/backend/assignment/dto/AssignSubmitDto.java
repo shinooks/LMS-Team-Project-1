@@ -13,7 +13,7 @@ import lombok.*;
 @NoArgsConstructor
 public class AssignSubmitDto {
 
-    private UUID assignmentId;
+    private UUID assignSubmitId;
     private Assignment assignment;
     private Student student;
     private String answer;

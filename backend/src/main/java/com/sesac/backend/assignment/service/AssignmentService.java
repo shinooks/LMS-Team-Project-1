@@ -19,15 +19,18 @@ public class AssignmentService {
     public AssignmentDto save(AssignmentDto assignmentDto) {
         Assignment assignment = assignmentDao.save(
             new Assignment(assignmentDto.getAssignId(), assignmentDto.getCourse(),
-                assignmentDto.getTitle(), assignmentDto.getDescription()));
+                assignmentDto.getTitle(), assignmentDto.getDescription(),
+                assignmentDto.getDeadline()));
 
         return new AssignmentDto(assignment.getAssignId(), assignment.getCourse(),
-            assignment.getTitle(), assignment.getDescription());
+            assignment.getTitle(), assignment.getDescription(), assignment.getDeadline());
     }
 
     public List<AssignmentDto> getAll() {
-        return assignmentDao.findAll().stream().map(entity -> new AssignmentDto(entity.getAssignId(),
-            entity.getCourse(), entity.getTitle(), entity.getDescription())).toList();
+        return assignmentDao.findAll().stream()
+            .map(entity -> new AssignmentDto(entity.getAssignId(),
+                entity.getCourse(), entity.getTitle(), entity.getDescription(),
+                entity.getDeadline())).toList();
     }
 
     public AssignmentDto findById(UUID id) {
@@ -35,7 +38,7 @@ public class AssignmentService {
 
         return entity == null ? null
             : new AssignmentDto(entity.getAssignId(), entity.getCourse(), entity.getTitle(),
-                entity.getDescription());
+                entity.getDescription(), entity.getDeadline());
     }
 
     public void delete(UUID id) {
