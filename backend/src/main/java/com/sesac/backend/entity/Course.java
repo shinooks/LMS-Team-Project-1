@@ -9,6 +9,7 @@ import lombok.Builder;
 import java.util.UUID;
 
 @Entity
+@Table(name = "course")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
