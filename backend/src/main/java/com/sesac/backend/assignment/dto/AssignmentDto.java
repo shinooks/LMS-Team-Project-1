@@ -1,6 +1,6 @@
 package com.sesac.backend.assignment.dto;
 
-import com.sesac.backend.course.domain.Course;
+import com.sesac.backend.entity.Course;
 import java.util.UUID;
 import lombok.*;
 
