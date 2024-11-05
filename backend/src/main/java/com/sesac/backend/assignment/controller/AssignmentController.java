@@ -27,33 +27,49 @@ public class AssignmentController {
 
     @GetMapping("/{id}")
     public Map<String, AssignmentDto> getAssignmentById(@PathVariable UUID id) {
-        return Map.of("assignment", assignmentService.findById(id));
+        return Map.of("success", assignmentService.findById(id));
     }
 
     @PostMapping("")
-    public Map<String, AssignmentDto> addAssignment(AssignmentDto assignmentDto) {
+    public Map<String, Boolean> addAssignment(AssignmentDto assignmentDto) {
+        boolean flag = false;
         AssignmentDto saved = assignmentService.save(assignmentDto);
 
-        return Map.of("assignment", new AssignmentDto(
-            saved.getAssignId(), saved.getCourse(), saved.getTitle(), saved.getDescription(), saved.getDeadline()
-        ));
+        if (saved != null) {
+            flag = true;
+            return Map.of("success", flag);
+        }
+
+        return Map.of("success", flag);
     }
 
     @PutMapping("")
-    public Map<String, AssignmentDto> updateAssignment(AssignmentDto assignmentDto) {
-        AssignmentDto saved = assignmentService.findById(assignmentDto.getAssignId());
-        saved.setCourse(assignmentDto.getCourse());
-        saved.setTitle(assignmentDto.getTitle());
-        saved.setDescription(assignmentDto.getDescription());
-        assignmentService.save(saved);
-        return Map.of("assignment", new AssignmentDto(
-            saved.getAssignId(), saved.getCourse(), saved.getTitle(), saved.getDescription(), saved.getDeadline()
-        ));
+    public Map<String, Boolean> updateAssignment(AssignmentDto assignmentDto) {
+        boolean flag = false;
+
+        try {
+            AssignmentDto saved = assignmentService.findById(assignmentDto.getAssignId());
+            saved.setCourse(assignmentDto.getCourse());
+            saved.setTitle(assignmentDto.getTitle());
+            saved.setDescription(assignmentDto.getDescription());
+            assignmentService.save(saved);
+            flag = true;
+            return Map.of("success", flag);
+        } catch (Exception e) {
+            return Map.of("success", flag);
+        }
     }
 
     @DeleteMapping("/{id}")
     public Map<String, Boolean> deleteAssignment(@PathVariable("id") UUID id) {
-        assignmentService.delete(id);
-        return Map.of("deleted", true);
+        boolean flag = false;
+
+        try {
+            assignmentService.delete(id);
+            flag = true;
+            return Map.of("success", flag);
+        } catch (Exception e) {
+            return Map.of("success", flag);
+        }
     }
 }
