@@ -19,26 +19,31 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CourseTimeDto {
-    private UUID timeId;
+    private UUID timeId;    // 시간ID (자동생성)
+
+    @NotNull(message = "강의 개설 ID는 필수입니다")
+    private UUID openingId;  // 강의 개설 ID (외래키)
 
     @NotNull(message = "요일은 필수입니다")
-    private DayOfWeek dayOfWeek;
+    private DayOfWeek dayOfWeek;  // 요일 (MONDAY, TUESDAY 등)
 
     @NotNull(message = "시작 시간은 필수입니다")
     @JsonFormat(pattern = "HH:mm")  // 24시간 형식으로 지정
-    private LocalTime startTime;   // 14:00 오후 2시
+    private LocalTime startTime;    // 강의 시작 시간
 
     @NotNull(message = "종료 시간은 필수입니다")
     @JsonFormat(pattern = "HH:mm")  // 24시간 형식으로 지정
-    private LocalTime endTime;     // 15:00 오후 3시
+    private LocalTime endTime;      // 강의 종료 시간
 
     @NotBlank(message = "강의실은 필수입니다")
-    private String classroom;
+    private String classroom;       // 강의실 위치
 
-    public int getDurationHours() { // 강의 시작 시간과 종료 시간 사이의 시간 차이를 계산
-        return (int) ChronoUnit.HOURS.between(startTime, endTime); // 자바의 시간 계산 메서드
+    // 시간 차이 계산 메서드
+    public int getDurationHours() {
+        return (int) ChronoUnit.HOURS.between(startTime, endTime);
     }
 
+    // 시간 유효성 검사
     @AssertTrue(message = "종료 시간은 시작 시간보다 늦어야 합니다")
     private boolean isValidTimeRange() {
         if (startTime == null || endTime == null) {
