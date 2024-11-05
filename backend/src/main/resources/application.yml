@@ -2,6 +2,10 @@ spring:
   application:
     name: backend
 
+  security:
+    basic:
+      enabled: false
+
   jpa:
     generate-ddl: true
     show-sql: true
@@ -25,3 +29,4 @@ server:
   port: 8081
   servlet:
     context-path: /api
+
