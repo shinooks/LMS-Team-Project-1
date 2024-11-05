@@ -1,11 +1,9 @@
 package com.sesac.backend.assignment.dto;
 
+import com.sesac.backend.entity.AssignScore.Visibility;
+import com.sesac.backend.user.dto.StudentDto;
 import java.util.UUID;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 @Getter
 @Setter
@@ -15,6 +13,8 @@ import lombok.ToString;
 public class AssignScoreDto {
 
     private UUID assignScoreId;
-
-    // TODO
+    private AssignmentDto assignmentDto;
+    private StudentDto studentDto;
+    private int score;
+    private Visibility visibility;
 }
