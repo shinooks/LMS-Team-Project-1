@@ -26,7 +26,7 @@ public class AssignScoreService {
                 entity.getStudent(), entity.getScore(), entity.getComment(), entity.getVisibility());
     }
 
-    public List<AssignScoreDto> findAll() {
+    public List<AssignScoreDto> getAll() {
         return assignScoreDao.findAll().stream().map(
             entity -> new AssignScoreDto(entity.getAssignScoreId(), entity.getAssignment(),
                 entity.getStudent(), entity.getScore(), entity.getComment(), entity.getVisibility())).toList();

@@ -34,7 +34,7 @@ public class AssignScoreController {
 
     @GetMapping("")
     public List<AssignScoreDto> getAllScores() {
-        return assignScoreService.findAll();
+        return assignScoreService.getAll();
     }
 
     @PostMapping("")

@@ -1,19 +1,11 @@
 package com.sesac.backend.assignment.controller;
 
-import com.sesac.backend.assignment.domain.AssignSubmit;
 import com.sesac.backend.assignment.dto.AssignSubmitDto;
-import com.sesac.backend.assignment.service.AssignmentService;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import com.sesac.backend.assignment.service.AssignSubmitService;
+import java.util.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @CrossOrigin("*")
@@ -21,27 +13,53 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class AssignSubmitController {
 
-    private final AssignmentService assignmentService;
+    private final AssignSubmitService assignSubmitService;
 
     @Autowired
-    public AssignSubmitController(AssignmentService assignmentService) {
-        this.assignmentService = assignmentService;
+    public AssignSubmitController(AssignSubmitService assignSubmitService) {
+        this.assignSubmitService = assignSubmitService;
     }
-
-    // TODO
 
     @GetMapping("")
     public List<AssignSubmitDto> getAllSubmits() {
-        return List.of();
+        return assignSubmitService.getAll();
     }
 
     @GetMapping("/{id}")
     public Map<String, AssignSubmitDto> getById(@PathVariable("id") UUID id) {
-        return Map.of("success", new AssignSubmitDto());
+        try {
+            return Map.of("success", assignSubmitService.findById(id));
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return Map.of("success", null);
+        }
     }
 
     @PostMapping("")
     public Map<String, Boolean> submit(AssignSubmitDto assignSubmitDto) {
-        return Map.of("success", false);
+        boolean flag = false;
+
+        try {
+            assignSubmitService.submit(assignSubmitDto);
+            flag = true;
+            return Map.of("success", flag);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return Map.of("success", flag);
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public Map<String, Boolean> delete(@PathVariable("id") UUID id) {
+        boolean flag = false;
+
+        try {
+            assignSubmitService.delete(id);
+            flag = true;
+            return Map.of("success", flag);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return Map.of("success", flag);
+        }
     }
 }
