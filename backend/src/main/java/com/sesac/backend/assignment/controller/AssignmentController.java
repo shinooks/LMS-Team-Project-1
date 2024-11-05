@@ -26,21 +26,27 @@ public class AssignmentController {
     }
 
     @GetMapping("/{id}")
-    public Map<String, AssignmentDto> getAssignmentById(@PathVariable UUID id) {
-        return Map.of("success", assignmentService.findById(id));
+    public Map<String, AssignmentDto> getAssignmentById(@PathVariable("id") UUID id) {
+        try {
+            return Map.of("success", assignmentService.findById(id));
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return Map.of("success", null);
+        }
     }
 
     @PostMapping("")
     public Map<String, Boolean> addAssignment(AssignmentDto assignmentDto) {
         boolean flag = false;
-        AssignmentDto saved = assignmentService.save(assignmentDto);
 
-        if (saved != null) {
+        try {
+            assignmentService.save(assignmentDto);
             flag = true;
             return Map.of("success", flag);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return Map.of("success", flag);
         }
-
-        return Map.of("success", flag);
     }
 
     @PutMapping("")
@@ -52,6 +58,7 @@ public class AssignmentController {
             saved.setCourse(assignmentDto.getCourse());
             saved.setTitle(assignmentDto.getTitle());
             saved.setDescription(assignmentDto.getDescription());
+            saved.setDeadline(assignmentDto.getDeadline());
             assignmentService.save(saved);
             flag = true;
             return Map.of("success", flag);

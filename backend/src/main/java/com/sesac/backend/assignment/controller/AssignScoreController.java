@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @CrossOrigin("*")
-@RequestMapping("/assignments/score")
+@RequestMapping("/assignments/scores")
 @RestController
 public class AssignScoreController {
 
@@ -24,7 +24,12 @@ public class AssignScoreController {
 
     @GetMapping("/{id}")
     public Map<String, AssignScoreDto> getScore(@PathVariable("id") UUID assignScoreId) {
-        return Map.of("success", assignScoreService.findById(assignScoreId));
+        try {
+            return Map.of("success", assignScoreService.findById(assignScoreId));
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return Map.of("success", null);
+        }
     }
 
     @GetMapping("")
@@ -33,20 +38,47 @@ public class AssignScoreController {
     }
 
     @PostMapping("")
-    public AssignScoreDto addScore(AssignScoreDto assignScoreDto) {
-        return assignScoreService.save(assignScoreDto);
+    public Map<String, Boolean> addScore(AssignScoreDto assignScoreDto) {
+        boolean flag = false;
+
+        try {
+            assignScoreService.save(assignScoreDto);
+            flag = true;
+            return Map.of("success", flag);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return Map.of("success", flag);
+        }
     }
 
     @PutMapping("")
-    public AssignScoreDto updateScore(AssignScoreDto assignScoreDto) {
-        AssignScoreDto saved = assignScoreService.findById(assignScoreDto.getAssignScoreId());
-        saved.setScore(assignScoreDto.getScore());
-        saved.setVisibility(assignScoreDto.getVisibility());
-        return assignScoreService.save(saved);
+    public Map<String, Boolean> updateScore(AssignScoreDto assignScoreDto) {
+        boolean flag = false;
+
+        try {
+            AssignScoreDto saved = assignScoreService.findById(assignScoreDto.getAssignScoreId());
+            saved.setScore(assignScoreDto.getScore());
+            saved.setComment(assignScoreDto.getComment());
+            saved.setVisibility(assignScoreDto.getVisibility());
+            flag = true;
+            return Map.of("success", flag);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return Map.of("success", flag);
+        }
     }
 
     @DeleteMapping("/{id}")
-    public void deleteScore(@PathVariable("id") UUID assignScoreId) {
-        assignScoreService.delete(assignScoreId);
+    public Map<String, Boolean> deleteScore(@PathVariable("id") UUID assignScoreId) {
+        boolean flag = false;
+
+        try {
+            assignScoreService.delete(assignScoreId);
+            flag = true;
+            return Map.of("success", flag);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return Map.of("success", flag);
+        }
     }
 }
