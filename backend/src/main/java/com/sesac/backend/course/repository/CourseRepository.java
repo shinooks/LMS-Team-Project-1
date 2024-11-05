@@ -2,11 +2,9 @@ package com.sesac.backend.course.repository;
 
 import com.sesac.backend.entity.Course;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import java.util.UUID;
 
-@Repository
-public interface CourseRepository extends JpaRepository<Course, Long> {
-    List<Course> findAllByCourseNameAndTerm();
+public interface CourseRepository extends JpaRepository<Course, UUID> {
+    // 기본 CRUD 메서드는 JpaRepository에서 제공
 }
