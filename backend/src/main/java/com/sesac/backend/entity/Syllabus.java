@@ -1,5 +1,6 @@
 package com.sesac.backend.entity;
 
+import com.sesac.backend.course.domain.Course;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
