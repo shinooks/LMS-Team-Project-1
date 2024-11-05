@@ -18,7 +18,8 @@ public class LeaveOfAbsence {
 
     @Id
     @GeneratedValue
-    private UUID leaveId; // 휴학ID
+    @Column(updatable = false)
+    private UUID leaveId=UUID.randomUUID(); // 휴학ID
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "studentId", nullable = false)

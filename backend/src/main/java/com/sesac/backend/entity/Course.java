@@ -32,4 +32,6 @@ public class Course {
     private int credits; // 학점
 
     private String description; // 설명
+
+    private String term; //학기
 }
