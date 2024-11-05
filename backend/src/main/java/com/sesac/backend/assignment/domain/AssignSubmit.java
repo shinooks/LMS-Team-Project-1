@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 @Getter
 @Setter
@@ -26,5 +27,6 @@ public class AssignSubmit {
     private Student student; // 학생
     private String answer; // 제출답안
     @Column(nullable = false, updatable = false)
-    private LocalDateTime submitAt = LocalDateTime.now(); // 제출일시
+    @CreationTimestamp
+    private LocalDateTime submitAt; // 제출일시
 }
