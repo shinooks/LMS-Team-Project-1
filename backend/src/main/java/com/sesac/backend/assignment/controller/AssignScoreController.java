@@ -3,12 +3,12 @@ package com.sesac.backend.assignment.controller;
 import com.sesac.backend.assignment.service.AssignScoreService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @CrossOrigin("*")
-@Controller
+@RestController
 public class AssignScoreController {
 
     private final AssignScoreService assignScoreService;
