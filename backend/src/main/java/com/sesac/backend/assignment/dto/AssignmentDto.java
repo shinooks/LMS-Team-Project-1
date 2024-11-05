@@ -1,6 +1,7 @@
 package com.sesac.backend.assignment.dto;
 
-import com.sesac.backend.course.domain.CourseDummy;
+import com.sesac.backend.course.domain.Course;
+import java.util.UUID;
 import lombok.*;
 
 @Getter
@@ -8,9 +9,9 @@ import lombok.*;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class AssignmentsDto {
-    private long id;
-    private CourseDummy courseDummy;
+public class AssignmentDto {
+    private UUID assignId;
+    private Course course;
     private String title;
     private String description;
 }

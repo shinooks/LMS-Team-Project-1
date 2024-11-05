@@ -1,7 +1,8 @@
 package com.sesac.backend.assignment.domain;
 
-import com.sesac.backend.course.domain.CourseDummy;
+import com.sesac.backend.course.domain.Course;
 import jakarta.persistence.*;
+import java.util.*;
 import lombok.*;
 
 @Getter
@@ -10,13 +11,13 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-public class AssignmentsDo {
+public class Assignment {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID assignId;
     @ManyToOne
-    private CourseDummy courseDummy;
+    private Course course;
     private String title;
     private String description;
 }
