@@ -23,7 +23,7 @@ public class AssignSubmitService {
                 entity.getStudent(), entity.getAnswer(), entity.getSubmitAt());
     }
 
-    public List<AssignSubmitDto> findAll() {
+    public List<AssignSubmitDto> getAll() {
         return assignSubmitDao.findAll().stream().map(
             entity -> new AssignSubmitDto(entity.getAssignSubmitId(), entity.getAssignment(),
                 entity.getStudent(), entity.getAnswer(), entity.getSubmitAt())).toList();
