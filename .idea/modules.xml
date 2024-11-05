@@ -2,8 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/backend.main.iml" filepath="$PROJECT_DIR$/.idea/modules/backend.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/grade-hip.iml" filepath="$PROJECT_DIR$/.idea/grade-hip.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/SESAC-LMS.iml" filepath="$PROJECT_DIR$/.idea/SESAC-LMS.iml" />
     </modules>
   </component>
 </project>
