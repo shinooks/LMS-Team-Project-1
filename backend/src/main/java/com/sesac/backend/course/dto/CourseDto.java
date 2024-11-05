@@ -1,42 +1,35 @@
 package com.sesac.backend.course.dto;
 
-import com.sesac.backend.course.entity.Course;
+
+import com.sesac.backend.course.constant.Credit;
+import lombok.Data;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Builder;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import java.util.UUID;
 
-@Getter
-@Setter
-@NoArgsConstructor // 파라미터가 없는 기본 생성자를 자동으로 생성
-@AllArgsConstructor // 모든 필드를 파라미터로 받는 생성자를 자동으로 생성
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class CourseDto {
-        private String courseId;
-        private String courseCode;
-        private String courseName;
-        private String departmentId;
-        private Integer credit;
-        private String description;
 
-        public static CourseDto from(Course course) {
-                return new CourseDto(
-                        course.getCourseId(),
-                        course.getCourseCode(),
-                        course.getCourseName(),
-                        course.getDepartmentId(),
-                        course.getCredit(),
-                        course.getDescription()
-                );
-        }
+    private UUID courseId;
 
-        public Course toEntity() {
-                Course course = new Course();
-                course.setCourseId(this.courseId);
-                course.setCourseCode(this.courseCode);
-                course.setCourseName(this.courseName);
-                course.setDepartmentId(this.departmentId);
-                course.setCredit(this.credit);
-                course.setDescription(this.description);
-                return course;
-        }
+    @NotBlank(message = "강의 코드는 필수입니다")
+    private String courseCode;
+
+    @NotBlank(message = "강의명은 필수입니다")
+    private String courseName;
+
+    @NotNull(message = "학과 정보는 필수입니다")
+    private UUID departmentId;  // Department 엔티티의 ID만 전달
+
+    @NotNull(message = "학점은 필수입니다")
+    private Credit credits;
+
+    private String description;
 }
