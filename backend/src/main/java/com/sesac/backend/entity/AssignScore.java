@@ -1,13 +1,6 @@
 package com.sesac.backend.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.*;
 import java.util.UUID;
 import lombok.*;
 
@@ -28,5 +21,13 @@ public class AssignScore {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "studentId", nullable = false)
     private Student student;
+    @Column(nullable = false)
     private int score;
+    @Enumerated
+    @Column(nullable = false)
+    private Visibility visibility;
+
+    public enum Visibility {
+        PUBLIC, PRIVATE
+    }
 }
