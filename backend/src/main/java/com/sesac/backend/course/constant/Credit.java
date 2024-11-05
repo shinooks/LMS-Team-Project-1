@@ -1,8 +1,5 @@
 package com.sesac.backend.course.constant;
 
-import lombok.Getter;
-
-@Getter
 public enum Credit {
     ONE(1, "1학점"),
     TWO(2, "2학점"),
@@ -16,5 +13,11 @@ public enum Credit {
         this.description = description;
     }
 
+    public int getValue() {
+        return value;
+    }
 
+    public String getDescription() {
+        return description;
+    }
 }
