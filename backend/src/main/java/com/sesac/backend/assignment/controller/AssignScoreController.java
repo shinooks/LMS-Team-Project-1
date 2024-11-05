@@ -3,6 +3,7 @@ package com.sesac.backend.assignment.controller;
 import com.sesac.backend.assignment.dto.AssignScoreDto;
 import com.sesac.backend.assignment.service.AssignScoreService;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,8 +23,8 @@ public class AssignScoreController {
     }
 
     @GetMapping("/{id}")
-    public AssignScoreDto getScore(@PathVariable("id") UUID assignScoreId) {
-        return assignScoreService.findById(assignScoreId);
+    public Map<String, AssignScoreDto> getScore(@PathVariable("id") UUID assignScoreId) {
+        return Map.of("success", assignScoreService.findById(assignScoreId));
     }
 
     @GetMapping("")
