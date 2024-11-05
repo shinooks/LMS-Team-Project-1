@@ -17,5 +17,6 @@ public class AssignScoreDto {
     private Assignment assignment;
     private Student student;
     private int score;
+    private String comment;
     private Visibility visibility;
 }

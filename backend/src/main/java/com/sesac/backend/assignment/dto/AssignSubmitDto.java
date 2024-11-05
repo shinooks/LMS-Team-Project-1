@@ -1,5 +1,8 @@
 package com.sesac.backend.assignment.dto;
 
+import com.sesac.backend.entity.Assignment;
+import com.sesac.backend.entity.Student;
+import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.*;
 
@@ -11,6 +14,8 @@ import lombok.*;
 public class AssignSubmitDto {
 
     private UUID assignmentId;
-
-    // TODO
+    private Assignment assignment;
+    private Student student;
+    private String answer;
+    private LocalDateTime submitAt;
 }

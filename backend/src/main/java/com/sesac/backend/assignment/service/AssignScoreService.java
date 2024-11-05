@@ -23,23 +23,23 @@ public class AssignScoreService {
 
         return entity == null ? null
             : new AssignScoreDto(entity.getAssignScoreId(), entity.getAssignment(),
-                entity.getStudent(), entity.getScore(), entity.getVisibility());
+                entity.getStudent(), entity.getScore(), entity.getComment(), entity.getVisibility());
     }
 
     public List<AssignScoreDto> findAll() {
         return assignScoreDao.findAll().stream().map(
             entity -> new AssignScoreDto(entity.getAssignScoreId(), entity.getAssignment(),
-                entity.getStudent(), entity.getScore(), entity.getVisibility())).toList();
+                entity.getStudent(), entity.getScore(), entity.getComment(), entity.getVisibility())).toList();
     }
 
     public AssignScoreDto save(AssignScoreDto assignScoreDto) {
         AssignScore entity = assignScoreDao.save(
             new AssignScore(assignScoreDto.getAssignScoreId(), assignScoreDto.getAssignment(),
-                assignScoreDto.getStudent(), assignScoreDto.getScore(),
+                assignScoreDto.getStudent(), assignScoreDto.getScore(), assignScoreDto.getComment(),
                 assignScoreDto.getVisibility()));
 
         return new AssignScoreDto(entity.getAssignScoreId(), entity.getAssignment(),
-            entity.getStudent(), entity.getScore(), entity.getVisibility());
+            entity.getStudent(), entity.getScore(), entity.getComment(), entity.getVisibility());
     }
 
     public void delete(UUID assignScoreId) {
