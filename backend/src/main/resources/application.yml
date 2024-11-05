@@ -1,17 +1,12 @@
-server:
-  port: 8080
-  servlet:
-    context-path: /api
-
 spring:
-  profiles:
-    default: stage
+  application:
+    name: backend
 
   jpa:
     generate-ddl: true
     show-sql: true
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
   datasource:
@@ -25,3 +20,8 @@ spring:
       charset: UTF-8
       enabled: true
       force: true
+
+server:
+  port: 8081
+  servlet:
+    context-path: /api
