@@ -35,7 +35,7 @@ public class AssignmentController {
         AssignmentDto saved = assignmentService.save(assignmentDto);
 
         return Map.of("assignment", new AssignmentDto(
-            saved.getAssignId(), saved.getCourse(), saved.getTitle(), saved.getDescription()
+            saved.getAssignId(), saved.getCourse(), saved.getTitle(), saved.getDescription(), saved.getDeadline()
         ));
     }
 
@@ -47,12 +47,12 @@ public class AssignmentController {
         saved.setDescription(assignmentDto.getDescription());
         assignmentService.save(saved);
         return Map.of("assignment", new AssignmentDto(
-            saved.getAssignId(), saved.getCourse(), saved.getTitle(), saved.getDescription()
+            saved.getAssignId(), saved.getCourse(), saved.getTitle(), saved.getDescription(), saved.getDeadline()
         ));
     }
 
     @DeleteMapping("/{id}")
-    public Map<String, Boolean> deleteAssignment(@PathVariable UUID id) {
+    public Map<String, Boolean> deleteAssignment(@PathVariable("id") UUID id) {
         assignmentService.delete(id);
         return Map.of("deleted", true);
     }
