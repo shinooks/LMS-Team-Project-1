@@ -1,7 +1,7 @@
 package com.sesac.backend.assignment.dto;
 
-import com.sesac.backend.entity.AssignScore.Visibility;
-import com.sesac.backend.entity.Assignment;
+import com.sesac.backend.assignment.domain.AssignScore.Visibility;
+import com.sesac.backend.assignment.domain.Assignment;
 import com.sesac.backend.entity.Student;
 import java.util.UUID;
 import lombok.*;

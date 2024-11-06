@@ -1,6 +1,6 @@
 package com.sesac.backend.assignment.service;
 
-import com.sesac.backend.entity.Assignment;
+import com.sesac.backend.assignment.domain.Assignment;
 import com.sesac.backend.assignment.dto.AssignmentDto;
 import com.sesac.backend.assignment.repository.AssignmentDao;
 import java.util.List;

@@ -1,5 +1,6 @@
-package com.sesac.backend.entity;
+package com.sesac.backend.assignment.domain;
 
+import com.sesac.backend.entity.Course;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.*;

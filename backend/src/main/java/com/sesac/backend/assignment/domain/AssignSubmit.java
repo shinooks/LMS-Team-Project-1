@@ -1,6 +1,5 @@
 package com.sesac.backend.assignment.domain;
 
-import com.sesac.backend.entity.Assignment;
 import com.sesac.backend.entity.Student;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
@@ -20,13 +19,14 @@ public class AssignSubmit {
     @GeneratedValue
     private UUID assignSubmitId;
     @ManyToOne
-    @JoinColumn(name = "assignId", nullable = false)
+    @JoinColumn(name = "assignId")
     private Assignment assignment; // 과제
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "studentId", nullable = false)
+    @JoinColumn(name = "studentId")
     private Student student; // 학생
     private String answer; // 제출답안
     @Column(nullable = false, updatable = false)
     @CreationTimestamp
     private LocalDateTime submitAt; // 제출일시
+    private String fileName;
 }
