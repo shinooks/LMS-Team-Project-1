@@ -58,4 +58,34 @@ public class CourseController {
         CourseDto course = courseService.getCourse(courseId);
         return ResponseEntity.ok(course);
     }
+
+    // 강의 수정
+    @PutMapping("/{courseId}")
+    public ResponseEntity<?> updateCourse(
+            @PathVariable UUID courseId,
+            @RequestBody CourseDto courseDto) {
+        try {
+            log.info("Updating course: {}", courseDto);
+            CourseDto updatedCourse = courseService.updateCourse(courseId, courseDto);
+            return ResponseEntity.ok(updatedCourse);
+        } catch (Exception e) {
+            log.error("Error updating course", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    // 강의 삭제
+    @DeleteMapping("/{courseId}")
+    public ResponseEntity<?> deleteCourse(@PathVariable UUID courseId) {
+        try {
+            log.info("Deleting course with id: {}", courseId);
+            courseService.deleteCourse(courseId);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            log.error("Error deleting course", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message", e.getMessage()));
+        }
+    }
 }

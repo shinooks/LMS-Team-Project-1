@@ -23,9 +23,7 @@ public class CourseTimeService {
     private final CourseTimeRepository courseTimeRepository;
     private final CourseOpeningRepository courseOpeningRepository;
 
-    /**
-     * 새로운 강의 시간을 생성하는 메서드
-     */
+    // 강의 시간등록 메소드
     public CourseTimeDto createCourseTime(CourseTimeDto courseTimeDto) {
         // 시간 유효성 검사
         validateTimeRange(courseTimeDto);
@@ -50,9 +48,15 @@ public class CourseTimeService {
         return convertToDto(savedTime);
     }
 
-    /**
-     * 특정 강의 시간을 조회하는 메서드
-     */
+    // 모든 강의 시간 조회 메소드
+    @Transactional(readOnly = true)
+    public List<CourseTimeDto> getAllCourseTimes() {
+        return courseTimeRepository.findAll().stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
+    // 특정 강의 시간 조회 메소드
     @Transactional(readOnly = true)
     public CourseTimeDto getCourseTime(UUID timeId) {
         CourseTime courseTime = courseTimeRepository.findById(timeId)
@@ -60,14 +64,39 @@ public class CourseTimeService {
         return convertToDto(courseTime);
     }
 
-    /**
-     * 모든 강의 시간을 조회하는 메서드
-     */
-    @Transactional(readOnly = true)
-    public List<CourseTimeDto> getAllCourseTimes() {
-        return courseTimeRepository.findAll().stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
+
+
+    // 강의 시간 수정
+    public CourseTimeDto updateCourseTime(UUID timeId, CourseTimeDto courseTimeDto) {
+        // 시간 유효성 검사
+        validateTimeRange(courseTimeDto);
+
+        CourseTime courseTime = courseTimeRepository.findById(timeId)
+                .orElseThrow(() -> new RuntimeException("강의 시간을 찾을 수 없습니다."));
+
+        // 강의 개설 정보 조회 (변경된 경우)
+        if (!courseTime.getCourseOpening().getOpeningId().equals(courseTimeDto.getOpeningId())) {
+            CourseOpening newCourseOpening = courseOpeningRepository.findById(courseTimeDto.getOpeningId())
+                    .orElseThrow(() -> new RuntimeException("강의 개설 정보를 찾을 수 없습니다."));
+            courseTime.setCourseOpening(newCourseOpening);
+        }
+
+        // 내용 업데이트
+        courseTime.setDayOfWeek(courseTimeDto.getDayOfWeek());
+        courseTime.setStartTime(courseTimeDto.getStartTime());
+        courseTime.setEndTime(courseTimeDto.getEndTime());
+        courseTime.setClassroom(courseTimeDto.getClassroom());
+
+        CourseTime updatedTime = courseTimeRepository.save(courseTime);
+        return convertToDto(updatedTime);
+    }
+
+    // 강의 시간 삭제
+    public void deleteCourseTime(UUID timeId) {
+        CourseTime courseTime = courseTimeRepository.findById(timeId)
+                .orElseThrow(() -> new RuntimeException("강의 시간을 찾을 수 없습니다."));
+
+        courseTimeRepository.delete(courseTime);
     }
 
     /**
@@ -83,6 +112,8 @@ public class CourseTimeService {
                 .classroom(courseTime.getClassroom())
                 .build();
     }
+
+
 
     /**
      * 시간 범위 유효성을 검사하는 private 메서드

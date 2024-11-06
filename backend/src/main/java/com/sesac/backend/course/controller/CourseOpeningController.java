@@ -20,11 +20,7 @@ public class CourseOpeningController {
 
     private final CourseOpeningService courseOpeningService;
 
-    /**
-     * 새로운 강의 개설을 생성하는 엔드포인트
-     * @param courseOpeningDto 강의 개설 정보를 담은 DTO
-     * @return 생성된 강의 개설 정보
-     */
+    // 강의 개설 생성
     @PostMapping
     public ResponseEntity<?> createCourseOpening(@RequestBody CourseOpeningDto courseOpeningDto) {
         try {
@@ -42,10 +38,7 @@ public class CourseOpeningController {
         }
     }
 
-    /**
-     * 모든 강의 개설 목록을 조회하는 엔드포인트
-     * @return 전체 강의 개설 목록
-     */
+    // 전체 강의 개설 목록 조회
     @GetMapping
     public ResponseEntity<?> getAllCourseOpenings() {
         try {
@@ -62,14 +55,40 @@ public class CourseOpeningController {
         }
     }
 
-    /**
-     * 특정 ID의 강의 개설을 조회하는 엔드포인트
-     * @param openingId 조회할 강의 개설 ID
-     * @return 해당 ID의 강의 개설 정보
-     */
+    // 특정 강의 개설 조회
     @GetMapping("/{openingId}")
     public ResponseEntity<CourseOpeningDto> getCourseOpening(@PathVariable UUID openingId) {
         CourseOpeningDto opening = courseOpeningService.getCourseOpening(openingId);
         return ResponseEntity.ok(opening);
+    }
+
+    // 강의 개설 수정
+    @PutMapping("/{openingId}")
+    public ResponseEntity<?> updateCourseOpening(
+            @PathVariable UUID openingId,
+            @RequestBody CourseOpeningDto courseOpeningDto) {
+        try {
+            log.info("Updating course opening: {}", courseOpeningDto);
+            CourseOpeningDto updatedOpening = courseOpeningService.updateCourseOpening(openingId, courseOpeningDto);
+            return ResponseEntity.ok(updatedOpening);
+        } catch (Exception e) {
+            log.error("Error updating course opening", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    // 강의 개설 삭제
+    @DeleteMapping("/{openingId}")
+    public ResponseEntity<?> deleteCourseOpening(@PathVariable UUID openingId) {
+        try {
+            log.info("Deleting course opening with id: {}", openingId);
+            courseOpeningService.deleteCourseOpening(openingId);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            log.error("Error deleting course opening", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message", e.getMessage()));
+        }
     }
 }
