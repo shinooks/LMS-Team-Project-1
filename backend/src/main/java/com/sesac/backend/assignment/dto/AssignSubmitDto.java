@@ -1,6 +1,6 @@
 package com.sesac.backend.assignment.dto;
 
-import com.sesac.backend.entity.Assignment;
+import com.sesac.backend.assignment.domain.Assignment;
 import com.sesac.backend.entity.Student;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -18,4 +18,5 @@ public class AssignSubmitDto {
     private Student student;
     private String answer;
     private LocalDateTime submitAt;
+    private String fileName;
 }

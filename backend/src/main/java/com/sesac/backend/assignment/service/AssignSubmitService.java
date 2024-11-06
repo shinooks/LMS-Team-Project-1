@@ -20,13 +20,13 @@ public class AssignSubmitService {
         AssignSubmit entity = assignSubmitDao.findById(assignSubmitId).orElse(null);
         return entity == null ? null
             : new AssignSubmitDto(entity.getAssignSubmitId(), entity.getAssignment(),
-                entity.getStudent(), entity.getAnswer(), entity.getSubmitAt());
+                entity.getStudent(), entity.getAnswer(), entity.getSubmitAt(), entity.getFileName());
     }
 
     public List<AssignSubmitDto> getAll() {
         return assignSubmitDao.findAll().stream().map(
             entity -> new AssignSubmitDto(entity.getAssignSubmitId(), entity.getAssignment(),
-                entity.getStudent(), entity.getAnswer(), entity.getSubmitAt())).toList();
+                entity.getStudent(), entity.getAnswer(), entity.getSubmitAt(), entity.getFileName())).toList();
     }
 
     public boolean submit(AssignSubmitDto assignSubmitDto) {
@@ -39,7 +39,7 @@ public class AssignSubmitService {
             assignSubmitDao.save(
                 new AssignSubmit(assignSubmitDto.getAssignSubmitId(),
                     assignSubmitDto.getAssignment(), assignSubmitDto.getStudent(),
-                    assignSubmitDto.getAnswer(), now));
+                    assignSubmitDto.getAnswer(), now, assignSubmitDto.getFileName()));
 
             flag = true;
             return flag;
@@ -52,10 +52,10 @@ public class AssignSubmitService {
         AssignSubmit entity = assignSubmitDao.save(
             new AssignSubmit(assignSubmitDto.getAssignSubmitId(), assignSubmitDto.getAssignment(),
                 assignSubmitDto.getStudent(), assignSubmitDto.getAnswer(),
-                assignSubmitDto.getSubmitAt()));
+                assignSubmitDto.getSubmitAt(), assignSubmitDto.getFileName()));
 
         return new AssignSubmitDto(entity.getAssignSubmitId(), entity.getAssignment(),
-            entity.getStudent(), entity.getAnswer(), entity.getSubmitAt());
+            entity.getStudent(), entity.getAnswer(), entity.getSubmitAt(), entity.getFileName());
     }
 
     public void delete(UUID assignSubmitId) {

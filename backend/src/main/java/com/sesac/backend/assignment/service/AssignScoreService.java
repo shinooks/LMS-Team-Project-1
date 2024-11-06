@@ -2,7 +2,7 @@ package com.sesac.backend.assignment.service;
 
 import com.sesac.backend.assignment.dto.AssignScoreDto;
 import com.sesac.backend.assignment.repository.AssignScoreDao;
-import com.sesac.backend.entity.AssignScore;
+import com.sesac.backend.assignment.domain.AssignScore;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,5 +1,7 @@
 package com.sesac.backend.assignment.controller;
 
+import com.sesac.backend.assignment.dto.AssignSubmitDto;
+import com.sesac.backend.assignment.service.AssignSubmitService;
 import com.sesac.backend.global.service.S3Service;
 import java.net.URL;
 import java.util.Map;
@@ -17,10 +19,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class AssignSubmitFileController {
 
     private final S3Service s3Service;
+    private final AssignSubmitService assignSubmitService;
 
     @Autowired
-    public AssignSubmitFileController(S3Service s3Service) {
+    public AssignSubmitFileController(S3Service s3Service, AssignSubmitService assignSubmitService) {
         this.s3Service = s3Service;
+        this.assignSubmitService = assignSubmitService;
     }
 
     @GetMapping("/upload-url")
@@ -28,6 +32,8 @@ public class AssignSubmitFileController {
         URL uploadUrl = s3Service.generateUploadPresignedUrl(fileName);
         return Map.of("url", uploadUrl.toString());
     }
+
+
 
     @GetMapping("/download-url")
     public Map<String, String> getDownloadUrl(String fileName) {
