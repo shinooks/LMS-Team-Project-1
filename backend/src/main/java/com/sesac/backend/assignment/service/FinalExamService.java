@@ -41,6 +41,7 @@ public class FinalExamService {
     }
 
     public void deleteFinalExam(UUID finalExamId) {
+        FinalExam saved = finalExamDao.findById(finalExamId).orElseThrow(RuntimeException::new);
         finalExamDao.deleteById(finalExamId);
     }
 
