@@ -1,5 +1,6 @@
 package com.sesac.backend.entity;
 
+import com.sesac.backend.assignment.domain.AssignScore;
 import com.sesac.backend.grade.dto.GradeDto;
 import jakarta.persistence.*;
 import lombok.*;
@@ -42,17 +43,17 @@ public class Grade {
 
 
     // AssignScore 엔티티에서 각 점수를 조회하는 편의 메서드들
-    public int getAssignmentScore() {
-        return assignScore.getAssignmentScore();
-    }
-
-    public int getMidScore() {
-        return assignScore.getMidScore();
-    }
-
-    public int getFinalScore() {
-        return assignScore.getFinalScore();
-    }
+//    public int getAssignmentScore() {
+//        return assignScore.getAssignmentScore();
+//    }
+//
+//    public int getMidScore() {
+//        return assignScore.getMidScore();
+//    }
+//
+//    public int getFinalScore() {
+//        return assignScore.getFinalScore();
+//    }
 
 
 
@@ -74,9 +75,9 @@ public class Grade {
      * 과제, 중간고사, 기말고사 점수의 합계를 계산
      * @return 총점
      */
-    public int getTotalScore() {
-        return getAssignmentScore() + getMidScore() + getFinalScore();
-    }
+//    public int getTotalScore() {
+//        return getAssignmentScore() + getMidScore() + getFinalScore();
+//    }
 
 
 }

@@ -38,11 +38,11 @@ public class GradeService {
         List<Grade> grades = gradeRepository.findAllByCourseCourseNameAndCourseOpeningSemester(courseName, semester);
         // 2차 필터링: 각 과목에 해당하는 성적 조회 -> 각 과목에 해당되는 성적 리스트가 나옴
         // Comparator 사용 해서 정렬
-        Collections.sort(grades, Comparator.comparing(
-                grade -> -(grade.getAssignScore().getAssignmentScore() +
-                        grade.getAssignScore().getMidScore() +
-                        grade.getAssignScore().getFinalScore())
-        ));
+//        Collections.sort(grades, Comparator.comparing(
+//                grade -> -(grade.getAssignScore().getAssignmentScore() +
+//                        grade.getAssignScore().getMidScore() +
+//                        grade.getAssignScore().getFinalScore())
+//        ));
 
         // 2차 필터링: Grade 엔티티를 GradeDto로 변환
         return grades.stream()

@@ -36,10 +36,10 @@ public class GradeDto {
         dto.studentNumber = grade.getStudent().getStudentNumber();
         dto.studentName = grade.getStudent().getName();
         dto.semester = grade.getSemester();
-        dto.assignmentScore = grade.getAssignmentScore();
-        dto.midScore = grade.getMidScore();
-        dto.finalScore = grade.getFinalScore();
-        dto.totalScore = grade.getTotalScore();
+//        dto.assignmentScore = grade.getAssignmentScore();
+//        dto.midScore = grade.getMidScore();
+//        dto.finalScore = grade.getFinalScore();
+//        dto.totalScore = grade.getTotalScore();
         return dto;
     }
 
