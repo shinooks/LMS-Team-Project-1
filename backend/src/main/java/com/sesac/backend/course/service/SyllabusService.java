@@ -21,9 +21,7 @@ public class SyllabusService {
     private final SyllabusRepository syllabusRepository;
     private final CourseOpeningRepository courseOpeningRepository;
 
-    /**
-     * 새로운 강의 계획서를 생성하는 메서드
-     */
+    // 새로운 강의 계획서를 등록
     public SyllabusDto createSyllabus(UUID openingId, SyllabusDto syllabusDto) {
         // 강의 개설 정보 조회
         CourseOpening courseOpening = courseOpeningRepository.findById(openingId)
@@ -53,9 +51,7 @@ public class SyllabusService {
         return convertToDto(savedSyllabus);
     }
 
-    /**
-     * 강의 개설 ID로 강의 계획서를 조회하는 메서드
-     */
+    // 강의 개설 id로 조회
     @Transactional(readOnly = true)
     public SyllabusDto getSyllabusByOpeningId(UUID openingId) {
         // 강의 개설 정보 조회
@@ -71,9 +67,7 @@ public class SyllabusService {
         return convertToDto(courseOpening.getSyllabus());
     }
 
-    /**
-     * 특정 강의 계획서를 조회하는 메서드
-     */
+    // 특정 강의 계획서 조회 메서드
     @Transactional(readOnly = true)
     public SyllabusDto getSyllabus(UUID syllabusId) {
         Syllabus syllabus = syllabusRepository.findById(syllabusId)
@@ -81,9 +75,34 @@ public class SyllabusService {
         return convertToDto(syllabus);
     }
 
-    /**
-     * Entity를 DTO로 변환하는 private 메서드
-     */
+    // 강의 계획서 수정
+    public SyllabusDto updateSyllabus(UUID syllabusId, SyllabusDto syllabusDto) {
+        Syllabus syllabus = syllabusRepository.findById(syllabusId)
+                .orElseThrow(() -> new RuntimeException("강의 계획서를 찾을 수 없습니다."));
+
+        // 내용 업데이트
+        syllabus.setLearningObjectives(syllabusDto.getLearningObjectives());
+        syllabus.setWeeklyPlan(syllabusDto.getWeeklyPlan());
+        syllabus.setEvaluationMethod(syllabusDto.getEvaluationMethod());
+        syllabus.setTextbooks(syllabusDto.getTextbooks());
+
+        Syllabus updatedSyllabus = syllabusRepository.save(syllabus);
+        return convertToDto(updatedSyllabus);
+    }
+
+    // 강의 계획서 삭제
+    public void deleteSyllabus(UUID syllabusId) {
+        Syllabus syllabus = syllabusRepository.findById(syllabusId)
+                .orElseThrow(() -> new RuntimeException("강의 계획서를 찾을 수 없습니다."));
+
+        // CourseOpening에서의 참조 제거
+        CourseOpening courseOpening = syllabus.getCourseOpening();
+        courseOpening.setSyllabus(null);
+
+        syllabusRepository.delete(syllabus);
+    }
+
+    // ENTITY를 dto로 변환하는 PRIVATE 메서드
     private SyllabusDto convertToDto(Syllabus syllabus) {
         return SyllabusDto.builder()
                 .syllabusId(syllabus.getSyllabusId())

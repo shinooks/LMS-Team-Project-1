@@ -21,9 +21,7 @@ public class CourseTimeController {
 
     private final CourseTimeService courseTimeService;
 
-    /**
-     * 새로운 강의 시간을 생성하는 엔드포인트
-     */
+    // 강의 시간 등록
     @PostMapping
     public ResponseEntity<?> createCourseTime(@RequestBody @Valid CourseTimeDto courseTimeDto) {
         try {
@@ -40,9 +38,7 @@ public class CourseTimeController {
         }
     }
 
-    /**
-     * 모든 강의 시간을 조회하는 엔드포인트
-     */
+    // 모든 강의 시간 조회
     @GetMapping
     public ResponseEntity<?> getAllCourseTimes() {
         try {
@@ -55,12 +51,40 @@ public class CourseTimeController {
         }
     }
 
-    /**
-     * 특정 강의 시간을 조회하는 엔드포인트
-     */
+    // 특정 강의 시간 조회
     @GetMapping("/{timeId}")
     public ResponseEntity<CourseTimeDto> getCourseTime(@PathVariable UUID timeId) {
         CourseTimeDto time = courseTimeService.getCourseTime(timeId);
         return ResponseEntity.ok(time);
+    }
+
+    // 강의 시간 수정
+    @PutMapping("/{timeId}")
+    public ResponseEntity<?> updateCourseTime(
+            @PathVariable UUID timeId,
+            @RequestBody @Valid CourseTimeDto courseTimeDto) {
+        try {
+            log.info("Updating course time: {}", courseTimeDto);
+            CourseTimeDto updatedTime = courseTimeService.updateCourseTime(timeId, courseTimeDto);
+            return ResponseEntity.ok(updatedTime);
+        } catch (Exception e) {
+            log.error("Error updating course time", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    // 강의 시간 삭제
+    @DeleteMapping("/{timeId}")
+    public ResponseEntity<?> deleteCourseTime(@PathVariable UUID timeId) {
+        try {
+            log.info("Deleting course time with id: {}", timeId);
+            courseTimeService.deleteCourseTime(timeId);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            log.error("Error deleting course time", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message", e.getMessage()));
+        }
     }
 }
