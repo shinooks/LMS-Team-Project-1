@@ -1,5 +1,4 @@
 package com.sesac.backend.enrollment.service;
-ss
 import com.sesac.backend.enrollment.domain.classEnrollment.ClassEnrollment;
 import com.sesac.backend.enrollment.domain.classEnrollment.ScheduleChecker;
 import com.sesac.backend.enrollment.domain.classEnrollment.TimeOverlapException;
