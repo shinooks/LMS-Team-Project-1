@@ -36,6 +36,7 @@ public class CourseController {
                     ));
         }
     }
+
     // 전체 조회
     @GetMapping
     public ResponseEntity<?> getAllCourses() {
