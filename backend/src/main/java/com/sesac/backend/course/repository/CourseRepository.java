@@ -4,10 +4,12 @@ import com.sesac.backend.course.constant.Credit;
 import com.sesac.backend.entity.Course;
 import com.sesac.backend.entity.Department;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.UUID;
 
+@Repository
 public interface CourseRepository extends JpaRepository<Course, UUID> {
     // 특정 학과의 전체 강의 수 조회
     long countByDepartment(Department department);
