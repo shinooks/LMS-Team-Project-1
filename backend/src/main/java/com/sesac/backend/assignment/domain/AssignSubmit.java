@@ -29,5 +29,4 @@ public class AssignSubmit {
     @Column(nullable = false, updatable = false)
     @CreationTimestamp
     private LocalDateTime submitAt; // 제출일시
-    private String url; // 제출파일 S3 bucket 경로
 }

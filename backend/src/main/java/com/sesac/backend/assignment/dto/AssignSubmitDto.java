@@ -18,5 +18,4 @@ public class AssignSubmitDto {
     private Student student;
     private String answer;
     private LocalDateTime submitAt;
-    private String url;
 }
