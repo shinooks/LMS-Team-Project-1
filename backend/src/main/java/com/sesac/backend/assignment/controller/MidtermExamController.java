@@ -1,31 +1,33 @@
 package com.sesac.backend.assignment.controller;
 
-import com.sesac.backend.assignment.dto.FinalExamDto;
-import com.sesac.backend.assignment.service.FinalExamService;
+import com.sesac.backend.assignment.dto.MidtermExamDto;
+import com.sesac.backend.assignment.service.MidtermExamService;
 import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @Slf4j
 @CrossOrigin("*")
-@RequestMapping("/exams/final")
+@RequestMapping("/exams/midterm")
 @RestController
-public class FinalExamController {
+public class MidtermExamController {
 
-    private final FinalExamService finalExamService;
+    private final MidtermExamService midtermExamService;
 
-    public FinalExamController(FinalExamService finalExamService) {
-        this.finalExamService = finalExamService;
+    @Autowired
+    public MidtermExamController(MidtermExamService midtermExamService) {
+        this.midtermExamService = midtermExamService;
     }
 
     @GetMapping("/{examId}")
-    public ResponseEntity<FinalExamDto> getFinalExam(@PathVariable UUID examId) {
+    public ResponseEntity<MidtermExamDto> getMidtermExam(@PathVariable UUID examId) {
         try {
-            return ResponseEntity.ok(finalExamService.getByExamId(examId));
+            return ResponseEntity.ok(midtermExamService.getMidtermExam(examId));
         } catch (RuntimeException e) {
             log.error(e.getMessage());
             return ResponseEntity.notFound().build();
@@ -33,9 +35,9 @@ public class FinalExamController {
     }
 
     @GetMapping("")
-    public ResponseEntity<List<FinalExamDto>> getAllFinalExams() {
+    public ResponseEntity<List<MidtermExamDto>> getAllMidtermExams() {
         try {
-            return ResponseEntity.ok(finalExamService.getAllFinalExams());
+            return ResponseEntity.ok(midtermExamService.getAllMidtermExams());
         } catch (RuntimeException e) {
             log.error(e.getMessage());
             return ResponseEntity.badRequest().build();
@@ -43,15 +45,15 @@ public class FinalExamController {
     }
 
     @PostMapping("")
-    public ResponseEntity<FinalExamDto> createFinalExam(FinalExamDto finalExamDto) {
+    public ResponseEntity<MidtermExamDto> createMidtermExam(MidtermExamDto midtermExamDto) {
         try {
             URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{examId}")
-                .buildAndExpand(finalExamDto.getFinalExamId())
+                .buildAndExpand(midtermExamDto.getMidtermExamId())
                 .toUri();
 
             return ResponseEntity.created(location)
-                .body(finalExamService.createFinalExam(finalExamDto));
+                .body(midtermExamService.createMidtermExam(midtermExamDto));
         } catch (RuntimeException e) {
             log.error(e.getMessage());
             return ResponseEntity.badRequest().build();
@@ -59,9 +61,9 @@ public class FinalExamController {
     }
 
     @PutMapping("")
-    public ResponseEntity<FinalExamDto> updateFinalExam(FinalExamDto finalExamDto) {
+    public ResponseEntity<MidtermExamDto> updateMidtermExam(MidtermExamDto midtermExamDto) {
         try {
-            return ResponseEntity.ok(finalExamService.updateFinalExam(finalExamDto));
+            return ResponseEntity.ok(midtermExamService.updateMidtermExam(midtermExamDto));
         } catch (RuntimeException e) {
             log.error(e.getMessage());
             return ResponseEntity.badRequest().build();
@@ -69,9 +71,9 @@ public class FinalExamController {
     }
 
     @DeleteMapping("/{examId}")
-    public ResponseEntity<Void> deleteFinalExam(@PathVariable UUID examId) {
+    public ResponseEntity<Void> deleteMidtermExam(@PathVariable UUID examId) {
         try {
-            finalExamService.deleteFinalExam(examId);
+            midtermExamService.deleteMidtermExam(examId);
             return ResponseEntity.noContent().build();
         } catch (RuntimeException e) {
             log.error(e.getMessage());

@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @CrossOrigin("*")
-@RequestMapping("/assignments/detail")
+@RequestMapping("/assignments")
 @RestController
 public class AssignmentController {
 
