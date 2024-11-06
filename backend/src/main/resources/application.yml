@@ -2,9 +2,9 @@ spring:
   application:
     name: backend
 
-  security:
-    basic:
-      enabled: false
+#  security:
+#    basic:
+#      enabled: false
 
   jpa:
     generate-ddl: true
@@ -31,6 +31,13 @@ spring:
 
 server:
   port: 8081
-  servlet:
-    context-path: /api
+#  servlet:
+#    context-path: /api
 
+my_value:
+  key: "1111"
+
+LOGGING_LEVEL:
+  org:
+    springframework:
+      security: DEBUG
