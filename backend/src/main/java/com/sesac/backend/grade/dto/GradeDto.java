@@ -15,7 +15,7 @@ public class GradeDto {
     private String courseCode;        // 과목 코드 추가
     private String studentNumber;
     private String studentName;
-    private String term;
+    private String semester;        // 학기 추가
     private int assignmentScore;
     private int midScore;
     private int finalScore;
@@ -29,7 +29,7 @@ public class GradeDto {
         dto.courseCode = grade.getCourseCode();
         dto.studentNumber = grade.getStudent().getStudentNumber();
         dto.studentName = grade.getStudent().getName();
-        dto.term = grade.getTerm();
+        dto.semester = grade.getSemester();
         dto.assignmentScore = grade.getAssignmentScore();
         dto.midScore = grade.getMidScore();
         dto.finalScore = grade.getFinalScore();

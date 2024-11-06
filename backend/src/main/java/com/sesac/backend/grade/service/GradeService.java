@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
 public class GradeService {
 
     private final GradeRepository gradeRepository;
-    private final CourseService courseService;
 
 
     // 학생 ID로 조회
@@ -34,22 +33,20 @@ public class GradeService {
     }
 
 
-    // 전체 조회 - 강의, 학기를 선택 한 후 학번 , 이름 점수 등이 조회되게
-    public List<GradeDto> findAllByCourse(String courseName, String term) {
+    // 전체 조회
+    public List<GradeDto> findAllByCourseCourseNameAndCourseOpeningSemester(String courseName, String semester) {
         // 1차 필터링: 선택한 강의명, 학기에 해당하는 과목 조회 -> 선택한 강의명, 학기에 해당되는 강의 리스트가 나옴
-        List<Course> courses = courseService.findAllByCourseNameAndTerm(courseName, term);
+        List<Grade> grades = gradeRepository.findAllByCourseCourseNameAndCourseOpeningSemester(courseName, semester);
         // 2차 필터링: 각 과목에 해당하는 성적 조회 -> 각 과목에 해당되는 성적 리스트가 나옴
 
-        List<Grade> grades = new ArrayList<>();
-        for (Course course : courses) {
-            grades.addAll(gradeRepository.findAllByCourse(course));
-        }
-
+        // 2차 필터링: Grade 엔티티를 GradeDto로 변환
         return grades.stream()
                 .map(GradeDto::from)
                 .collect(Collectors.toList());
     }
-    }
+
+
+
     // 입력 , 수정
 
 

@@ -25,12 +25,17 @@ public class GradeController {
 
     // 단일 성적 조회
     @GetMapping("/{gradeId}")
-    public ResponseEntity<GradeDto> getGrade(@PathVariable Long gradeId) {
+    public ResponseEntity<GradeDto> getGrade(@PathVariable UUID gradeId) {
         return ResponseEntity.ok(gradeService.findById(gradeId));
     }
 
     // 강의, 학기별 전체 성적 조회
-    @GetMapping("/department/{departmentId}/term/{term}")
-
+    @GetMapping("/course")
+    public ResponseEntity<List<GradeDto>> getAllGradesByCourseAndSemester(
+            @RequestParam String courseName,
+            @RequestParam String semester) {
+        List<GradeDto> grades = gradeService.findAllByCourseCourseNameAndCourseOpeningSemester(
+                courseName, semester);
+        return ResponseEntity.ok(grades);
     }
 }

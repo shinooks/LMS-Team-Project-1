@@ -31,6 +31,9 @@ public class Grade {
     @JoinColumn(name = "courseId", nullable = false)
     private Course course;    // Course 엔티티 추가
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "openingId", nullable = false)
+    private CourseOpening courseOpening;
 
 
     // AssignScore에서 값을 가져오는 Getter 메서드들
@@ -46,8 +49,8 @@ public class Grade {
         return assignScore.getFinalScore();
     }
 
-    public String getTerm() {
-        return course.getTerm();
+    public String getSemester() {
+        return courseOpening.getSemester();
     }
 
     public String getCourseName() {
