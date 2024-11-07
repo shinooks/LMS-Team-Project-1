@@ -1,6 +1,4 @@
 package com.sesac.backend.course.dto;
-
-import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

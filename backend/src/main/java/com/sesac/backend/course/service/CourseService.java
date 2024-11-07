@@ -1,5 +1,6 @@
 package com.sesac.backend.course.service;
 
+import com.sesac.backend.course.constant.Credit;
 import com.sesac.backend.course.repository.CourseOpeningRepository;
 import com.sesac.backend.course.repository.DepartmentRepository;
 import com.sesac.backend.course.repository.CourseRepository;
@@ -26,9 +27,13 @@ public class CourseService {
 
     // 강의 등록
     public CourseDto createCourse(CourseDto courseDto) {
+        // 강의 코드 중복 검사
+        if (isCourseCodeExists(courseDto.getCourseCode())) {
+            throw new RuntimeException("이미 존재하는 강의 코드입니다.");
+        }
+
         Department department = departmentRepository.findById(courseDto.getDepartmentId())
                 .orElseThrow(() -> new RuntimeException("학과를 찾을 수 없습니다."));
-
         Course course = Course.builder()
                 .courseCode(courseDto.getCourseCode())
                 .courseName(courseDto.getCourseName())
@@ -57,10 +62,48 @@ public class CourseService {
                 .collect(Collectors.toList());
     }
 
+    // 학과별 강의 목록 조회
+    @Transactional(readOnly = true)
+    public List<CourseDto> getCoursesByDepartment(UUID departmentId) {
+        Department department = departmentRepository.findById(departmentId)
+                .orElseThrow(() -> new RuntimeException("학과를 찾을 수 없습니다."));
+        return courseRepository.findByDepartment(department).stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
+    // 학점별 강의 목록 조회
+    @Transactional(readOnly = true)
+    public List<CourseDto> getCoursesByCredits(Credit credit) {
+        return courseRepository.findByCredits(credit.getValue()).stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
+    // 학과별 강의 수 조회
+    @Transactional(readOnly = true)
+    public long countCoursesByDepartment(UUID departmentId) {
+        Department department = departmentRepository.findById(departmentId)
+                .orElseThrow(() -> new RuntimeException("학과를 찾을 수 없습니다."));
+        return courseRepository.countByDepartment(department);
+    }
+
+    // 강의 코드 중복 확인
+    @Transactional(readOnly = true)
+    public boolean isCourseCodeExists(String courseCode) {
+        return courseRepository.existsByCourseCode(courseCode);
+    }
+
     // 강의 수정
     public CourseDto updateCourse(UUID courseId, CourseDto courseDto) {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new RuntimeException("강의를 찾을 수 없습니다."));
+
+        // 강의 코드가 변경되었고, 새 코드가 이미 존재하는 경우 체크
+        if (!course.getCourseCode().equals(courseDto.getCourseCode())
+                && isCourseCodeExists(courseDto.getCourseCode())) {
+            throw new RuntimeException("이미 존재하는 강의 코드입니다.");
+        }
 
         Department department = departmentRepository.findById(courseDto.getDepartmentId())
                 .orElseThrow(() -> new RuntimeException("학과를 찾을 수 없습니다."));

@@ -18,7 +18,7 @@ public interface CourseRepository extends JpaRepository<Course, UUID> {
     List<Course> findByDepartment(Department department);
 
     // 특정 학점의 강의 목록 조회
-    List<Course> findByCredits(Credit credit);
+    List<Course> findByCredits(Integer credits);
 
     // 강의 코드 중복 확인
     boolean existsByCourseCode(String courseCode);

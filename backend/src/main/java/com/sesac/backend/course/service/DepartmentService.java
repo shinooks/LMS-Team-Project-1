@@ -60,9 +60,23 @@ public class DepartmentService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * 학과 정보를 수정하는 메서드
-     */
+    // 학과명으로 학과 조회
+    public DepartmentDto getDepartmentByName(String departmentName) {
+        Department department = departmentRepository.findByDepartmentName(departmentName)
+                .orElseThrow(() -> new RuntimeException("해당 이름의 학과를 찾을 수 없습니다."));
+
+        return DepartmentDto.builder()
+                .departmentId(department.getDepartmentId())
+                .departmentName(department.getDepartmentName())
+                .build();
+    }
+
+    // 학과명 중복 확인
+    public boolean isDepartmentNameExists(String departmentName) {
+        return departmentRepository.existsByDepartmentName(departmentName);
+    }
+
+    // 학과 정보 수정
     @Transactional
     public DepartmentDto updateDepartment(UUID departmentId, DepartmentDto departmentDto) {
         Department department = departmentRepository.findById(departmentId)
@@ -79,9 +93,7 @@ public class DepartmentService {
                 .build();
     }
 
-    /**
-     * 학과를 삭제하는 메서드
-     */
+    //학과 정보 삭제
     @Transactional
     public void deleteDepartment(UUID departmentId) {
         Department department = departmentRepository.findById(departmentId)
