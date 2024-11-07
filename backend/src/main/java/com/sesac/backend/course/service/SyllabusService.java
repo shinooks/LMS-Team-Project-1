@@ -10,7 +10,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -21,18 +23,26 @@ public class SyllabusService {
     private final SyllabusRepository syllabusRepository;
     private final CourseOpeningRepository courseOpeningRepository;
 
-    // 새로운 강의 계획서를 등록
+    // 전체 강의계획서 조회
+    @Transactional(readOnly = true)
+    public List<SyllabusDto> getAllSyllabi() {
+        return syllabusRepository.findAll().stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
+    // 강의 계획서를 등록
     public SyllabusDto createSyllabus(UUID openingId, SyllabusDto syllabusDto) {
         // 강의 개설 정보 조회
         CourseOpening courseOpening = courseOpeningRepository.findById(openingId)
                 .orElseThrow(() -> new RuntimeException("강의 개설 정보를 찾을 수 없습니다."));
 
         // 이미 강의 계획서가 있는지 확인
-        if (courseOpening.getSyllabus() != null) {
+        if (existsSyllabusByOpeningId(openingId)) {
             throw new RuntimeException("이미 강의 계획서가 존재합니다.");
         }
 
-        // Syllabus 엔티티 생성
+        // Syllabus 엔티티 생성 및 저장
         Syllabus syllabus = Syllabus.builder()
                 .courseOpening(courseOpening)
                 .learningObjectives(syllabusDto.getLearningObjectives())
@@ -41,33 +51,20 @@ public class SyllabusService {
                 .textbooks(syllabusDto.getTextbooks())
                 .build();
 
-        // 양방향 관계 설정
         syllabus.setCourseOpening(courseOpening);
-
-        // 저장
-        Syllabus savedSyllabus = syllabusRepository.save(syllabus);
-        log.info("Created syllabus: {}", savedSyllabus);
-
-        return convertToDto(savedSyllabus);
+        log.info("Creating syllabus for opening id: {}", openingId);
+        return convertToDto(syllabusRepository.save(syllabus));
     }
 
     // 강의 개설 id로 조회
     @Transactional(readOnly = true)
     public SyllabusDto getSyllabusByOpeningId(UUID openingId) {
-        // 강의 개설 정보 조회
-        CourseOpening courseOpening = courseOpeningRepository.findById(openingId)
-                .orElseThrow(() -> new RuntimeException("강의 개설 정보를 찾을 수 없습니다."));
-
-        // 강의 계획서 존재 여부 확인
-        if (courseOpening.getSyllabus() == null) {
-            throw new RuntimeException("강의 계획서가 아직 작성되지 않았습니다.");
-        }
-
-        // 강의 계획서를 DTO로 변환하여 반환
-        return convertToDto(courseOpening.getSyllabus());
+        return syllabusRepository.findByCourseOpeningOpeningId(openingId)
+                .map(this::convertToDto)
+                .orElseThrow(() -> new RuntimeException("강의 계획서를 찾을 수 없습니다."));
     }
 
-    // 특정 강의 계획서 조회 메서드
+    // 특정 강의 계획서 조회
     @Transactional(readOnly = true)
     public SyllabusDto getSyllabus(UUID syllabusId) {
         Syllabus syllabus = syllabusRepository.findById(syllabusId)
@@ -86,23 +83,25 @@ public class SyllabusService {
         syllabus.setEvaluationMethod(syllabusDto.getEvaluationMethod());
         syllabus.setTextbooks(syllabusDto.getTextbooks());
 
-        Syllabus updatedSyllabus = syllabusRepository.save(syllabus);
-        return convertToDto(updatedSyllabus);
+        log.info("Updating syllabus: {}", syllabusId);
+        return convertToDto(syllabusRepository.save(syllabus));
     }
 
     // 강의 계획서 삭제
     public void deleteSyllabus(UUID syllabusId) {
-        Syllabus syllabus = syllabusRepository.findById(syllabusId)
+        syllabusRepository.findById(syllabusId)
                 .orElseThrow(() -> new RuntimeException("강의 계획서를 찾을 수 없습니다."));
-
-        // CourseOpening에서의 참조 제거
-        CourseOpening courseOpening = syllabus.getCourseOpening();
-        courseOpening.setSyllabus(null);
-
-        syllabusRepository.delete(syllabus);
+        syllabusRepository.deleteById(syllabusId);
+        log.info("Deleted syllabus: {}", syllabusId);
     }
 
-    // ENTITY를 dto로 변환하는 PRIVATE 메서드
+    // 강의 계획서 존재 여부 확인
+    @Transactional(readOnly = true)
+    public boolean existsSyllabusByOpeningId(UUID openingId) {
+        return syllabusRepository.existsByCourseOpeningOpeningId(openingId);
+    }
+
+    // Entity를 DTO로 변환
     private SyllabusDto convertToDto(Syllabus syllabus) {
         return SyllabusDto.builder()
                 .syllabusId(syllabus.getSyllabusId())

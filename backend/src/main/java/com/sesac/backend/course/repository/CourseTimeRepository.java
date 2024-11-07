@@ -3,6 +3,7 @@ package com.sesac.backend.course.repository;
 import com.sesac.backend.course.constant.DayOfWeek;
 import com.sesac.backend.entity.CourseTime;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -21,7 +22,5 @@ public interface CourseTimeRepository extends JpaRepository<CourseTime, UUID> {
 
     // 특정 강의실의 특정 요일 강의 시간 조회
     List<CourseTime> findByClassroomAndDayOfWeek(String classroom, DayOfWeek dayOfWeek);
-
-    // 특정 강의 개설의 모든 강의 시간 삭제
-    void deleteByCourseOpeningOpeningId(UUID openingId);
 }
+

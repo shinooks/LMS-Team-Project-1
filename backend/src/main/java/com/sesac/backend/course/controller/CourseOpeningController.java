@@ -1,5 +1,6 @@
 package com.sesac.backend.course.controller;
 
+import com.sesac.backend.course.constant.CourseStatus;
 import com.sesac.backend.course.dto.CourseOpeningDto;
 import com.sesac.backend.course.service.CourseOpeningService;
 import lombok.RequiredArgsConstructor;
@@ -32,8 +33,7 @@ public class CourseOpeningController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of(
                             "message", e.getMessage(),
-                            "error", e.getClass().getSimpleName(),
-                            "stackTrace", e.getStackTrace()
+                            "error", e.getClass().getSimpleName()
                     ));
         }
     }
@@ -57,9 +57,75 @@ public class CourseOpeningController {
 
     // 특정 강의 개설 조회
     @GetMapping("/{openingId}")
-    public ResponseEntity<CourseOpeningDto> getCourseOpening(@PathVariable UUID openingId) {
-        CourseOpeningDto opening = courseOpeningService.getCourseOpening(openingId);
-        return ResponseEntity.ok(opening);
+    public ResponseEntity<?> getCourseOpening(@PathVariable UUID openingId) {
+        try {
+            log.info("Fetching course opening with id: {}", openingId);
+            CourseOpeningDto opening = courseOpeningService.getCourseOpening(openingId);
+            return ResponseEntity.ok(opening);
+        } catch (Exception e) {
+            log.error("Error fetching course opening", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of(
+                            "message", e.getMessage(),
+                            "error", e.getClass().getSimpleName()
+                    ));
+        }
+    }
+
+    // 특정 강의의 개설 목록 조회
+    @GetMapping("/course/{courseId}")
+    public ResponseEntity<?> getCourseOpeningsByCourse(@PathVariable UUID courseId) {
+        try {
+            log.info("Fetching course openings for course: {}", courseId);
+            List<CourseOpeningDto> openings = courseOpeningService.getCourseOpeningsByCourse(courseId);
+            return ResponseEntity.ok(openings);
+        } catch (Exception e) {
+            log.error("Error fetching course openings by course", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of(
+                            "message", e.getMessage(),
+                            "error", e.getClass().getSimpleName()
+                    ));
+        }
+    }
+
+    // 특정 교수의 특정 학기 강의 목록 조회
+    @GetMapping("/professor/{professorId}")
+    public ResponseEntity<?> getProfessorCourses(
+            @PathVariable String professorId,
+            @RequestParam Integer year,
+            @RequestParam String semester) {
+        try {
+            log.info("Fetching courses for professor: {}, year: {}, semester: {}",
+                    professorId, year, semester);
+            List<CourseOpeningDto> courses = courseOpeningService
+                    .getProfessorCourses(professorId, year, semester);
+            return ResponseEntity.ok(courses);
+        } catch (Exception e) {
+            log.error("Error fetching professor courses", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of(
+                            "message", e.getMessage(),
+                            "error", e.getClass().getSimpleName()
+                    ));
+        }
+    }
+
+    // 특정 상태의 강의 목록 조회
+    @GetMapping("/status/{status}")
+    public ResponseEntity<?> getCoursesByStatus(@PathVariable CourseStatus status) {
+        try {
+            log.info("Fetching courses by status: {}", status);
+            List<CourseOpeningDto> courses = courseOpeningService.getCoursesByStatus(status);
+            return ResponseEntity.ok(courses);
+        } catch (Exception e) {
+            log.error("Error fetching courses by status", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of(
+                            "message", e.getMessage(),
+                            "error", e.getClass().getSimpleName()
+                    ));
+        }
     }
 
     // 강의 개설 수정
@@ -74,7 +140,10 @@ public class CourseOpeningController {
         } catch (Exception e) {
             log.error("Error updating course opening", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("message", e.getMessage()));
+                    .body(Map.of(
+                            "message", e.getMessage(),
+                            "error", e.getClass().getSimpleName()
+                    ));
         }
     }
 
@@ -84,11 +153,14 @@ public class CourseOpeningController {
         try {
             log.info("Deleting course opening with id: {}", openingId);
             courseOpeningService.deleteCourseOpening(openingId);
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(Map.of("message", "강의 개설이 성공적으로 삭제되었습니다."));
         } catch (Exception e) {
             log.error("Error deleting course opening", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("message", e.getMessage()));
+                    .body(Map.of(
+                            "message", e.getMessage(),
+                            "error", e.getClass().getSimpleName()
+                    ));
         }
     }
 }

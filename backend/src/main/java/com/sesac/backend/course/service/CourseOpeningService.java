@@ -1,5 +1,5 @@
 package com.sesac.backend.course.service;
-
+import com.sesac.backend.course.constant.CourseStatus;
 import com.sesac.backend.course.dto.CourseOpeningDto;
 import com.sesac.backend.course.dto.CourseTimeDto;
 import com.sesac.backend.course.dto.SyllabusDto;
@@ -31,6 +31,15 @@ public class CourseOpeningService {
         Course course = courseRepository.findById(courseOpeningDto.getCourseId())
                 .orElseThrow(() -> new RuntimeException("강의를 찾을 수 없습니다."));
 
+        // 중복 개설 확인
+        if (courseOpeningRepository.existsByCourseAndYearAndSemesterAndProfessorId(
+                course,
+                courseOpeningDto.getYear(),
+                courseOpeningDto.getSemester(),
+                courseOpeningDto.getProfessorId())) {
+            throw new RuntimeException("이미 동일한 학기에 개설된 강의입니다.");
+        }
+
         // CourseOpening 엔티티 생성
         CourseOpening courseOpening = CourseOpening.builder()
                 .course(course)                           // 강의 정보
@@ -60,6 +69,34 @@ public class CourseOpeningService {
     @Transactional(readOnly = true)
     public List<CourseOpeningDto> getAllCourseOpenings() {
         return courseOpeningRepository.findAll().stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
+    // 특정 교수의 특정 학기 강의 목록 조회
+    @Transactional(readOnly = true)
+    public List<CourseOpeningDto> getProfessorCourses(String professorId, Integer year, String semester) {
+        return courseOpeningRepository.findByProfessorIdAndYearAndSemester(professorId, year, semester)
+                .stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
+    // 특정 상태의 강의 목록 조회 (예: 개설예정, 개설, 폐강, 종료)
+    @Transactional(readOnly = true)
+    public List<CourseOpeningDto> getCoursesByStatus(CourseStatus status) {
+        return courseOpeningRepository.findByStatus(status)
+                .stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
+    // 특정 강의의 개설 목록 조회
+    @Transactional(readOnly = true)
+    public List<CourseOpeningDto> getCourseOpeningsByCourse(UUID courseId) {
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new RuntimeException("강의를 찾을 수 없습니다."));
+        return courseOpeningRepository.findByCourse(course).stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
