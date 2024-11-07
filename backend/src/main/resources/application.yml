@@ -2,9 +2,9 @@ spring:
   application:
     name: backend
 
-#  security:
-#    basic:
-#      enabled: false
+  security:
+    basic:
+      enabled: false
 
   jpa:
     generate-ddl: true
@@ -37,7 +37,7 @@ server:
 my_value:
   key: "1111"
 
-LOGGING_LEVEL:
-  org:
-    springframework:
-      security: DEBUG
+#LOGGING_LEVEL:
+#  org:
+#    springframework:
+#      security: DEBUG

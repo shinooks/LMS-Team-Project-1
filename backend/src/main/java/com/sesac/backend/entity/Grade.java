@@ -1,9 +1,13 @@
 package com.sesac.backend.entity;
 
 import com.sesac.backend.assignment.domain.AssignScore;
+import com.sesac.backend.assignment.domain.FinalExamScore;
+import com.sesac.backend.assignment.domain.MidtermExamScore;
 import com.sesac.backend.grade.dto.GradeDto;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.UUID;
 
 /**
  * 성적 정보를 관리하는 엔티티
@@ -18,17 +22,30 @@ public class Grade {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) // 자동 증가 ID
-    private Long gradeId;
+    private UUID gradeId;
 
     // 학생 정보와의 다대일 관계
     @ManyToOne(fetch = FetchType.LAZY) // 지연 로딩으로 성능 최적화
     @JoinColumn(name = "studentId", nullable = false)
     private Student student;
 
+
     // 과제/시험 점수와의 다대일 관계
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "assignScoreId", nullable = false)
     private AssignScore assignScore;
+
+    // 시험 점수와의 다대일 관계
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "midtermExamScoreId", nullable = false)
+    private MidtermExamScore midtermExamScore;
+
+    // 시험 점수와의 다대일 관계
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "finalExamScoreId", nullable = false)
+    private FinalExamScore finalExamScore;
+
+
 
     // 과목 정보와의 다대일 관계
     @ManyToOne(fetch = FetchType.LAZY)
@@ -43,17 +60,32 @@ public class Grade {
 
 
     // AssignScore 엔티티에서 각 점수를 조회하는 편의 메서드들
-//    public int getAssignmentScore() {
-//        return assignScore.getAssignmentScore();
-//    }
-//
-//    public int getMidScore() {
-//        return assignScore.getMidScore();
-//    }
-//
-//    public int getFinalScore() {
-//        return assignScore.getFinalScore();
-//    }
+    public int getAssignScore() {
+        return assignScore.getScore();
+    }
+
+    public int getMidtermExamScore() {
+        return midtermExamScore.getScore();
+    }
+
+    public int getFinalExamScore() {
+        return finalExamScore.getScore();
+    }
+
+
+    /**
+     * 과제, 중간고사, 기말고사 점수의 합계를 계산
+     * 과제: 20%, 중간고사: 40%, 기말고사: 40%의 가중치를 적용
+     * @return 총점
+     */
+    public int getTotalScore() {
+        int assignmentScore = getAssignScore(); // 과제 점수
+        int midtermScore = getMidtermExamScore(); // 중간고사 점수
+        int finalExamScore = getFinalExamScore(); // 기말고사 점수
+
+        // 가중치 적용하여 총점 계산 후 반올림
+        return (int) Math.round(assignmentScore * 0.2 + midtermScore * 0.4 + finalExamScore * 0.4);
+    }
 
 
 
@@ -71,13 +103,6 @@ public class Grade {
         return course.getCourseCode();
     }
 
-    /**
-     * 과제, 중간고사, 기말고사 점수의 합계를 계산
-     * @return 총점
-     */
-//    public int getTotalScore() {
-//        return getAssignmentScore() + getMidScore() + getFinalScore();
-//    }
 
 
 }
