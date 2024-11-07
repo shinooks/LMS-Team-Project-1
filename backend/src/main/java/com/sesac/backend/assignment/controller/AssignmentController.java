@@ -8,6 +8,11 @@ import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * @author dongjin
+ * 과제 controller
+ * http 요청을 받아 Assignment service 호출
+ */
 @Slf4j
 @CrossOrigin("*")
 @RequestMapping("/assignments")
@@ -20,21 +25,35 @@ public class AssignmentController {
         this.assignmentService = assignmentService;
     }
 
+    /**
+     * Assignment 테이블 전체 조회
+     * @return List<AssignmentDto>
+     */
     @GetMapping("")
     public List<AssignmentDto> getAllAssignments() {
         return assignmentService.getAll();
     }
 
-    @GetMapping("/{id}")
-    public Map<String, AssignmentDto> getAssignmentById(@PathVariable("id") UUID id) {
+    /**
+     * Assignment 테이블 레코드 assignId(PK)로 조회
+     * @param assignId
+     * @return Map<String, AssignmentDto>
+     */
+    @GetMapping("/{assignId}")
+    public Map<String, AssignmentDto> getAssignmentById(@PathVariable("assignId") UUID assignId) {
         try {
-            return Map.of("success", assignmentService.findById(id));
+            return Map.of("success", assignmentService.findById(assignId));
         } catch (Exception e) {
             log.error(e.getMessage());
             return Map.of("success", null);
         }
     }
 
+    /**
+     * Assignment 테이블 레코드 생성
+     * @param assignmentDto
+     * @return Map<String, Boolean>
+     */
     @PostMapping("")
     public Map<String, Boolean> addAssignment(AssignmentDto assignmentDto) {
         boolean flag = false;
@@ -49,6 +68,11 @@ public class AssignmentController {
         }
     }
 
+    /**
+     * Assignment 테이블 레코드 수정
+     * @param assignmentDto
+     * @return Map<String, Boolean>
+     */
     @PutMapping("")
     public Map<String, Boolean> updateAssignment(AssignmentDto assignmentDto) {
         boolean flag = false;
@@ -67,12 +91,17 @@ public class AssignmentController {
         }
     }
 
-    @DeleteMapping("/{id}")
-    public Map<String, Boolean> deleteAssignment(@PathVariable("id") UUID id) {
+    /**
+     * Assignment 테이블 레코드 assignId(PK)로 삭제
+     * @param assignId
+     * @return Map<String, Boolean>
+     */
+    @DeleteMapping("/{assignId}")
+    public Map<String, Boolean> deleteAssignment(@PathVariable("assignId") UUID assignId) {
         boolean flag = false;
 
         try {
-            assignmentService.delete(id);
+            assignmentService.delete(assignId);
             flag = true;
             return Map.of("success", flag);
         } catch (Exception e) {

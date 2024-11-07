@@ -10,6 +10,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+/**
+ * @author dongjin
+ * 기말고사 Controller
+ * http 요청을 받아 FinalExam service 호출
+ */
 @Slf4j
 @CrossOrigin("*")
 @RequestMapping("/exams/final")

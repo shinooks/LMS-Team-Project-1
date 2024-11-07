@@ -5,6 +5,11 @@ import jakarta.persistence.*;
 import java.util.UUID;
 import lombok.*;
 
+/**
+ * @author dongjin
+ * 과제 점수 도메인
+ * AssignScore 테이블 컬럼 정의
+ */
 @Getter
 @Setter
 @ToString
@@ -13,21 +18,29 @@ import lombok.*;
 @Entity
 public class AssignScore {
 
+    /**
+     * assignScoreId:   PK
+     * assignment:      점수를 생성한 과제
+     * student:         점수를 받은 학생
+     * score:           점수
+     * comment:         교수 코멘트
+     * visibility:      조회가능여부
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID assignScoreId;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "assignId", nullable = false)
-    private Assignment assignment; // 과제
+    private Assignment assignment;
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "studentId", nullable = false)
-    private Student student; // 학생
+    private Student student;
     @Column(nullable = false)
     private int score; // 점수
-    private String comment; // 교수 코멘트
+    private String comment;
     @Enumerated
     @Column(nullable = false)
-    private Visibility visibility; // 조회가능여부
+    private Visibility visibility;
 
     public enum Visibility {
         PUBLIC, PRIVATE

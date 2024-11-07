@@ -5,6 +5,11 @@ import com.sesac.backend.assignment.domain.MidtermExam;
 import java.util.UUID;
 import org.springframework.stereotype.Repository;
 
+/**
+ * @author dongjin
+ * 중간고사 Repository
+ * MidtermExam 테이블 연결
+ */
 @Repository
 public interface MidtermExamDao extends JpaRepository<MidtermExam, UUID> {
 

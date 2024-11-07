@@ -11,6 +11,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+/**
+ * @author dongjin
+ * 중간고사 controller
+ * http 요청을 받아 MidtermExam service 호출
+ */
 @Slf4j
 @CrossOrigin("*")
 @RequestMapping("/exams/midterm")

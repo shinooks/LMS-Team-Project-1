@@ -6,6 +6,11 @@ import java.time.LocalDateTime;
 import java.util.*;
 import lombok.*;
 
+/**
+ * @author dongjin
+ * 과제 도메인
+ * Assignment 테이블 컬럼 정의
+ */
 @Getter
 @Setter
 @ToString
@@ -14,13 +19,20 @@ import lombok.*;
 @Entity
 public class Assignment {
 
+    /**
+     * assignId:    PK
+     * course:      과제 생성한 강의
+     * title:       제목
+     * description: 문제
+     * deadline:    제출기한
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID assignId;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "courseId", nullable = false)
-    private Course course; // 출제 강의
-    private String title; // 제목
-    private String description; // 문제
-    private LocalDateTime deadline; // 제출기한
+    private Course course;
+    private String title;
+    private String description;
+    private LocalDateTime deadline;
 }

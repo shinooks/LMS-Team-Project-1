@@ -9,6 +9,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * @author dongjin
+ * 과제 점수 controller
+ * http 요청을 받아 AssignScore service 호출
+ */
 @Slf4j
 @CrossOrigin("*")
 @RequestMapping("/assignments/scores")
@@ -22,8 +27,13 @@ public class AssignScoreController {
         this.assignScoreService = assignScoreService;
     }
 
-    @GetMapping("/{id}")
-    public Map<String, AssignScoreDto> getScore(@PathVariable("id") UUID assignScoreId) {
+    /**
+     * AssignScore 테이블 레코드 assignScoreId(PK)로 조회
+     * @param assignScoreId
+     * @return Map<String, AssignScoreDto>
+     */
+    @GetMapping("/{assignScoreId}")
+    public Map<String, AssignScoreDto> getScore(@PathVariable("assignScoreId") UUID assignScoreId) {
         try {
             return Map.of("success", assignScoreService.findById(assignScoreId));
         } catch (Exception e) {
@@ -32,11 +42,20 @@ public class AssignScoreController {
         }
     }
 
+    /**
+     * AssignScore 테이블 전체 조회
+     * @return List<AssignScoreDto>
+     */
     @GetMapping("")
     public List<AssignScoreDto> getAllScores() {
         return assignScoreService.getAll();
     }
 
+    /**
+     * AssignScore 테이블 레코드 생성
+     * @param assignScoreDto
+     * @return Map<String, Boolean>
+     */
     @PostMapping("")
     public Map<String, Boolean> addScore(AssignScoreDto assignScoreDto) {
         boolean flag = false;
@@ -51,6 +70,11 @@ public class AssignScoreController {
         }
     }
 
+    /**
+     * AssignScore 테이블 레코드 업데이트
+     * @param assignScoreDto
+     * @return Map<String, Boolean>
+     */
     @PutMapping("")
     public Map<String, Boolean> updateScore(AssignScoreDto assignScoreDto) {
         boolean flag = false;
@@ -68,8 +92,13 @@ public class AssignScoreController {
         }
     }
 
-    @DeleteMapping("/{id}")
-    public Map<String, Boolean> deleteScore(@PathVariable("id") UUID assignScoreId) {
+    /**
+     * AssignScore 테이블 레코드 assignScoreId로 삭제
+     * @param assignScoreId
+     * @return Map<String, Boolean>
+     */
+    @DeleteMapping("/{assignScoreId}")
+    public Map<String, Boolean> deleteScore(@PathVariable("assignScoreId") UUID assignScoreId) {
         boolean flag = false;
 
         try {
