@@ -14,4 +14,5 @@ import java.util.UUID;
 @Repository
 public interface GradeRepository extends JpaRepository<Grade, UUID> {
     List<Grade> findAllByCourseCourseNameAndCourseOpeningSemester(String courseName, String semester);
+
 }

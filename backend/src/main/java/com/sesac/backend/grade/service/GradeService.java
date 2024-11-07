@@ -1,6 +1,8 @@
 package com.sesac.backend.grade.service;
 
 
+import com.sesac.backend.course.repository.CourseOpeningRepository;
+import com.sesac.backend.course.repository.CourseRepository;
 import com.sesac.backend.entity.Grade;
 import com.sesac.backend.grade.dto.GradeDto;
 import com.sesac.backend.grade.repository.GradeRepository;
@@ -42,8 +44,8 @@ public class GradeService {
         // Comparator 사용 해서 정렬
         Collections.sort(grades, Comparator.comparing(
                 grade -> -(grade.getAssignScore() +
-                        grade.getMidtermExamScore() +
-                        grade.getFinalExamScore())
+                        grade.getMidtermScore() +
+                        grade.getFinalScore())
         ));
 
         // 2차 필터링: Grade 엔티티를 GradeDto로 변환
