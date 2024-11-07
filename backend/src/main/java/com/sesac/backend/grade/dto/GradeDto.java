@@ -1,7 +1,6 @@
 package com.sesac.backend.grade.dto;
 
 import com.sesac.backend.entity.Grade;
-import com.sesac.backend.entity.Student;
 import lombok.*;
 
 import java.util.UUID;
@@ -35,12 +34,12 @@ public class GradeDto {
         dto.gradeId = grade.getGradeId();
         dto.courseName = grade.getCourseName();
         dto.courseCode = grade.getCourseCode();
-        dto.studentNumber = grade.getStudent().getStudentNumber();
-        dto.studentName = grade.getStudent().getName();
+        dto.studentNumber = grade.getScore().getStudent().getStudentNumber();
+        dto.studentName = grade.getScore().getStudent().getName();
         dto.semester = grade.getSemester();
         dto.assignmentScore = grade.getAssignScore(); // 과제 점수
-        dto.midtermScore = grade.getMidtermExamScore(); // 중간고사 점수
-        dto.finalScore = grade.getFinalExamScore(); // 기말고사 점수
+        dto.midtermScore = grade.getMidtermScore(); // 중간고사 점수
+        dto.finalScore = grade.getFinalScore(); // 기말고사 점수
         dto.totalScore = grade.getTotalScore(); // 총점
 
         return dto;
