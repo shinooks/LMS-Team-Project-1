@@ -1,7 +1,6 @@
 package com.sesac.backend.enrollment.domain.classEnrollment;
 
-import com.sesac.backend.enrollment.dto.ClassEnrollmentDto;
-import com.sesac.backend.enrollment.dto.ClassesDto;
+import com.sesac.backend.enrollment.dto.CourseEnrollmentDto;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -48,20 +47,20 @@ public class ScheduleChecker {
 
 
 
-    public ClassEnrollmentDto[][] timeTableMaker(List<ClassEnrollmentDto> list) {
+    public CourseEnrollmentDto[][] timeTableMaker(List<CourseEnrollmentDto> list) {
 
-        ClassEnrollmentDto[][] timeTable = new ClassEnrollmentDto[9][5];
+        CourseEnrollmentDto[][] timeTable = new CourseEnrollmentDto[9][5];
 
-        for (ClassEnrollmentDto dto : list) {
-            String tmpStartTime = dto.getClasses().getStartTime();
-            String tmpEndTime = dto.getClasses().getEndTime();
+        for (CourseEnrollmentDto dto : list) {
+            String tmpStartTime = dto.getCourse().getStartTime();
+            String tmpEndTime = dto.getCourse().getEndTime();
 
             int startHour = Integer.parseInt(tmpStartTime.split(":")[0]);
             int endHour = Integer.parseInt(tmpEndTime.split(":")[0]);
             int totalHour = endHour - startHour;
 
             Integer startPeriodIndex = periods.get(startHour);
-            Integer dayIndex = days.get(dto.getClasses().getDay());
+            Integer dayIndex = days.get(dto.getCourse().getDay());
 
             for (int i = 0; i < totalHour; i++) {
                 if (timeTable[startPeriodIndex][dayIndex] == null) {

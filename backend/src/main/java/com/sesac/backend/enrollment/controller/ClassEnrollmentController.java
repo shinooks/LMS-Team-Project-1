@@ -1,17 +1,14 @@
 package com.sesac.backend.enrollment.controller;
 
-import com.sesac.backend.enrollment.domain.classEnrollment.ClassEnrollment;
-import com.sesac.backend.enrollment.domain.tempClasses.Classes;
-import com.sesac.backend.enrollment.dto.ClassEnrollmentDto;
-import com.sesac.backend.enrollment.dto.ClassesDto;
+import com.sesac.backend.enrollment.dto.CourseEnrollmentDto;
 import com.sesac.backend.enrollment.service.ClassEnrollmentService;
-import org.hibernate.exception.ConstraintViolationException;
+import com.sesac.backend.entity.Student;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -48,12 +45,14 @@ public class ClassEnrollmentController {
 //
 //        return res;
 
-        ClassEnrollmentDto classEnrollmentDto = new ClassEnrollmentDto();
-        classEnrollmentDto.setClassName(req.get("className").toString());
-        classEnrollmentDto.setStudentId(req.get("studentId").toString());
+        CourseEnrollmentDto courseEnrollmentDto = new CourseEnrollmentDto();
+        Student student = (Student) req.get("student"); //응답을 student type으로 파싱
+
+        courseEnrollmentDto.setCourseName(req.get("className").toString());
+        courseEnrollmentDto.setStudent( student );
 
         // 관심 강의 등록 시도
-        classEnrollmentService.saveClassEnrollment(classEnrollmentDto);
+        classEnrollmentService.saveClassEnrollment(courseEnrollmentDto);
 
         res.put("status", "success");
         res.put("message", "관심 강의가 성공적으로 등록되었습니다.");
@@ -71,8 +70,9 @@ public class ClassEnrollmentController {
     @GetMapping("/myclasslist/{studentid}")
     public Map myclasslist(@PathVariable("studentid") String studentid) {
         Map map = new HashMap();
-        map.put("myClassList", classEnrollmentService.getEnrolledClassById(studentid));
-        map.put("myTimeTable", classEnrollmentService.getTimeTableById(studentid));
+        UUID studentId = UUID.fromString(studentid);
+        map.put("myClassList", classEnrollmentService.getEnrolledClassById(studentId));
+        map.put("myTimeTable", classEnrollmentService.getTimeTableById(studentId));
         return map;
     }
 
