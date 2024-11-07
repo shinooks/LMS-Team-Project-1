@@ -163,34 +163,4 @@ public class CourseOpeningController {
                     ));
         }
     }
-
-    // 강의 개설 수정
-    @PutMapping("/{openingId}")
-    public ResponseEntity<?> updateCourseOpening(
-            @PathVariable UUID openingId,
-            @RequestBody CourseOpeningDto courseOpeningDto) {
-        try {
-            log.info("Updating course opening: {}", courseOpeningDto);
-            CourseOpeningDto updatedOpening = courseOpeningService.updateCourseOpening(openingId, courseOpeningDto);
-            return ResponseEntity.ok(updatedOpening);
-        } catch (Exception e) {
-            log.error("Error updating course opening", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("message", e.getMessage()));
-        }
-    }
-
-    // 강의 개설 삭제
-    @DeleteMapping("/{openingId}")
-    public ResponseEntity<?> deleteCourseOpening(@PathVariable UUID openingId) {
-        try {
-            log.info("Deleting course opening with id: {}", openingId);
-            courseOpeningService.deleteCourseOpening(openingId);
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            log.error("Error deleting course opening", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("message", e.getMessage()));
-        }
-    }
 }

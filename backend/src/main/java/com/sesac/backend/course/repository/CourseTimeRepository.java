@@ -23,4 +23,3 @@ public interface CourseTimeRepository extends JpaRepository<CourseTime, UUID> {
     // 특정 강의실의 특정 요일 강의 시간 조회
     List<CourseTime> findByClassroomAndDayOfWeek(String classroom, DayOfWeek dayOfWeek);
 }
-
