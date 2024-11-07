@@ -52,7 +52,8 @@ function App() {
   const enroll = (classes) => {
     axios.post("http://localhost:8081/api/enrollment", {
       studentId: studentId,
-      className: classes.className
+      // 정진욱 : 일단 req 요청 값 key만 courseName으로 수정 -> 백엔드의 entity와 맞추기 위해서
+      courseName: classes.className
     })
       .then(function (res) {
         if (res.status === 200) {
