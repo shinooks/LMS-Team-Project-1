@@ -5,9 +5,13 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
+@Table(name = "department")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -15,9 +19,10 @@ import java.util.UUID;
 public class Department {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID departmentId; // 학과ID
 
     @Column(nullable = false)
     private String departmentName; // 학과명
+
 }

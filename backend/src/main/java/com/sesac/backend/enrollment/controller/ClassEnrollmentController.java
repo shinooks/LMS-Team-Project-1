@@ -1,17 +1,15 @@
 package com.sesac.backend.enrollment.controller;
 
-import com.sesac.backend.enrollment.domain.classEnrollment.ClassEnrollment;
-import com.sesac.backend.enrollment.domain.tempClasses.Classes;
-import com.sesac.backend.enrollment.dto.ClassEnrollmentDto;
-import com.sesac.backend.enrollment.dto.ClassesDto;
+import com.sesac.backend.enrollment.dto.CourseEnrollmentDto;
 import com.sesac.backend.enrollment.service.ClassEnrollmentService;
-import org.hibernate.exception.ConstraintViolationException;
+import com.sesac.backend.entity.Student;
+import com.sesac.backend.entity.UserAuthentication;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -24,36 +22,12 @@ public class ClassEnrollmentController {
     public Map<String, Object> enrollment(@RequestBody Map<String, Object> req) {
         Map<String, Object> res = new HashMap<>();
 
-        // exceptionHandler를 만들어 줬기 때문에 exception을 던지는 과정이 필요가 없어졌음 -> 코드 간결함 증가
-//        try {
-//            String className = (String) req.get("className");
-//            String studentId = (String) req.get("studentId");
-//            classEnrollmentService.saveClassEnrollment(className, studentId);
-//            res.put("status", "success");
-//            res.put("message", "관심 강의가 성공적으로 등록되었습니다.");
-//        } catch (DataIntegrityViolationException e) {
-//            Throwable cause = e.getCause();
-//
-//            if (cause instanceof ConstraintViolationException) {
-//                res.put("status", "error");
-//                res.put("message", "이미 관심 강의에 등록된 강의입니다.");
-//            } else {
-//                res.put("status", "error");
-//                res.put("message", "데이터베이스 제약 조건 위반이 발생했습니다.");
-//            }
-//        } catch (IllegalArgumentException e) {
-//            res.put("status", "error");
-//            res.put("message", e.getMessage());
-//        }
-//
-//        return res;
-
-        ClassEnrollmentDto classEnrollmentDto = new ClassEnrollmentDto();
-        classEnrollmentDto.setClassName(req.get("className").toString());
-        classEnrollmentDto.setStudentId(req.get("studentId").toString());
+        // 받은 요청 값 String 으로 변환
+        UserAuthentication studentId = (UserAuthentication) req.get("studentId");
+        UUID openingId = req.get("openingId") != null ? UUID.fromString(req.get("openingId").toString()) : null;
 
         // 관심 강의 등록 시도
-        classEnrollmentService.saveClassEnrollment(classEnrollmentDto);
+        classEnrollmentService.saveClassEnrollment(studentId, openingId);
 
         res.put("status", "success");
         res.put("message", "관심 강의가 성공적으로 등록되었습니다.");
@@ -69,10 +43,11 @@ public class ClassEnrollmentController {
     }
 
     @GetMapping("/myclasslist/{studentid}")
-    public Map myclasslist(@PathVariable("studentid") String studentid) {
+    public Map myclasslist(@PathVariable("studentid") UserAuthentication studentId) {
         Map map = new HashMap();
-        map.put("myClassList", classEnrollmentService.getEnrolledClassById(studentid));
-        map.put("myTimeTable", classEnrollmentService.getTimeTableById(studentid));
+//        UUID studentId = UUID.fromString(studentid);
+        map.put("myClassList", classEnrollmentService.getEnrolledClassById(studentId));
+        map.put("myTimeTable", classEnrollmentService.getTimeTableById(studentId));
         return map;
     }
 

@@ -1,19 +1,27 @@
 package com.sesac.backend.enrollment.service;
-import com.sesac.backend.enrollment.domain.classEnrollment.ClassEnrollment;
+
+import com.sesac.backend.course.constant.DayOfWeek;
+import com.sesac.backend.course.dto.CourseDto;
+import com.sesac.backend.course.dto.CourseOpeningDto;
+import com.sesac.backend.course.dto.CourseTimeDto;
+import com.sesac.backend.course.dto.SyllabusDto;
+import com.sesac.backend.course.repository.CourseOpeningRepository;
+import com.sesac.backend.course.repository.CourseRepository;
+import com.sesac.backend.enrollment.domain.classEnrollment.CourseEnrollment;
 import com.sesac.backend.enrollment.domain.classEnrollment.ScheduleChecker;
 import com.sesac.backend.enrollment.domain.classEnrollment.TimeOverlapException;
-import com.sesac.backend.enrollment.domain.tempClasses.Classes;
-import com.sesac.backend.enrollment.dto.ClassEnrollmentDto;
-import com.sesac.backend.enrollment.dto.ClassesDto;
+import com.sesac.backend.enrollment.dto.CourseEnrollmentDto;
 import com.sesac.backend.enrollment.repository.ClassesEnrollmentRepository;
-import com.sesac.backend.enrollment.repository.ClassesRepository;
+import com.sesac.backend.enrollment.repository.EnrollStudentRepository;
+import com.sesac.backend.entity.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ClassEnrollmentService {
@@ -22,66 +30,86 @@ public class ClassEnrollmentService {
     private ClassesEnrollmentRepository classesEnrollmentRepository;
 
     @Autowired
-    private ClassesRepository classesRepository;
-
-    @Autowired
     private ScheduleChecker scheduleChecker;
 
-    private List<ClassEnrollmentDto> convertToDto(String id) {
-        Set<ClassEnrollment> tmpList = classesEnrollmentRepository.findByStudentId(id);
-        List<ClassEnrollmentDto> classListById = new ArrayList<>();
+    @Autowired
+    private CourseOpeningRepository courseOpeningRepository;
 
-        for (ClassEnrollment c : tmpList) {
-            Classes classes = c.getClasses();
-            ClassesDto classesDto = new ClassesDto(
-                    classes.getClassId(),
-                    classes.getClassName(),
-                    classes.getMaxEnrollments(),
-                    classes.getCurrentEnrollments(),
-                    classes.getDay(),
-                    classes.getStartTime(),
-                    classes.getEndTime(),
-                    classes.getCredit()
-            );
-            classListById.add(new ClassEnrollmentDto(c.getEnrollmentId(), c.getStudentId(), classesDto, c.getClassName()));
+    @Autowired
+    private EnrollStudentRepository enrollStudentRepository;
+    @Autowired
+    private CourseRepository courseRepository;
+
+
+    private List<CourseEnrollmentDto> convertToDto(UserAuthentication studentId) {
+        Student student = enrollStudentRepository.findByUser(studentId).orElse(null);
+        Set<CourseEnrollment> tmpList = classesEnrollmentRepository.findByStudent(student);
+        List<CourseEnrollmentDto> classListById = new ArrayList<>();
+
+        for (CourseEnrollment c : tmpList) {
+            classListById.add(new CourseEnrollmentDto(
+                    c.getEnrollmentId(),
+                    c.getStudent(),
+                    c.getCourseOpening(),
+                    c.getCourseName(),
+                    c.getEnrollmentDate()
+            ));
         }
         return classListById;
     }
 
     ////////////////////////////// save기능 set ////////////////////////////////////
-    public void saveClassEnrollment(ClassEnrollmentDto classEnrollmentDto) {
-        Classes classInfo = classesRepository.findByClassName(classEnrollmentDto.getClassName()).orElse(null);
+    public void saveClassEnrollment(UserAuthentication studentId, UUID openingId) {
+        // className으로 CourseOpening의 정보를 조회
+        CourseOpening openingCourseInfo = courseOpeningRepository.findById(openingId).orElse(null);
+
+        Student student = enrollStudentRepository.findByUser(studentId).orElse(null);
 
         // 클래스 정보가 있을 때 중복 검사 수행 후 save
-        if(classInfo != null){
-            checkMultiClass(classInfo, classEnrollmentDto);
+        if (openingCourseInfo != null) {
+            // 정진욱 : courseEnrollmentDto를 보내는 이유 : dto.studentId로 관심과목에 등록한 과목들을 조회하기 위해서
+            checkMultiClass(openingCourseInfo, student);
 
-            ClassEnrollment entity = new ClassEnrollment(classEnrollmentDto.getEnrollmentId(), classEnrollmentDto.getStudentId(),
-                    classInfo, classEnrollmentDto.getClassName());
+            CourseEnrollment entity = new CourseEnrollment(student, openingCourseInfo,
+                    openingCourseInfo.getCourse().getCourseName());
             classesEnrollmentRepository.save(entity);
         }
     }
 
     // enrollment 생성 시 중복 검사 서비스
-    public void checkMultiClass(Classes classInfo, ClassEnrollmentDto classEnrollmentDto) {
-        // 학생 id로 이미 있는 enrollment data 목록을 가져와서 existEnrollments에 배당
-        String enrollStudentId = classEnrollmentDto.getStudentId();
-        Set<ClassEnrollment> existEnrollments = classesEnrollmentRepository.findByStudentId(enrollStudentId);
+    public void checkMultiClass(CourseOpening openingCourseInfo, Student student) {
+        // 관심강의를 등록하려는 학생 id(dto.studentId)로 이미 있는
+        // 동일 학생의 enrollment data 목록을 가져와서 existEnrollments에 배당
+        Set<CourseEnrollment> existEnrollments = classesEnrollmentRepository.findByStudent(student);
 
-        // 대소비교를 쉽게 하기 위해서 localtime으로 새로운 정보를 변환합니다. 
-        LocalTime newStartLocalTime = LocalTime.parse(classInfo.getStartTime(), DateTimeFormatter.ofPattern("HH:mm"));
-        LocalTime newEndLocalTime = LocalTime.parse(classInfo.getEndTime(), DateTimeFormatter.ofPattern("HH:mm"));
-        String newDay = classInfo.getDay();
+        // 등록할 강의의 시간 정보를 가져옴
+        List<CourseTime> openingCourseTimeInfo = openingCourseInfo.getCourseTimes();
 
-        for (ClassEnrollment enrollment : existEnrollments) {
-            Classes existingClass = enrollment.getClasses();
-            LocalTime existingStartLocalTime = LocalTime.parse(existingClass.getStartTime(), DateTimeFormatter.ofPattern("HH:mm"));
-            LocalTime existingEndLocalTime = LocalTime.parse(existingClass.getEndTime(), DateTimeFormatter.ofPattern("HH:mm"));
-            String existingDay = existingClass.getDay();
+        // 기존 관심등록한 강의 목록을 리스트에 담음
+        List<CourseTime> existingCourseTimeInfo = new ArrayList<>();
 
-            // 요일이 같을 때만 시간 겹침 체크
-            if (newDay.equals(existingDay) && isTimeOverlap(newStartLocalTime, newEndLocalTime, existingStartLocalTime, existingEndLocalTime)) {
-                throw new TimeOverlapException("시간이 겹치는 강의가 이미 등록되어 있습니다: " + existingClass.getClassName());
+        for (CourseEnrollment enrollment : existEnrollments) {
+            existingCourseTimeInfo.addAll(enrollment.getCourseOpening().getCourseTimes());
+        }
+
+        // 성능 향상을 위해 관심등록 되어있는 데이터와 등록할 데이터를 하나의 List에 병합
+        List<CourseTime> allCourseTimesForMatching = new ArrayList<>();
+        allCourseTimesForMatching.addAll(openingCourseTimeInfo);
+        allCourseTimesForMatching.addAll(existingCourseTimeInfo);
+
+        // 시간정보 정렬(요일과 시작 시간 기준)
+        allCourseTimesForMatching.sort(Comparator.comparing(CourseTime::getDayOfWeek)
+                .thenComparing(CourseTime::getStartTime));
+
+        // 겹치는 시간 체크
+        for (int i = 1; i < allCourseTimesForMatching.size(); i++) {
+            CourseTime previous = allCourseTimesForMatching.get(i - 1);
+            CourseTime current = allCourseTimesForMatching.get(i);
+
+            // 요일이 같고 시간 겹침 체크
+            if (previous.getDayOfWeek().equals(current.getDayOfWeek()) &&
+                    isTimeOverlap(previous.getStartTime(), previous.getEndTime(), current.getStartTime(), current.getEndTime())) {
+                throw new TimeOverlapException("시간이 겹치는 강의가 이미 등록되어 있습니다: " + current.getCourseOpening().getCourse().getCourseName());
             }
         }
     }
@@ -92,58 +120,90 @@ public class ClassEnrollmentService {
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public List<ClassesDto> getAllClasses() {
-        List<Classes> tmpList = classesRepository.findAll();
-        List<ClassesDto> allClassesList = new ArrayList<>();
+    public List<CourseOpeningDto> getAllClasses() {
+        List<CourseOpening> tmpList = courseOpeningRepository.findAll();
 
-        for (Classes c : tmpList) {
-            allClassesList.add(new ClassesDto(
-                    c.getClassId(),
-                    c.getClassName(),
-                    c.getMaxEnrollments(),
-                    c.getCurrentEnrollments(),
-                    c.getDay(),
-                    c.getStartTime(),
-                    c.getEndTime(),
-                    c.getCredit()
+
+        List<CourseOpeningDto> allClassesList = new ArrayList<>();
+
+        for (CourseOpening c : tmpList) {
+
+            List<CourseTimeDto> courseTimeDtos = c.getCourseTimes().stream()
+                    .map(ctd -> new CourseTimeDto(
+                            ctd.getTimeId(),
+                            ctd.getCourseOpening().getOpeningId(),
+                            ctd.getDayOfWeek(),
+                            ctd.getStartTime(),
+                            ctd.getEndTime(),
+                            ctd.getClassroom()))
+                    .collect(Collectors.toList());
+
+            SyllabusDto syllabusDto = new SyllabusDto(
+                    c.getSyllabus().getSyllabusId(),
+                    c.getSyllabus().getLearningObjectives(),
+                    c.getSyllabus().getWeeklyPlan(),
+                    c.getSyllabus().getEvaluationMethod(),
+                    c.getSyllabus().getTextbooks()
+            );
+
+            allClassesList.add(new CourseOpeningDto(
+                    c.getOpeningId(),
+                    c.getCourse().getCourseId(),
+                    c.getProfessorId(),
+                    c.getSemester(),
+                    c.getYear(),
+                    c.getMaxStudents(),
+                    c.getCurrentStudents(),
+                    c.getStatus(),
+                    courseTimeDtos,
+                    syllabusDto
             ));
         }
         return allClassesList;
+
     }
 
-    public List<ClassEnrollmentDto> getEnrolledClassById(String id) {
-        return convertToDto(id);
+    public List<CourseEnrollmentDto> getEnrolledClassById(UserAuthentication studentId) {
+        return convertToDto(studentId);
     }
 
-    public ClassEnrollmentDto[][] getTimeTableById(String id) {
-        List<ClassEnrollmentDto> classListById = convertToDto(id);
-        return scheduleChecker.timeTableMaker(classListById);
+    public CourseEnrollmentDto[][] getTimeTableById(UserAuthentication studentId) {
+        List<CourseEnrollmentDto> courseListById = convertToDto(studentId);
+        return scheduleChecker.timeTableMaker(courseListById);
     }
 
     public void deleteClassEnrollmentById(long enrollmentId) {
         // 수업 등록 정보 조회
-        ClassEnrollment enrollment = classesEnrollmentRepository.findById(enrollmentId)
+        CourseEnrollment enrollment = classesEnrollmentRepository.findById(enrollmentId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 등록 정보가 존재하지 않습니다: " + enrollmentId));
-        Classes classes = enrollment.getClasses(); // 삭제할 강의 정보
-        String startTime = classes.getStartTime(); // 시작 시간
-        String endTime = classes.getEndTime();     // 종료 시간
-        String day = classes.getDay();             // 요일
+        CourseOpening courseInfo = enrollment.getCourseOpening(); // 삭제할 강의 정보
+        List<CourseTime> times = courseInfo.getCourseTimes();
+
+        int startTime = 0; // 시작 시간
+        int endTime = 0;   // 종료 시간
+        DayOfWeek day = null;       // 요일
+
+        for (CourseTime c : times) {
+            startTime = c.getStartTime().getHour();
+            endTime = c.getEndTime().getHour();
+            day = c.getDayOfWeek();
+        }
+
 
         // 시간과 요일 인덱스 계산
-        int startHour = Integer.parseInt(startTime.split(":")[0]);
-        int endHour = Integer.parseInt(endTime.split(":")[0]);
-        Integer startPeriodIndex = scheduleChecker.periods.get(startHour);
-        Integer dayIndex = scheduleChecker.days.get(day);
+        Integer startPeriodIndex = scheduleChecker.periods.get(startTime);
+        Integer dayIndex = scheduleChecker.days.get(day.toString());
+        int period = endTime - startTime;
 
-        ClassEnrollmentDto[][] deleteTargetTable = getTimeTableById(enrollment.getStudentId());
+        CourseEnrollmentDto[][] deleteTargetTable = getTimeTableById(enrollment.getStudent().getUser());
 
         // 강의 삭제
-        for (int i = 0; i < (endHour - startHour); i++) {
+        for (int i = 0; i < (period); i++) {
             if (deleteTargetTable[startPeriodIndex + i][dayIndex] != null) {
                 deleteTargetTable[startPeriodIndex + i][dayIndex] = null; // 강의 삭제
             }
         }
-        
+
         // DB에서 삭제
         classesEnrollmentRepository.deleteById(enrollmentId);
     }
