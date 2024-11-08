@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -16,6 +17,7 @@ public class AssignmentController {
 
     private final AssignmentService assignmentService;
 
+    @Autowired
     public AssignmentController(AssignmentService assignmentService) {
         this.assignmentService = assignmentService;
     }
@@ -55,7 +57,6 @@ public class AssignmentController {
 
         try {
             AssignmentDto saved = assignmentService.findById(assignmentDto.getAssignId());
-            saved.setCourse(assignmentDto.getCourse());
             saved.setTitle(assignmentDto.getTitle());
             saved.setDescription(assignmentDto.getDescription());
             saved.setDeadline(assignmentDto.getDeadline());

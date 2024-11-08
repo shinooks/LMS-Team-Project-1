@@ -1,8 +1,5 @@
 package com.sesac.backend.entity;
 
-import com.sesac.backend.assignment.domain.AssignScore;
-import com.sesac.backend.assignment.domain.FinalExamScore;
-import com.sesac.backend.assignment.domain.MidtermExamScore;
 import com.sesac.backend.assignment.domain.Score;
 import jakarta.persistence.*;
 import lombok.*;
@@ -15,46 +12,21 @@ import java.util.UUID;
 @Entity
 @Getter
 @Setter
-@ToString
 @AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PROTECTED) // JPA 엔티티는 기본 생성자가 필요함
+@NoArgsConstructor // JPA 엔티티는 기본 생성자가 필요함
 public class Grade {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // 자동 증가 ID
+    @GeneratedValue// 자동 증가 ID
     private UUID gradeId;
 
-//    // 학생 정보와의 다대일 관계
-//    @ManyToOne(fetch = FetchType.LAZY) // 지연 로딩으로 성능 최적화
-//    @JoinColumn(name = "studentId", nullable = false)
-//    private Student student;
 
-
-//    // 과제/시험 점수와의 다대일 관계
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "assignScoreId", nullable = false)
-//    private AssignScore assignScore;
-//
-//    // 시험 점수와의 다대일 관계
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "midtermExamScoreId", nullable = false)
-//    private MidtermExamScore midtermExamScore;
-//
-//    // 시험 점수와의 다대일 관계
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "finalExamScoreId", nullable = false)
-//    private FinalExamScore finalExamScore;
-
-    @ManyToOne(fetch = FetchType.LAZY)
+    // 점수 일대일 관계
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "scoreId", nullable = false)
     private Score score;
 
 
-
-    // 과목 정보와의 다대일 관계
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "courseId", nullable = false)
-    private Course course;
 
     // 강의 개설 정보와의 다대일 관계
     @ManyToOne(fetch = FetchType.LAZY)
@@ -63,10 +35,8 @@ public class Grade {
 
 
 
-//    // AssignScore 엔티티에서 각 점수를 조회하는 편의 메서드들
-//    public int getAssignScoreInteger() {
-//        return assignScore.getScore();
-//    }
+
+
 
     public int getAssignScore() {
         return score.getAssignScore();
@@ -80,13 +50,6 @@ public class Grade {
         return score.getFinalExamScore();
     }
 
-//    public int getMidtermExamScore() {
-//        return midtermExamScore.getScore();
-//    }
-//
-//    public int getFinalExamScore() {
-//        return finalExamScore.getScore();
-//    }
 
 
     /**
@@ -112,11 +75,11 @@ public class Grade {
 
     // Course 엔티티에서 과목 정보를 조회하는 편의 메서드들
     public String getCourseName() {
-        return course.getCourseName();
+        return courseOpening.getCourse().getCourseName();
     }
 
     public String getCourseCode() {
-        return course.getCourseCode();
+        return courseOpening.getCourse().getCourseCode();
     }
 
 

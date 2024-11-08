@@ -2,7 +2,7 @@ package com.sesac.backend.assignment.service;
 
 import com.sesac.backend.assignment.domain.AssignSubmit;
 import com.sesac.backend.assignment.dto.AssignSubmitDto;
-import com.sesac.backend.assignment.repository.AssignSubmitDao;
+import com.sesac.backend.assignment.repository.AssignSubmitRepository;
 import java.time.LocalDateTime;
 import java.util.*;
 import org.springframework.stereotype.Service;
@@ -10,21 +10,21 @@ import org.springframework.stereotype.Service;
 @Service
 public class AssignSubmitService {
 
-    private final AssignSubmitDao assignSubmitDao;
+    private final AssignSubmitRepository assignSubmitRepository;
 
-    public AssignSubmitService(AssignSubmitDao assignSubmitDao) {
-        this.assignSubmitDao = assignSubmitDao;
+    public AssignSubmitService(AssignSubmitRepository assignSubmitRepository) {
+        this.assignSubmitRepository = assignSubmitRepository;
     }
 
     public AssignSubmitDto findById(UUID assignSubmitId) {
-        AssignSubmit entity = assignSubmitDao.findById(assignSubmitId).orElse(null);
+        AssignSubmit entity = assignSubmitRepository.findById(assignSubmitId).orElse(null);
         return entity == null ? null
             : new AssignSubmitDto(entity.getAssignSubmitId(), entity.getAssignment(),
                 entity.getStudent(), entity.getAnswer(), entity.getSubmitAt(), entity.getFileName());
     }
 
     public List<AssignSubmitDto> getAll() {
-        return assignSubmitDao.findAll().stream().map(
+        return assignSubmitRepository.findAll().stream().map(
             entity -> new AssignSubmitDto(entity.getAssignSubmitId(), entity.getAssignment(),
                 entity.getStudent(), entity.getAnswer(), entity.getSubmitAt(), entity.getFileName())).toList();
     }
@@ -36,7 +36,7 @@ public class AssignSubmitService {
         boolean flag = false;
 
         if (now.isBefore(deadline)) {
-            assignSubmitDao.save(
+            assignSubmitRepository.save(
                 new AssignSubmit(assignSubmitDto.getAssignSubmitId(),
                     assignSubmitDto.getAssignment(), assignSubmitDto.getStudent(),
                     assignSubmitDto.getAnswer(), now, assignSubmitDto.getFileName()));
@@ -49,7 +49,7 @@ public class AssignSubmitService {
     }
 
     public AssignSubmitDto update(AssignSubmitDto assignSubmitDto) {
-        AssignSubmit entity = assignSubmitDao.save(
+        AssignSubmit entity = assignSubmitRepository.save(
             new AssignSubmit(assignSubmitDto.getAssignSubmitId(), assignSubmitDto.getAssignment(),
                 assignSubmitDto.getStudent(), assignSubmitDto.getAnswer(),
                 assignSubmitDto.getSubmitAt(), assignSubmitDto.getFileName()));
@@ -59,6 +59,6 @@ public class AssignSubmitService {
     }
 
     public void delete(UUID assignSubmitId) {
-        assignSubmitDao.deleteById(assignSubmitId);
+        assignSubmitRepository.deleteById(assignSubmitId);
     }
 }

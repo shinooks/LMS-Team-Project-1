@@ -1,11 +1,11 @@
 package com.sesac.backend.assignment.repository;
 
-import com.sesac.backend.assignment.domain.Assignment;
-import java.util.*;
+import com.sesac.backend.assignment.domain.Score;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-@Repository
-public interface AssignmentDao extends JpaRepository<Assignment, UUID> {
+import java.util.UUID;
 
+@Repository
+public interface ScoreRepository extends JpaRepository<Score, UUID> {
 }

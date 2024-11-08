@@ -42,4 +42,11 @@ public class GradeController {
         log.error("grades: {}", grades);
         return ResponseEntity.ok(grades);
     }
+
+    // 수정
+    // TODO: 성적 수정 API 구현
+
+
+
+
 }

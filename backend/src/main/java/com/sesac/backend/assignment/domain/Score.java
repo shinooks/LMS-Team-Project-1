@@ -16,13 +16,13 @@ public class Score {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID scoreId;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "assignId", nullable = false)
     private Assignment assignment;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "midtermExamId", nullable = false)
     private MidtermExam midtermExam;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "finalExamId", nullable = false)
     private FinalExam finalExam;
 

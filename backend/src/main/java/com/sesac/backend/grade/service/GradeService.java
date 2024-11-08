@@ -38,7 +38,7 @@ public class GradeService {
     // 전체 조회
     public List<GradeDto> findAllByCourseCourseNameAndCourseOpeningSemester(String courseName, String semester) {
         // 1차 필터링: 선택한 강의명, 학기에 해당하는 과목 조회 -> 선택한 강의명, 학기에 해당되는 강의 리스트가 나옴
-        List<Grade> grades = gradeRepository.findAllByCourseCourseNameAndCourseOpeningSemester(courseName, semester);
+        List<Grade> grades = gradeRepository.findAllByCourseOpeningSemesterAndCourseOpeningCourseCourseName(semester, courseName);
         // 2차 필터링: 각 과목에 해당하는 성적 조회 -> 각 과목에 해당되는 성적 리스트가 나옴
         log.error("Retrieved grades count: {}", grades.size());
         // Comparator 사용 해서 정렬
