@@ -1,4 +1,4 @@
-package com.sesac.backend.enrollment.domain.classEnrollment;
+package com.sesac.backend.enrollment.domain.exceptionControl;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -1,8 +1,7 @@
-package com.sesac.backend.enrollment.domain.classEnrollment;
+package com.sesac.backend.enrollment.domain;
 
 import com.sesac.backend.course.constant.DayOfWeek;
-import com.sesac.backend.enrollment.dto.CourseEnrollmentDto;
-import com.sesac.backend.entity.CourseOpening;
+import com.sesac.backend.enrollment.dto.EnrollmentDto;
 import com.sesac.backend.entity.CourseTime;
 import org.springframework.stereotype.Component;
 
@@ -11,7 +10,6 @@ import java.util.*;
 
 @Component
 public class ScheduleChecker {
-
 
     public Map<Integer, Integer> periods = new HashMap<>();
     public Map<String, Integer> days = new HashMap<>();
@@ -51,11 +49,11 @@ public class ScheduleChecker {
     }
 
 
-    public CourseEnrollmentDto[][] timeTableMaker(List<CourseEnrollmentDto> list) {
+    public EnrollmentDto[][] timeTableMaker(List<EnrollmentDto> list) {
 
-        CourseEnrollmentDto[][] timeTable = new CourseEnrollmentDto[9][5];
+        EnrollmentDto[][] timeTable = new EnrollmentDto[9][5];
 
-        for (CourseEnrollmentDto dto : list) {
+        for (EnrollmentDto dto : list) {
 
             List<CourseTime> tmpList = dto.getCourseOpening().getCourseTimes();
 
@@ -89,11 +87,6 @@ public class ScheduleChecker {
                     timeTable[startPeriodIndex][dayIndex] = dto;
                     startPeriodIndex++;
                 }
-//                else {
-//                    throw new TimeOverlapException(
-//                            "시간 또는 요일이 겹치는 강의가 있습니다: "
-//                                    + timeTable[startPeriodIndex][dayIndex].getClassName());
-//                }
             }
         }
 

@@ -1,33 +1,29 @@
 package com.sesac.backend.enrollment.service;
 
 import com.sesac.backend.course.constant.DayOfWeek;
-import com.sesac.backend.course.dto.CourseDto;
 import com.sesac.backend.course.dto.CourseOpeningDto;
 import com.sesac.backend.course.dto.CourseTimeDto;
 import com.sesac.backend.course.dto.SyllabusDto;
 import com.sesac.backend.course.repository.CourseOpeningRepository;
 import com.sesac.backend.course.repository.CourseRepository;
-import com.sesac.backend.enrollment.domain.classEnrollment.CourseEnrollment;
-import com.sesac.backend.enrollment.domain.classEnrollment.ScheduleChecker;
-import com.sesac.backend.enrollment.domain.classEnrollment.TimeOverlapException;
-import com.sesac.backend.enrollment.dto.CourseEnrollmentDto;
-import com.sesac.backend.enrollment.repository.ClassesEnrollmentRepository;
+import com.sesac.backend.enrollment.domain.ScheduleChecker;
+import com.sesac.backend.enrollment.domain.exceptionControl.TimeOverlapException;
+import com.sesac.backend.enrollment.dto.EnrollmentDto;
 import com.sesac.backend.enrollment.repository.EnrollStudentRepository;
+import com.sesac.backend.enrollment.repository.EnrollmentRepository;
 import com.sesac.backend.entity.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-public class ClassEnrollmentService {
+public class EnrollmentService {
 
     @Autowired
-    private ClassesEnrollmentRepository classesEnrollmentRepository;
+    private EnrollmentRepository enrollmentRepository;
 
     @Autowired
     private ScheduleChecker scheduleChecker;
@@ -41,13 +37,13 @@ public class ClassEnrollmentService {
     private CourseRepository courseRepository;
 
 
-    private List<CourseEnrollmentDto> convertToDto(UserAuthentication studentId) {
+    private List<EnrollmentDto> convertToDto(UserAuthentication studentId) {
         Student student = enrollStudentRepository.findByUser(studentId).orElse(null);
-        Set<CourseEnrollment> tmpList = classesEnrollmentRepository.findByStudent(student);
-        List<CourseEnrollmentDto> classListById = new ArrayList<>();
+        Set<Enrollment> tmpList = enrollmentRepository.findByStudent(student);
+        List<EnrollmentDto> classListById = new ArrayList<>();
 
-        for (CourseEnrollment c : tmpList) {
-            classListById.add(new CourseEnrollmentDto(
+        for (Enrollment c : tmpList) {
+            classListById.add(new EnrollmentDto(
                     c.getEnrollmentId(),
                     c.getStudent(),
                     c.getCourseOpening(),
@@ -70,9 +66,9 @@ public class ClassEnrollmentService {
             // 정진욱 : courseEnrollmentDto를 보내는 이유 : dto.studentId로 관심과목에 등록한 과목들을 조회하기 위해서
             checkMultiClass(openingCourseInfo, student);
 
-            CourseEnrollment entity = new CourseEnrollment(student, openingCourseInfo,
+            Enrollment entity = new Enrollment(student, openingCourseInfo,
                     openingCourseInfo.getCourse().getCourseName());
-            classesEnrollmentRepository.save(entity);
+            enrollmentRepository.save(entity);
         }
     }
 
@@ -80,7 +76,7 @@ public class ClassEnrollmentService {
     public void checkMultiClass(CourseOpening openingCourseInfo, Student student) {
         // 관심강의를 등록하려는 학생 id(dto.studentId)로 이미 있는
         // 동일 학생의 enrollment data 목록을 가져와서 existEnrollments에 배당
-        Set<CourseEnrollment> existEnrollments = classesEnrollmentRepository.findByStudent(student);
+        Set<Enrollment> existEnrollments = enrollmentRepository.findByStudent(student);
 
         // 등록할 강의의 시간 정보를 가져옴
         List<CourseTime> openingCourseTimeInfo = openingCourseInfo.getCourseTimes();
@@ -88,7 +84,7 @@ public class ClassEnrollmentService {
         // 기존 관심등록한 강의 목록을 리스트에 담음
         List<CourseTime> existingCourseTimeInfo = new ArrayList<>();
 
-        for (CourseEnrollment enrollment : existEnrollments) {
+        for (Enrollment enrollment : existEnrollments) {
             existingCourseTimeInfo.addAll(enrollment.getCourseOpening().getCourseTimes());
         }
 
@@ -163,18 +159,18 @@ public class ClassEnrollmentService {
 
     }
 
-    public List<CourseEnrollmentDto> getEnrolledClassById(UserAuthentication studentId) {
+    public List<EnrollmentDto> getEnrolledClassById(UserAuthentication studentId) {
         return convertToDto(studentId);
     }
 
-    public CourseEnrollmentDto[][] getTimeTableById(UserAuthentication studentId) {
-        List<CourseEnrollmentDto> courseListById = convertToDto(studentId);
+    public EnrollmentDto[][] getTimeTableById(UserAuthentication studentId) {
+        List<EnrollmentDto> courseListById = convertToDto(studentId);
         return scheduleChecker.timeTableMaker(courseListById);
     }
 
     public void deleteClassEnrollmentById(long enrollmentId) {
         // 수업 등록 정보 조회
-        CourseEnrollment enrollment = classesEnrollmentRepository.findById(enrollmentId)
+        Enrollment enrollment = enrollmentRepository.findById(enrollmentId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 등록 정보가 존재하지 않습니다: " + enrollmentId));
         CourseOpening courseInfo = enrollment.getCourseOpening(); // 삭제할 강의 정보
         List<CourseTime> times = courseInfo.getCourseTimes();
@@ -195,7 +191,7 @@ public class ClassEnrollmentService {
         Integer dayIndex = scheduleChecker.days.get(day.toString());
         int period = endTime - startTime;
 
-        CourseEnrollmentDto[][] deleteTargetTable = getTimeTableById(enrollment.getStudent().getUser());
+        EnrollmentDto[][] deleteTargetTable = getTimeTableById(enrollment.getStudent().getUser());
 
         // 강의 삭제
         for (int i = 0; i < (period); i++) {
@@ -205,7 +201,7 @@ public class ClassEnrollmentService {
         }
 
         // DB에서 삭제
-        classesEnrollmentRepository.deleteById(enrollmentId);
+        enrollmentRepository.deleteById(enrollmentId);
     }
 }
 

@@ -1,9 +1,7 @@
 package com.sesac.backend.enrollment.dto;
 
-import com.sesac.backend.entity.Course;
 import com.sesac.backend.entity.CourseOpening;
 import com.sesac.backend.entity.Student;
-import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -14,7 +12,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class CourseEnrollmentDto {
+public class EnrollmentDto {
 
     private UUID enrollmentId;
 
