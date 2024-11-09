@@ -6,7 +6,8 @@ function App() {
   const [classes, setClasses] = useState([]);
   const [enrolledClasses, setEnrolledClasses] = useState([]);
   const [myTimeTable, setMyTimeTable] = useState(Array(9).fill().map(() => Array(5).fill(null)));
-  const [studentId, setStudentId] = useState("bbb");
+  const [studentId, setStudentId] = useState("dcd7ef04-84f2-44d1-8dbf-48ba37da9230");
+  // 2번째 학생 : 02195b9b-6654-4037-9e78-f60f90f9356b
 
   useEffect(() => {
     getAllClasses();
@@ -14,32 +15,38 @@ function App() {
   }, [studentId]);
 
   const requestData = () => {
-
-    console.log(studentId);
-    axios.get(`http://localhost:8081/api/myclasslist/${studentId}`).then(function (res) {
+    if(studentId === "dcd7ef04-84f2-44d1-8dbf-48ba37da9230"){
+      console.log("aaa 학생");
+    }else{
+      console.log("bbb 학생")
+    }
+    
+    axios.get(`http://localhost:8081/myclasslist/${studentId}`).then(function (res) {
       if (res.status === 200) {
-        setEnrolledClasses(res.data.myClassList);
-
-        const formattedTimeTable = res.data.myTimeTable.map(row => row.map(cell => {
-          if (cell) {
-            return {
-              classId: cell.classes.classId,
-              className: cell.classes.className
-            };
-          }
-          return null;
-        })
-        );
-        setMyTimeTable(formattedTimeTable);
-        console.log(res.data);
+        // setEnrolledClasses(res.data.myClassList);
+        //
+        // const formattedTimeTable = res.data.myTimeTable.map(row => row.map(cell => {
+        //   if (cell) {
+        //     return {
+        //       classId: cell.classes.classId,
+        //       className: cell.classes.className
+        //     };
+        //   }
+        //   return null;
+        // })
+        // );
+        // setMyTimeTable(formattedTimeTable);
+        // console.log(res.data);
+        return null;
       }
     });
   }
 
   const getAllClasses = () => {
     try {
-      axios.get(`http://localhost:8081/api/allclasses`).then(function (res) {
+      axios.get(`http://localhost:8081/allclasses`).then(function (res) {
         if (res.status === 200) {
+          console.log(res.data);
           setClasses(res.data.allClasses);
         }
       })
@@ -50,9 +57,11 @@ function App() {
 
   // 관심강의 등록 함수
   const enroll = (classes) => {
-    axios.post("http://localhost:8081/api/enrollment", {
+    console.log("보내는 class이름 : " + classes[0])
+    axios.post("http://localhost:8081/enrollment", {
       studentId: studentId,
-      className: classes.className
+      // 전체 강의 배열에 담겨져있는 courseCode를 백으로 보냄
+      classCode: classes[0]
     })
       .then(function (res) {
         if (res.status === 200) {
@@ -83,7 +92,7 @@ function App() {
 
   // 관심강의 삭제 함수
   const deleteClass = (enrollmentId) => {
-    axios.delete(`http://localhost:8081/api/myclasslist/delete/${enrollmentId}`, {
+    axios.delete(`http://localhost:8081/myclasslist/delete/${enrollmentId}`, {
       myTimeTable: myTimeTable
     })
       .then(function (res) {
@@ -118,12 +127,12 @@ function App() {
         ) : (
           classes.map((classes, index) => (
             <div key={index} style={{ margin: '10px 0' }}>
-              강의번호: {classes.classId}&nbsp;&nbsp;&nbsp;
-              강의명: {classes.className}&nbsp;&nbsp;&nbsp;
-              학점: {classes.credit}&nbsp;&nbsp;&nbsp;
-              요일: {classes.day}&nbsp;&nbsp;&nbsp;
-              시작시간: {classes.startTime} ~
-              끝시간: {classes.endTime}&nbsp;&nbsp;&nbsp;
+              강의코드: {classes[0]}&nbsp;&nbsp;&nbsp;
+              강의명: {classes[1]}&nbsp;&nbsp;&nbsp;
+              학점: {classes[2]}&nbsp;&nbsp;&nbsp;
+              요일: {classes[3]}&nbsp;&nbsp;&nbsp;
+              시작시간: {classes[4]} ~
+              끝시간: {classes[5]}&nbsp;&nbsp;&nbsp;
               <button onClick={() => enroll(classes)}>신청</button>
             </div>
           ))
