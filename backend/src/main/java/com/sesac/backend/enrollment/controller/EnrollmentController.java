@@ -20,12 +20,14 @@ public class EnrollmentController {
     public Map<String, Object> enrollment(@RequestBody Map<String, Object> req) {
         Map<String, Object> res = new HashMap<>();
 
-        // 받은 요청 값 String 으로 변환
-        UserAuthentication studentId = (UserAuthentication) req.get("studentId");
-        UUID openingId = req.get("openingId") != null ? UUID.fromString(req.get("openingId").toString()) : null;
+        //String enrollStudentId = (String) req.get("studentId");
 
-        // 관심 강의 등록 시도
-        enrollmentService.saveClassEnrollment(studentId, openingId);
+        UUID studentId = req.get("studentId") != null ? UUID.fromString(req.get("studentId").toString()) : null;
+
+        String classCode = req.get("classCode") != null ? req.get("classCode").toString() : null;
+        
+        // 관심 강의 등록 시도 -> saveService에 학생과 강의에 대한 정보를 찾기 위해 studentId와 classCode를 보냄
+        enrollmentService.saveClassEnrollment(studentId, classCode);
 
         res.put("status", "success");
         res.put("message", "관심 강의가 성공적으로 등록되었습니다.");
@@ -41,11 +43,13 @@ public class EnrollmentController {
     }
 
     @GetMapping("/myclasslist/{studentid}")
-    public Map myclasslist(@PathVariable("studentid") UserAuthentication studentId) {
+    public Map myclasslist(@PathVariable("studentid") String student) {
         Map map = new HashMap();
-        //UUID studentId = UUID.fromString(studentid);
-        map.put("myClassList", enrollmentService.getEnrolledClassById(studentId));
-        map.put("myTimeTable", enrollmentService.getTimeTableById(studentId));
+//        //UserAuthentication studentId = UserAuthentication.fromString(student);
+//        UUID studentId = UUID.fromString(student);
+//        map.put("myClassList", enrollmentService.getEnrolledClassById(studentId));
+//        map.put("myTimeTable", enrollmentService.getTimeTableById(studentId));
+//        return map;
         return map;
     }
 

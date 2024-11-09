@@ -50,4 +50,10 @@ public class UserAuthentication {
     public enum SocialProvider {
         GENERAL, GOOGLE, KAKAO, NAVER
     }
+
+    public static UserAuthentication fromString(String studentId) {
+        UserAuthentication auth = new UserAuthentication();
+        auth.setUserId(UUID.fromString(studentId));
+        return auth;
+    }
 }

@@ -1,11 +1,5 @@
 package com.sesac.backend.entity;
 
-/*
-* 2024/11/08 - 정진욱
-* feature/enrollment2 branch에서 사용하던 entity의 내용을
-* entity 폴더의 enrollment entity로 변경
-*/
-
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -42,6 +36,7 @@ public class Enrollment {
     public Enrollment(CourseOpening courseOpening) {
         this.courseName = courseOpening.getCourse().getCourseName(); // Classes 엔터티의 className으로 설정
     }
+
 
     public Enrollment(Student student, CourseOpening openingCourseInfo, String courseName) {
         this.student = student;
