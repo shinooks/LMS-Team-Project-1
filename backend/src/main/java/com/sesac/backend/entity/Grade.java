@@ -20,21 +20,15 @@ public class Grade {
     @GeneratedValue// 자동 증가 ID
     private UUID gradeId;
 
-
     // 점수 일대일 관계
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "scoreId", nullable = false)
     private Score score;
 
-
-
     // 강의 개설 정보와의 다대일 관계
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "openingId", nullable = false)
     private CourseOpening courseOpening;
-
-
-
 
 
 
@@ -82,6 +76,15 @@ public class Grade {
         return courseOpening.getCourse().getCourseCode();
     }
 
+
+    // 학생 정보를 조회하는 편의 메서드 추가
+    public String getStudentNumber() {
+        return score.getStudent().getStudentNumber();
+    }
+
+    public String getStudentName() {
+        return score.getStudent().getName();
+    }
 
 
 }

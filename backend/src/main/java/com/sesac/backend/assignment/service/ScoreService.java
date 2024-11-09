@@ -44,6 +44,7 @@ public class ScoreService {
         return convertToDto(scoreRepository.save(convertToEntity(scoreDto)));
     }
 
+    //점수 수정
     public ScoreDto updateScore(ScoreDto scoreDto) {
         Score score = scoreRepository.findById(scoreDto.getScoreId()).orElseThrow(RuntimeException::new);
         score.setAssignScore(scoreDto.getAssignScore());
@@ -58,10 +59,12 @@ public class ScoreService {
         scoreRepository.deleteById(scoreId);
     }
 
+    //엔티티를 dto로
     private ScoreDto convertToDto(Score entity) {
         return new ScoreDto(entity.getScoreId(), entity.getAssignment().getAssignId(), entity.getMidtermExam().getMidtermExamId(), entity.getFinalExam().getFinalExamId(), entity.getStudent().getStudentId(), entity.getAssignScore(), entity.getMidtermExamScore(), entity.getFinalExamScore(), entity.getVisibility());
     }
 
+    // dto 를 엔티티로
     private Score convertToEntity(ScoreDto dto) {
         Assignment assignment = assignmentRepository.findById(dto.getAssignId()).orElse(null);
         MidtermExam midtermExam = midtermExamRepository.findById(dto.getMidtermExamId()).orElse(null);
