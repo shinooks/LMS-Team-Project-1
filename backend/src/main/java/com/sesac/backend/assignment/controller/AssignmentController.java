@@ -2,16 +2,17 @@ package com.sesac.backend.assignment.controller;
 
 import com.sesac.backend.assignment.dto.AssignmentDto;
 import com.sesac.backend.assignment.service.AssignmentService;
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 /**
- * @author dongjin
- * 과제 controller
- * http 요청을 받아 Assignment service 호출
+ * @author dongjin 과제 controller http 요청을 받아 Assignment service 호출
  */
 @Slf4j
 @CrossOrigin("*")
@@ -27,85 +28,88 @@ public class AssignmentController {
 
     /**
      * Assignment 테이블 전체 조회
+     *
      * @return List<AssignmentDto>
      */
     @GetMapping("")
-    public List<AssignmentDto> getAllAssignments() {
-        return assignmentService.getAll();
+    public ResponseEntity<List<AssignmentDto>> getAllAssignments() {
+        try {
+            return ResponseEntity.ok(assignmentService.findAll());
+        } catch (RuntimeException e) {
+            log.error(e.getMessage());
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     /**
      * Assignment 테이블 레코드 assignId(PK)로 조회
+     *
      * @param assignId
      * @return Map<String, AssignmentDto>
      */
     @GetMapping("/{assignId}")
-    public Map<String, AssignmentDto> getAssignmentById(@PathVariable("assignId") UUID assignId) {
+    public ResponseEntity<AssignmentDto> getAssignmentById(
+        @PathVariable("assignId") UUID assignId) {
         try {
-            return Map.of("success", assignmentService.findById(assignId));
-        } catch (Exception e) {
+            return ResponseEntity.ok(assignmentService.findById(assignId));
+        } catch (RuntimeException e) {
             log.error(e.getMessage());
-            return Map.of("success", null);
+            return ResponseEntity.notFound().build();
         }
     }
 
     /**
      * Assignment 테이블 레코드 생성
+     *
      * @param assignmentDto
      * @return Map<String, Boolean>
      */
     @PostMapping("")
-    public Map<String, Boolean> addAssignment(AssignmentDto assignmentDto) {
-        boolean flag = false;
-
+    public ResponseEntity<AssignmentDto> createAssign(AssignmentDto assignmentDto) {
         try {
-            assignmentService.save(assignmentDto);
-            flag = true;
-            return Map.of("success", flag);
-        } catch (Exception e) {
+            URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{assignId}")
+                .buildAndExpand(assignmentDto.getAssignId())
+                .toUri();
+
+            return ResponseEntity.created(location)
+                .body(assignmentService.createAssign(assignmentDto));
+        } catch (RuntimeException e) {
             log.error(e.getMessage());
-            return Map.of("success", flag);
+            return ResponseEntity.badRequest().build();
         }
     }
 
     /**
      * Assignment 테이블 레코드 수정
+     *
      * @param assignmentDto
      * @return Map<String, Boolean>
      */
     @PutMapping("")
-    public Map<String, Boolean> updateAssignment(AssignmentDto assignmentDto) {
-        boolean flag = false;
-
+    public ResponseEntity<AssignmentDto> updateAssignment(AssignmentDto assignmentDto) {
         try {
-            AssignmentDto saved = assignmentService.findById(assignmentDto.getAssignId());
-            saved.setCourse(assignmentDto.getCourse());
-            saved.setTitle(assignmentDto.getTitle());
-            saved.setDescription(assignmentDto.getDescription());
-            saved.setDeadline(assignmentDto.getDeadline());
-            assignmentService.save(saved);
-            flag = true;
-            return Map.of("success", flag);
-        } catch (Exception e) {
-            return Map.of("success", flag);
+            return ResponseEntity.ok(assignmentService.updateAssign(assignmentDto));
+        } catch (RuntimeException e) {
+            log.error(e.getMessage());
+            return ResponseEntity.badRequest().build();
         }
     }
 
     /**
      * Assignment 테이블 레코드 assignId(PK)로 삭제
+     *
      * @param assignId
      * @return Map<String, Boolean>
      */
     @DeleteMapping("/{assignId}")
-    public Map<String, Boolean> deleteAssignment(@PathVariable("assignId") UUID assignId) {
-        boolean flag = false;
-
+    public ResponseEntity<Void> deleteAssignment(@PathVariable("assignId") UUID assignId) {
         try {
             assignmentService.delete(assignId);
-            flag = true;
-            return Map.of("success", flag);
-        } catch (Exception e) {
-            return Map.of("success", flag);
+            return ResponseEntity.noContent().build();
+        } catch (RuntimeException e) {
+            log.error(e.getMessage());
+            return ResponseEntity.notFound().build();
         }
     }
 }

@@ -2,7 +2,9 @@ package com.sesac.backend.assignment.service;
 
 import com.sesac.backend.assignment.domain.FinalExam;
 import com.sesac.backend.assignment.dto.FinalExamDto;
-import com.sesac.backend.assignment.repository.FinalExamDao;
+import com.sesac.backend.assignment.repository.FinalExamRepository;
+import com.sesac.backend.course.repository.CourseRepository;
+import com.sesac.backend.entity.Course;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,11 +18,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class FinalExamService {
 
-    private final FinalExamDao finalExamDao;
+    private final FinalExamRepository finalExamRepository;
+    private final CourseRepository courseRepository;
 
     @Autowired
-    public FinalExamService(FinalExamDao finalExamDao) {
-        this.finalExamDao = finalExamDao;
+    public FinalExamService(FinalExamRepository finalExamRepository,
+        CourseRepository courseRepository) {
+        this.finalExamRepository = finalExamRepository;
+        this.courseRepository = courseRepository;
     }
 
     /**
@@ -29,7 +34,7 @@ public class FinalExamService {
      * @return FinalExamDto
      */
     public FinalExamDto getByExamId(UUID finalExamId) {
-        return finalExamDao.findById(finalExamId).stream()
+        return finalExamRepository.findById(finalExamId).stream()
             .map(this::convertToDto).findFirst()
             .orElseThrow(RuntimeException::new);
     }
@@ -39,7 +44,7 @@ public class FinalExamService {
      * @return List<FinalExamDto>
      */
     public List<FinalExamDto> getAllFinalExams() {
-        return finalExamDao.findAll().stream().map(this::convertToDto).toList();
+        return finalExamRepository.findAll().stream().map(this::convertToDto).toList();
     }
 
     /**
@@ -48,7 +53,7 @@ public class FinalExamService {
      * @return FinalExamDto
      */
     public FinalExamDto createFinalExam(FinalExamDto finalExamDto) {
-        return convertToDto(finalExamDao.save(convertToEntity(finalExamDto)));
+        return convertToDto(finalExamRepository.save(convertToEntity(finalExamDto)));
     }
 
     /**
@@ -57,11 +62,11 @@ public class FinalExamService {
      * @return FinalExamDto
      */
     public FinalExamDto updateFinalExam(FinalExamDto finalExamDto) {
-        FinalExam saved = finalExamDao.findById(finalExamDto.getFinalExamId())
+        FinalExam saved = finalExamRepository.findById(finalExamDto.getFinalExamId())
             .orElseThrow(RuntimeException::new);
         saved.setStartTime(finalExamDto.getStartTime());
         saved.setEndTime(finalExamDto.getEndTime());
-        return convertToDto(finalExamDao.save(saved));
+        return convertToDto(finalExamRepository.save(saved));
     }
 
     /**
@@ -69,8 +74,8 @@ public class FinalExamService {
      * @param finalExamId
      */
     public void deleteFinalExam(UUID finalExamId) {
-        finalExamDao.findById(finalExamId).orElseThrow(RuntimeException::new);
-        finalExamDao.deleteById(finalExamId);
+        finalExamRepository.findById(finalExamId).orElseThrow(RuntimeException::new);
+        finalExamRepository.deleteById(finalExamId);
     }
 
     /**
@@ -79,7 +84,7 @@ public class FinalExamService {
      * @return FinalExamDto
      */
     private FinalExamDto convertToDto(FinalExam entity) {
-        return new FinalExamDto(entity.getFinalExamId(), entity.getCourse(),
+        return new FinalExamDto(entity.getFinalExamId(), entity.getCourse().getCourseId(),
             entity.getStartTime(), entity.getEndTime());
     }
 
@@ -89,7 +94,9 @@ public class FinalExamService {
      * @return FinalExam
      */
     private FinalExam convertToEntity(FinalExamDto dto) {
-        return new FinalExam(dto.getFinalExamId(), dto.getCourse(), dto.getStartTime(),
+        Course course = courseRepository.findById(dto.getCourseId()).orElseThrow(RuntimeException::new);
+
+        return new FinalExam(dto.getFinalExamId(), course, dto.getStartTime(),
             dto.getEndTime());
     }
 }

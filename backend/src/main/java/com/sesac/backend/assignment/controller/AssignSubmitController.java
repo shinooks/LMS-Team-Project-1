@@ -5,6 +5,7 @@ import com.sesac.backend.assignment.service.AssignSubmitService;
 import java.util.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
  */
 @Slf4j
 @CrossOrigin("*")
-@RequestMapping("/assignment/submit")
+@RequestMapping("/assignments/submit")
 @RestController
 public class AssignSubmitController {
 
@@ -30,8 +31,8 @@ public class AssignSubmitController {
      * @return List<AssignSubmitDto>
      */
     @GetMapping("")
-    public List<AssignSubmitDto> getAllSubmits() {
-        return assignSubmitService.getAll();
+    public ResponseEntity<List<AssignSubmitDto>> getAllSubmits() {
+        return ResponseEntity.ok(assignSubmitService.getAll());
     }
 
     /**
@@ -40,12 +41,12 @@ public class AssignSubmitController {
      * @return Map<String, AssignSubmitDto>
      */
     @GetMapping("/{assignSubmitId}")
-    public Map<String, AssignSubmitDto> getById(@PathVariable("assignSubmitId") UUID assignSubmitId) {
+    public ResponseEntity<AssignSubmitDto> getAssignSubmit(@PathVariable("assignSubmitId") UUID assignSubmitId) {
         try {
-            return Map.of("success", assignSubmitService.findById(assignSubmitId));
+            return ResponseEntity.ok(assignSubmitService.findById(assignSubmitId));
         } catch (Exception e) {
             log.error(e.getMessage());
-            return Map.of("success", null);
+            return ResponseEntity.notFound().build();
         }
     }
 
@@ -55,16 +56,12 @@ public class AssignSubmitController {
      * @return Map<String, Boolean>
      */
     @PostMapping("")
-    public Map<String, Boolean> submit(AssignSubmitDto assignSubmitDto) {
-        boolean flag = false;
-
+    public ResponseEntity<AssignSubmitDto> submit(AssignSubmitDto assignSubmitDto) {
         try {
-            assignSubmitService.submit(assignSubmitDto);
-            flag = true;
-            return Map.of("success", flag);
+            return ResponseEntity.ok(assignSubmitService.submit(assignSubmitDto));
         } catch (Exception e) {
             log.error(e.getMessage());
-            return Map.of("success", flag);
+            return ResponseEntity.badRequest().build();
         }
     }
 
@@ -74,16 +71,13 @@ public class AssignSubmitController {
      * @return Map<String, Boolean>
      */
     @DeleteMapping("/{assignSubmitId}")
-    public Map<String, Boolean> delete(@PathVariable("assignSubmitId") UUID assignSubmitId) {
-        boolean flag = false;
-
+    public ResponseEntity<Void> delete(@PathVariable("assignSubmitId") UUID assignSubmitId) {
         try {
             assignSubmitService.delete(assignSubmitId);
-            flag = true;
-            return Map.of("success", flag);
+            return ResponseEntity.noContent().build();
         } catch (Exception e) {
             log.error(e.getMessage());
-            return Map.of("success", flag);
+            return ResponseEntity.notFound().build();
         }
     }
 }

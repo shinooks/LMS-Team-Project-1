@@ -24,7 +24,7 @@ public class FinalExamDto {
      * endTime:         종료시간
      */
     private UUID finalExamId;
-    private Course course;
+    private UUID courseId;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
 }

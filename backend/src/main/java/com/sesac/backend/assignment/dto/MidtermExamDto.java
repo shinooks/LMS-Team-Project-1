@@ -24,7 +24,7 @@ public class MidtermExamDto {
      * endTime:             종료시간
      */
     private UUID midtermExamId;
-    private Course course;
+    private UUID courseId;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
 }

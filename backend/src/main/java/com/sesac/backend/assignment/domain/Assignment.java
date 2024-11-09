@@ -1,5 +1,6 @@
 package com.sesac.backend.assignment.domain;
 
+import com.sesac.backend.entity.BaseEntity;
 import com.sesac.backend.entity.Course;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
@@ -12,12 +13,12 @@ import lombok.*;
  * Assignment 테이블 컬럼 정의
  */
 @Getter
-@Setter
-@ToString
-@NoArgsConstructor
+@Builder
+@ToString(exclude = {"course"})
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Entity
-public class Assignment {
+public class Assignment extends BaseEntity {
 
     /**
      * assignId:    PK
@@ -32,7 +33,17 @@ public class Assignment {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "courseId", nullable = false)
     private Course course;
+    @Column(nullable = false)
     private String title;
+    @Lob
+    @Column(nullable = false)
     private String description;
     private LocalDateTime deadline;
+
+    public void setAssign(Course course, String title, String description, LocalDateTime deadline) {
+        this.course = course;
+        this.title = title;
+        this.description = description;
+        this.deadline = deadline;
+    }
 }

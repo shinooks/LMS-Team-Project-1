@@ -1,5 +1,6 @@
 package com.sesac.backend.assignment.domain;
 
+import com.sesac.backend.entity.BaseEntity;
 import com.sesac.backend.entity.Course;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
@@ -13,11 +14,11 @@ import lombok.*;
  */
 @Getter
 @Setter
-@ToString
-@NoArgsConstructor
+@ToString(exclude = {"course"})
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Entity
-public class FinalExam {
+public class FinalExam extends BaseEntity {
 
     /**
      * finalExamId:     PK

@@ -12,6 +12,8 @@ import org.springframework.stereotype.Repository;
  * AssignSubmit 테이블 연결
  */
 @Repository
-public interface AssignSubmitDao extends JpaRepository<AssignSubmit, UUID> {
+public interface AssignSubmitRepository extends JpaRepository<AssignSubmit, UUID> {
+
+    AssignSubmit findByAssignmentAssignId(UUID assignId);
 
 }

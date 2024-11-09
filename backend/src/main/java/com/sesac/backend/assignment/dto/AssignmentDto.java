@@ -1,6 +1,6 @@
 package com.sesac.backend.assignment.dto;
 
-import com.sesac.backend.entity.Course;
+import jakarta.persistence.Lob;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.*;
@@ -11,9 +11,8 @@ import lombok.*;
  * Assignment 데이터 전달 객체
  */
 @Getter
-@Setter
 @ToString
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class AssignmentDto {
 
@@ -25,8 +24,9 @@ public class AssignmentDto {
      * deadline:    제출기한
      */
     private UUID assignId;
-    private Course course;
+    private UUID courseId;
     private String title;
+    @Lob
     private String description;
     private LocalDateTime deadline;
 }

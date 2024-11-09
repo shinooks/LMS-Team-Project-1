@@ -2,7 +2,9 @@ package com.sesac.backend.assignment.service;
 
 import com.sesac.backend.assignment.domain.MidtermExam;
 import com.sesac.backend.assignment.dto.MidtermExamDto;
-import com.sesac.backend.assignment.repository.MidtermExamDao;
+import com.sesac.backend.assignment.repository.MidtermExamRepository;
+import com.sesac.backend.course.repository.CourseRepository;
+import com.sesac.backend.entity.Course;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
@@ -15,10 +17,13 @@ import org.springframework.stereotype.Service;
 @Service
 public class MidtermExamService {
 
-    private final MidtermExamDao midtermExamDao;
+    private final MidtermExamRepository midtermExamRepository;
+    private final CourseRepository courseRepository;
 
-    public MidtermExamService(MidtermExamDao midtermExamDao) {
-        this.midtermExamDao = midtermExamDao;
+    public MidtermExamService(MidtermExamRepository midtermExamRepository,
+        CourseRepository courseRepository) {
+        this.midtermExamRepository = midtermExamRepository;
+        this.courseRepository = courseRepository;
     }
 
     /**
@@ -27,7 +32,7 @@ public class MidtermExamService {
      * @return MidtermExamDto
      */
     public MidtermExamDto getMidtermExam(UUID midtermExamId) {
-        return midtermExamDao.findById(midtermExamId).stream()
+        return midtermExamRepository.findById(midtermExamId).stream()
             .map(this::convertToDto)
             .findFirst().orElseThrow(RuntimeException::new);
     }
@@ -37,7 +42,7 @@ public class MidtermExamService {
      * @return List<MidtermExamDto>
      */
     public List<MidtermExamDto> getAllMidtermExams() {
-        return midtermExamDao.findAll().stream().map(this::convertToDto).toList();
+        return midtermExamRepository.findAll().stream().map(this::convertToDto).toList();
     }
 
     /**
@@ -46,7 +51,7 @@ public class MidtermExamService {
      * @return MidtermExamDto
      */
     public MidtermExamDto createMidtermExam(MidtermExamDto midtermExamDto) {
-        return convertToDto(midtermExamDao.save(convertToEntity(midtermExamDto)));
+        return convertToDto(midtermExamRepository.save(convertToEntity(midtermExamDto)));
     }
 
     /**
@@ -55,13 +60,13 @@ public class MidtermExamService {
      * @return MidtermExamDto
      */
     public MidtermExamDto updateMidtermExam(MidtermExamDto midtermExamDto) {
-        MidtermExam saved = midtermExamDao.findById(midtermExamDto.getMidtermExamId())
+        MidtermExam saved = midtermExamRepository.findById(midtermExamDto.getMidtermExamId())
             .orElseThrow(RuntimeException::new);
 
         saved.setStartTime(midtermExamDto.getStartTime());
         saved.setEndTime(midtermExamDto.getEndTime());
 
-        return convertToDto(midtermExamDao.save(saved));
+        return convertToDto(midtermExamRepository.save(saved));
     }
 
     /**
@@ -69,8 +74,8 @@ public class MidtermExamService {
      * @param midtermExamId
      */
     public void deleteMidtermExam(UUID midtermExamId) {
-        midtermExamDao.findById(midtermExamId).orElseThrow(RuntimeException::new);
-        midtermExamDao.deleteById(midtermExamId);
+        midtermExamRepository.findById(midtermExamId).orElseThrow(RuntimeException::new);
+        midtermExamRepository.deleteById(midtermExamId);
     }
 
     /**
@@ -79,7 +84,8 @@ public class MidtermExamService {
      * @return MidtermExamDto
      */
     private MidtermExamDto convertToDto(MidtermExam entity) {
-        return new MidtermExamDto(entity.getMidtermExamId(), entity.getCourse(),
+
+        return new MidtermExamDto(entity.getMidtermExamId(), entity.getCourse().getCourseId(),
             entity.getStartTime(), entity.getEndTime());
     }
 
@@ -89,7 +95,9 @@ public class MidtermExamService {
      * @return MidtermExam
      */
     private MidtermExam convertToEntity(MidtermExamDto dto) {
-        return new MidtermExam(dto.getMidtermExamId(), dto.getCourse(), dto.getStartTime(),
+        Course course = courseRepository.findById(dto.getCourseId()).orElseThrow(RuntimeException::new);
+
+        return new MidtermExam(dto.getMidtermExamId(), course, dto.getStartTime(),
             dto.getEndTime());
     }
 }

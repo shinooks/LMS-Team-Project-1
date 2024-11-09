@@ -11,6 +11,6 @@ import org.springframework.stereotype.Repository;
  * Assignment 테이블 연결
  */
 @Repository
-public interface AssignmentDao extends JpaRepository<Assignment, UUID> {
+public interface AssignmentRepository extends JpaRepository<Assignment, UUID> {
 
 }

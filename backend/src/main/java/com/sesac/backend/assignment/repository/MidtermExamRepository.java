@@ -11,6 +11,6 @@ import org.springframework.stereotype.Repository;
  * MidtermExam 테이블 연결
  */
 @Repository
-public interface MidtermExamDao extends JpaRepository<MidtermExam, UUID> {
+public interface MidtermExamRepository extends JpaRepository<MidtermExam, UUID> {
 
 }

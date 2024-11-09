@@ -1,8 +1,5 @@
 package com.sesac.backend.assignment.dto;
 
-import com.sesac.backend.assignment.domain.Assignment;
-import com.sesac.backend.entity.Student;
-import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.*;
 
@@ -14,6 +11,7 @@ import lombok.*;
 @Getter
 @Setter
 @ToString
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class AssignSubmitDto {
@@ -23,13 +21,11 @@ public class AssignSubmitDto {
      * assignment:          제출 받을 과제
      * student:             제출 생성한 학생
      * answer:              제출한 답안
-     * submitAt:            제출 일시
      * fileName:            제출 파일명
      */
     private UUID assignSubmitId;
-    private Assignment assignment;
-    private Student student;
+    private UUID assignId;
+    private UUID studentId;
     private String answer;
-    private LocalDateTime submitAt;
     private String fileName;
 }
