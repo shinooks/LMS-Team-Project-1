@@ -23,4 +23,5 @@ public class Assignment {
     private String title; // 제목
     private String description; // 문제
     private LocalDateTime deadline; // 제출기한
+
 }

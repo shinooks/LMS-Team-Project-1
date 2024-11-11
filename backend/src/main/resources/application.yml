@@ -1,6 +1,10 @@
 spring:
   application:
     name: backend
+    
+  output:
+    ansi:
+      enabled: always
 
   security:
     basic:
@@ -41,3 +45,5 @@ my_value:
 #  org:
 #    springframework:
 #      security: DEBUG
+
+

@@ -10,9 +10,11 @@ import lombok.*;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
+@Data
 public class AssignmentDto {
     private UUID assignId;
-    private Course course;
+    private UUID courseId;
     private String title;
     private String description;
     private LocalDateTime deadline;
