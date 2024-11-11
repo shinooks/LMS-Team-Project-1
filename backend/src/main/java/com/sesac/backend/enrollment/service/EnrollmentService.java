@@ -97,137 +97,7 @@ public class EnrollmentService {
 
         enrollmentRepository.save(enrollment);
     }
-
-
-
-
-//    public void saveClassEnrollment(UUID studentId, String courseCode) {
-//        // classCode로 Course의 정보를 조회
-//        Course course = courseRepository.findCourseByCourseCode(courseCode);
-//        // System.out.println("강의 정보 : " + course.getCourseId());
-//        // 강의 정보 : 10cdef34-5678-90ab-cdef-123456789abc
-//
-//        // 정진욱
-//        // Course 정보가 있을 때 중복 검사 수행
-//        if (course != null) {
-//
-//        }
-//
-//
-//        // Student studentId로 enrollment entity 조회/ 관심강의에 등록하려는 학생이 이미 등록한 강의 목록
-//        List<Enrollment> studentEnrollments = enrollmentRepository.findByStudent_StudentId(studentId);
-//
-//
-//
-//        Enrollment entity = new Enrollment(student, openingCourseInfo,
-//                openingCourseInfo.getCourse().getCourseName());
-//        enrollmentRepository.save(entity);
-//    }
-//
-//    // enrollment 생성 시 중복 검사 서비스
-//    public void checkMultiClass(CourseOpening openingCourseInfo, Student student) {
-//        // 관심강의를 등록하려는 학생 id(dto.studentId)로 이미 있는
-//        System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-//        System.out.println("학생정보 : " + student);
-//        System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-//
-//
-//        Set<Enrollment> existEnrollments = enrollmentRepository.findByStudent(studentId);
-//
-//        // 등록할 강의의 시간 정보를 가져옴
-//        List<CourseTime> openingCourseTimeInfo = openingCourseInfo.getCourseTimes();
-//
-//        // 기존 관심등록한 강의 목록을 리스트에 담음
-//        List<CourseTime> existingCourseTimeInfo = new ArrayList<>();
-//
-//        for (Enrollment enrollment : existEnrollments) {
-//            existingCourseTimeInfo.addAll(enrollment.getCourseOpening().getCourseTimes());
-//        }
-//
-//        // 성능 향상을 위해 관심등록 되어있는 데이터와 등록할 데이터를 하나의 List에 병합
-//        List<CourseTime> allCourseTimesForMatching = new ArrayList<>();
-//        allCourseTimesForMatching.addAll(openingCourseTimeInfo);
-//        allCourseTimesForMatching.addAll(existingCourseTimeInfo);
-//
-//        // 시간정보 정렬(요일과 시작 시간 기준)
-//        allCourseTimesForMatching.sort(Comparator.comparing(CourseTime::getDayOfWeek)
-//                .thenComparing(CourseTime::getStartTime));
-//
-//        // 겹치는 시간 체크
-//        for (int i = 1; i < allCourseTimesForMatching.size(); i++) {
-//            CourseTime previous = allCourseTimesForMatching.get(i - 1);
-//            CourseTime current = allCourseTimesForMatching.get(i);
-//
-//            // 요일이 같고 시간 겹침 체크
-//            if (previous.getDayOfWeek().equals(current.getDayOfWeek()) &&
-//                    isTimeOverlap(previous.getStartTime(), previous.getEndTime(), current.getStartTime(), current.getEndTime())) {
-//                throw new TimeOverlapException("시간이 겹치는 강의가 이미 등록되어 있습니다: " + current.getCourseOpening().getCourse().getCourseName());
-//            }
-//        }
-//    }
-//
-//    // 시간 겹침 체크 메서드
-//    private boolean isTimeOverlap(LocalTime newStartTime, LocalTime newEndTime, LocalTime existingStartTime, LocalTime existingEndTime) {
-//        return (newStartTime.isBefore(existingEndTime) && newEndTime.isAfter(existingStartTime));
-//    }
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-//    public List<CourseOpeningDto> getAllClasses() {
-//
-////        List<CourseOpening> tmpList = courseOpeningRepository.findAll();
-////
-////        List<UUID> courseOpeningIds = new ArrayList<>();
-////
-////        for (CourseOpening id : tmpList) {
-////            courseOpeningIds.add(id.getOpeningId());
-////        }
-////
-////        List<CourseOpening> courseList = courseOpeningRepository.findById();
-//
-//
-////        List<CourseOpeningDto> allClassesList = new ArrayList<>();
-////
-////        for (CourseOpening c : tmpList) {
-////
-////            List<CourseTimeDto> courseTimeDtos = c.getCourseTimes().stream()
-////                    .map(ctd -> new CourseTimeDto(
-////                            ctd.getTimeId(),
-////                            ctd.getCourseOpening().getOpeningId(),
-////                            ctd.getDayOfWeek(),
-////                            ctd.getStartTime(),
-////                            ctd.getEndTime(),
-////                            ctd.getClassroom()))
-////                    .collect(Collectors.toList());
-////
-////            SyllabusDto syllabusDto = new SyllabusDto(
-////                    c.getSyllabus().getSyllabusId(),
-////                    c.getSyllabus().getLearningObjectives(),
-////                    c.getSyllabus().getWeeklyPlan(),
-////                    c.getSyllabus().getEvaluationMethod(),
-////                    c.getSyllabus().getTextbooks()
-////            );
-////
-////            allClassesList.add(new CourseOpeningDto(
-////                    c.getOpeningId(),
-////                    c.getCourse().getCourseId(),
-////                    c.getProfessorId(),
-////                    c.getSemester(),
-////                    c.getYear(),
-////                    c.getMaxStudents(),
-////                    c.getCurrentStudents(),
-////                    c.getStatus(),
-////                    courseTimeDtos,
-////                    syllabusDto
-////            ));
-////        }
-//
-//        // 강의에 대한 정보들을 담기 위해 각 정보가 필요한 list 생성
-//
-//
-//        //return allClassesList;
-//        return null;
-//    }
-
+    
     public List<Object> getAllClasses() {
         List<CourseOpening> tmpList = courseOpeningRepository.findAll();
 
@@ -276,12 +146,10 @@ public class EnrollmentService {
         return allCoursesList;
     }
 
-
     //public List<EnrollmentDto> getEnrolledClassById (UserAuthentication studentId){
 //    public List<EnrollmentDto> getEnrolledClassById (UUID studentId){
 //        return convertToDto(studentId);
 //    }
-
 
     public EnrollmentDto[][] getTimeTableById (UUID studentId){
         List<EnrollmentDto> courseListById = convertToDto(studentId);
