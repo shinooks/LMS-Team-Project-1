@@ -1,6 +1,7 @@
 package com.sesac.backend.enrollment.service;
 
 import com.sesac.backend.course.constant.DayOfWeek;
+import com.sesac.backend.course.dto.CourseOpeningDto;
 import com.sesac.backend.course.repository.CourseOpeningRepository;
 import com.sesac.backend.course.repository.CourseRepository;
 import com.sesac.backend.course.repository.CourseTimeRepository;
@@ -144,6 +145,13 @@ public class EnrollmentService {
 
         return allCoursesList;
     }
+
+
+    //public List<EnrollmentDto> getEnrolledClassById (UserAuthentication studentId){
+//    public List<EnrollmentDto> getEnrolledClassById (UUID studentId){
+//        return convertToDto(studentId);
+//    }
+
 
     public EnrollmentDto[][] getTimeTableById (UUID studentId){
         List<EnrollmentDto> courseListById = convertToDto(studentId);
