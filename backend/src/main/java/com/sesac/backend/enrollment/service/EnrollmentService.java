@@ -6,6 +6,7 @@ import com.sesac.backend.course.dto.CourseTimeDto;
 import com.sesac.backend.course.dto.SyllabusDto;
 import com.sesac.backend.course.repository.CourseOpeningRepository;
 import com.sesac.backend.course.repository.CourseRepository;
+import com.sesac.backend.course.repository.CourseTimeRepository;
 import com.sesac.backend.enrollment.domain.ScheduleChecker;
 import com.sesac.backend.enrollment.domain.exceptionControl.TimeOverlapException;
 import com.sesac.backend.enrollment.dto.EnrollmentDto;
@@ -35,6 +36,8 @@ public class EnrollmentService {
     private EnrollStudentRepository enrollStudentRepository;
     @Autowired
     private CourseRepository courseRepository;
+    @Autowired
+    private CourseTimeRepository courseTimeRepository;
 
 
     private List<EnrollmentDto> convertToDto(UserAuthentication studentId) {
@@ -116,47 +119,89 @@ public class EnrollmentService {
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public List<CourseOpeningDto> getAllClasses() {
+    public List<Object> getAllClasses() {
         List<CourseOpening> tmpList = courseOpeningRepository.findAll();
 
-
-        List<CourseOpeningDto> allClassesList = new ArrayList<>();
+        List<Object> allCoursesList = new ArrayList<>();
 
         for (CourseOpening c : tmpList) {
 
-            List<CourseTimeDto> courseTimeDtos = c.getCourseTimes().stream()
-                    .map(ctd -> new CourseTimeDto(
-                            ctd.getTimeId(),
-                            ctd.getCourseOpening().getOpeningId(),
-                            ctd.getDayOfWeek(),
-                            ctd.getStartTime(),
-                            ctd.getEndTime(),
-                            ctd.getClassroom()))
-                    .collect(Collectors.toList());
+            List<Object> courseInfo = new ArrayList<>();
 
-            SyllabusDto syllabusDto = new SyllabusDto(
-                    c.getSyllabus().getSyllabusId(),
-                    c.getSyllabus().getLearningObjectives(),
-                    c.getSyllabus().getWeeklyPlan(),
-                    c.getSyllabus().getEvaluationMethod(),
-                    c.getSyllabus().getTextbooks()
-            );
+            UUID courseOpeningId = c.getOpeningId();
+            UUID courseId = c.getCourse().getCourseId();
 
-            allClassesList.add(new CourseOpeningDto(
-                    c.getOpeningId(),
-                    c.getCourse().getCourseId(),
-                    c.getProfessorId(),
-                    c.getSemester(),
-                    c.getYear(),
-                    c.getMaxStudents(),
-                    c.getCurrentStudents(),
-                    c.getStatus(),
-                    courseTimeDtos,
-                    syllabusDto
-            ));
+            List<Course> courses = courseRepository.findCourseByCourseId(courseId);
+            List<CourseTime> times = courseTimeRepository.findByCourseOpeningOpeningId(courseOpeningId);
+
+            String courseCode = "";
+            String courseName = "";
+            Integer credit = 0;
+
+            for (Course cs : courses) {
+                courseCode = cs.getCourseCode();
+                courseName = cs.getCourseName();
+                credit = cs.getCredits();
+            }
+
+            LocalTime startTime = null;
+            LocalTime endTime = null;
+            DayOfWeek day = null;
+
+            for (CourseTime time : times) {
+                startTime = time.getStartTime();
+                endTime = time.getEndTime();
+                day = time.getDayOfWeek();
+            }
+
+            courseInfo.add(courseCode);
+            courseInfo.add(courseName);
+            courseInfo.add(credit);
+            courseInfo.add(day);
+            courseInfo.add(startTime);
+            courseInfo.add(endTime);
+
+            allCoursesList.add(courseInfo);
         }
-        return allClassesList;
 
+        return allCoursesList;
+
+//        List<CourseOpeningDto> allClassesList = new ArrayList<>();
+//
+//        for (CourseOpening c : tmpList) {
+//
+//            List<CourseTimeDto> courseTimeDtos = c.getCourseTimes().stream()
+//                    .map(ctd -> new CourseTimeDto(
+//                            ctd.getTimeId(),
+//                            ctd.getCourseOpening().getOpeningId(),
+//                            ctd.getDayOfWeek(),
+//                            ctd.getStartTime(),
+//                            ctd.getEndTime(),
+//                            ctd.getClassroom()))
+//                    .collect(Collectors.toList());
+//
+//            SyllabusDto syllabusDto = new SyllabusDto(
+//                    c.getSyllabus().getSyllabusId(),
+//                    c.getSyllabus().getLearningObjectives(),
+//                    c.getSyllabus().getWeeklyPlan(),
+//                    c.getSyllabus().getEvaluationMethod(),
+//                    c.getSyllabus().getTextbooks()
+//            );
+//
+//            allClassesList.add(new CourseOpeningDto(
+//                    c.getOpeningId(),
+//                    c.getCourse().getCourseId(),
+//                    c.getProfessorId(),
+//                    c.getSemester(),
+//                    c.getYear(),
+//                    c.getMaxStudents(),
+//                    c.getCurrentStudents(),
+//                    c.getStatus(),
+//                    courseTimeDtos,
+//                    syllabusDto
+//            ));
+//        }
+//
     }
 
     public List<EnrollmentDto> getEnrolledClassById(UserAuthentication studentId) {

@@ -8,4 +8,5 @@ import java.util.Set;
 
 public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
     Set<Enrollment> findByStudent(Student studentId);
+
 }

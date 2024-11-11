@@ -1,6 +1,5 @@
 package com.sesac.backend.course.repository;
 
-import com.sesac.backend.course.constant.Credit;
 import com.sesac.backend.entity.Course;
 import com.sesac.backend.entity.Department;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -22,4 +21,7 @@ public interface CourseRepository extends JpaRepository<Course, UUID> {
 
     // 강의 코드 중복 확인
     boolean existsByCourseCode(String courseCode);
+
+    // 특정 강의 조회
+    List<Course> findCourseByCourseId(UUID courseId);
 }
