@@ -72,8 +72,12 @@ public class GradeController {
 
 
 
+    @GetMapping("/statistics/{openingId}")
+    public ResponseEntity<GradeStatisticsDto> getGradeStatistics(@PathVariable UUID openingId) {
+        return ResponseEntity.ok(gradeService.getGradeStatistics(openingId));
 
-
+    }
+    // http://localhost:8081/grades/statistics/9e0f1a2b-3c4d-5e6f-7a8b-9c0d1f2a3b4c
 
 
 

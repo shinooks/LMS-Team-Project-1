@@ -160,47 +160,48 @@ public class GradeService {
     }
 
 
+
+
     /**
-     * 성적 리스트 조회 (정렬 기능 포함)
+     * 강의별 성적 통계 조회
+     *
      */
-//    public List<GradeListResponseDto> getGradeList(UUID openingID, String sortBy) {
-//        List<Grade> grades = gradeRepository.findByCourseOpening_OpeningId(openingID);
-//
-//        // 정렬 기준에 따라 정렬
-//        switch (sortBy) {
-//            case "totalScore":
-//                grades.sort((g1, g2) -> g2.getTotalScore() - g1.getTotalScore());
-//                break;
-//            case "studentNumber":
-//                grades.sort(Comparator.comparing(Grade::getStudentNumber));
-//                break;
-//            case "studentName":
-//                grades.sort(Comparator.comparing(Grade::getStudentName));
-//                break;
-//            // 필요한 정렬 기준 추가
-//        }
-//
-//        // 순위 부여하여 DTO 변환
-//        List<GradeListResponseDto> result = new ArrayList<>();
-//        int rank = 1;
-//        int prevScore = -1;
-//        int sameRankCount = 0;
-//
-//        for (Grade grade : grades) {
-//            if(prevScore != grade.getTotalScore()) {
-//                rank += sameRankCount;
-//                sameRankCount = 1;
-//            } else {
-//                sameRankCount++;
-//            }
-//            result.add(GradeListResponseDto.from(grade, rank));
-//            prevScore = grade.getTotalScore();
-//        }
-//
-//        return result;
-//
-//
-//    }
+    public GradeStatisticsDto getGradeStatistics(UUID openingId) {
+        // 강의 개설 정보 조회
+        CourseOpening courseOpening = courseOpeningRepository.findById(openingId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 강의를 찾을 수 없습니다."));
+
+        // 수강인원은 CourseOpening에서 가져옴
+        int totalStudents = courseOpening.getCurrentStudents();
+
+        // 성적 정보 조회
+        List<Grade> grades = gradeRepository.findByCourseOpening_OpeningId(openingId);
+
+        // 성적이 없는 경우
+        if (grades.isEmpty()) {
+            return GradeStatisticsDto.builder()
+                    .totalStudents(totalStudents)
+                    .averageScore(0.0)
+                    .highestScore(0)
+                    .lowestScore(0)
+                    .build();
+        }
+
+        // 총점 기준으로 통계 계산
+        DoubleSummaryStatistics stats = grades.stream()
+                .mapToDouble(Grade::getTotalScore)
+                .summaryStatistics();
+
+        return GradeStatisticsDto.builder()
+                .totalStudents(totalStudents)
+                .averageScore(Math.round(stats.getAverage() * 10.0) / 10.0)  // 소수점 첫째자리까지
+                .highestScore((int) stats.getMax())
+                .lowestScore((int) stats.getMin())
+                .build();
+    }
+
+
+
 
     /**
      * 강의별 성적 리스트 조회 (정렬 기능 포함)

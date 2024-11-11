@@ -24,4 +24,7 @@ public interface GradeRepository extends JpaRepository<Grade, UUID> {
     // CourseOpening ID로 Grade 목록 조회
     List<Grade> findByCourseOpening_OpeningId(UUID openingId);
 
+
+
+
 }
