@@ -1,6 +1,6 @@
 package com.sesac.backend.entity;
 
-import com.sesac.backend.assignment.domain.Score;
+import com.sesac.backend.evaluation.score.domain.Score;
 import jakarta.persistence.*;
 import lombok.*;
 
