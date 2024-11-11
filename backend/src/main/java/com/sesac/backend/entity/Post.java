@@ -5,7 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -13,8 +14,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Post {
-
+public class Post extends BaseEntity {
     @Id
     @GeneratedValue
     private UUID postId; // 게시글ID
@@ -33,11 +33,20 @@ public class Post {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content; // 내용
 
-    private boolean isAnonymous = false; // 익명여부
-    private int viewCount = 0; // 조회수
+    @Column(columnDefinition = "BOOLEAN DEFAULT false")
+    private boolean isAnonymous; // 익명여부
 
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now(); // 생성일시
+    @Column(columnDefinition = "INTEGER DEFAULT 0")
+    private int viewCount; // 조회수
 
-    private LocalDateTime updatedAt = LocalDateTime.now(); // 수정일시
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comments = new ArrayList<>();    // 댓글 목록
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PostFile> files = new ArrayList<>();         // 첨부파일 목록
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PostLike> likes = new ArrayList<>();     // 좋아요 목록
 }
+
+

@@ -1,5 +1,7 @@
 package com.sesac.backend.entity;
 
+import com.sesac.backend.board.constant.SocialProvider;
+import com.sesac.backend.board.constant.UserType;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,11 +15,14 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserAuthentication {
+public class UserAuthentication extends BaseEntity {
 
     @Id
     @GeneratedValue
     private UUID userId; // 사용자ID
+
+    @Column(nullable = false)
+    private String name;
 
     @Column(nullable = false, unique = true)
     private String email; // 이메일
@@ -37,17 +42,4 @@ public class UserAuthentication {
     private boolean isActive = true; // 활성화여부
 
     private LocalDateTime lastLogin; // 마지막로그인
-
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now(); // 생성일시
-
-    private LocalDateTime updatedAt = LocalDateTime.now(); // 수정일시
-
-    public enum UserType {
-        STUDENT, PROFESSOR, STAFF
-    }
-
-    public enum SocialProvider {
-        GENERAL, GOOGLE, KAKAO, NAVER
-    }
 }

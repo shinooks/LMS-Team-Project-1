@@ -13,8 +13,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Comment {
-
+public class Comment extends BaseEntity {
     @Id
     @GeneratedValue
     private UUID commentId; // 댓글ID
@@ -30,10 +29,6 @@ public class Comment {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content; // 내용
 
-    private boolean isAnonymous = false; // 익명여부
-
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now(); // 생성일시
-
-    private LocalDateTime updatedAt = LocalDateTime.now(); // 수정일시
+    @Column(columnDefinition = "BOOLEAN DEFAULT false")
+    private boolean isAnonymous; // 익명여부
 }
