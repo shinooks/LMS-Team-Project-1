@@ -97,7 +97,7 @@ public class EnrollmentService {
 
         enrollmentRepository.save(enrollment);
     }
-    
+
     public List<Object> getAllClasses() {
         List<CourseOpening> tmpList = courseOpeningRepository.findAll();
 
@@ -146,10 +146,12 @@ public class EnrollmentService {
         return allCoursesList;
     }
 
+
     //public List<EnrollmentDto> getEnrolledClassById (UserAuthentication studentId){
 //    public List<EnrollmentDto> getEnrolledClassById (UUID studentId){
 //        return convertToDto(studentId);
 //    }
+
 
     public EnrollmentDto[][] getTimeTableById (UUID studentId){
         List<EnrollmentDto> courseListById = convertToDto(studentId);
