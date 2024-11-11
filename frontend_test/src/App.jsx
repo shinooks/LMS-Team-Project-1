@@ -18,8 +18,12 @@ function App() {
   }, []);
 
   const requestData = () => {
+<<<<<<< HEAD
     console.log(studentId === "dcd7ef04-84f2-44d1-8dbf-48ba37da9230" ? "aaa 학생" : "bbb 학생");
     
+=======
+
+>>>>>>> d54f7c357a10ea6352a75d159528718d92d75cb4
     axios.get(`http://localhost:8081/myclasslist/${studentId}`).then(function (res) {
       if (res.status === 200) {
         setEnrolledClasses(res.data.myClassList);
@@ -68,16 +72,22 @@ function App() {
 
   // 관심강의 등록 함수
   const enroll = (classes) => {
-    console.log("보내는 class이름 : " + classes[0])
+    console.log(studentId)
+    console.log(classes.openingId)
+
     axios.post("http://localhost:8081/enrollment", {
       studentId: studentId,
       // 전체 강의 배열에 담겨져있는 courseCode를 백으로 보냄
+<<<<<<< HEAD
       classId: classes[0]
+=======
+      openingId: classes.openingId
+>>>>>>> d54f7c357a10ea6352a75d159528718d92d75cb4
     })
       .then(function (res) {
         if (res.status === 200) {
           console.log("정상응답");
-          requestData();
+          // requestData();
         } else {
           console.log("비정상응답");
         }
@@ -138,12 +148,21 @@ function App() {
         ) : (
           classes.map((classes, index) => (
             <div key={index} style={{ margin: '10px 0' }}>
+<<<<<<< HEAD
               강의코드: {classes[1]}&nbsp;&nbsp;&nbsp;
               강의명: {classes[2]}&nbsp;&nbsp;&nbsp;
               학점: {classes[3]}&nbsp;&nbsp;&nbsp;
               요일: {classes[4]}&nbsp;&nbsp;&nbsp;
               시작시간: {classes[5]} ~
               끝시간: {classes[6]}&nbsp;&nbsp;&nbsp;
+=======
+              강의코드: {classes.courseCode}&nbsp;&nbsp;&nbsp;
+              강의명: {classes.courseName}&nbsp;&nbsp;&nbsp;
+              학점: {classes.credit}&nbsp;&nbsp;&nbsp;
+              요일: {classes.day}&nbsp;&nbsp;&nbsp;
+              시작시간: {classes.startTime} ~
+              끝시간: {classes.endTime}&nbsp;&nbsp;&nbsp;
+>>>>>>> d54f7c357a10ea6352a75d159528718d92d75cb4
               <button onClick={() => enroll(classes)}>신청</button>
             </div>
           ))

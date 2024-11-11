@@ -33,9 +33,12 @@ public interface CourseOpeningRepository extends JpaRepository<CourseOpening, UU
 
     // 특정 상태의 강의 목록 조회
     List<CourseOpening> findByStatus(CourseStatus status);
+<<<<<<< HEAD
 
     //gnuke
     @Query("Select co From CourseOpening co JOIN co.courseTimes ct JOIN Course c ON ct.courseOpening = co " +
     "WHERE c.courseId = :courseId")
     List<CourseOpening> findByCourseId(UUID courseId);
+=======
+>>>>>>> d54f7c357a10ea6352a75d159528718d92d75cb4
 }

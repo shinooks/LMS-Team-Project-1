@@ -26,21 +26,7 @@ public class Enrollment {
     @JoinColumn(name = "openingId", nullable = false)
     private CourseOpening courseOpening;
 
-    @Column(nullable = false)
-    private String courseName; // unique 제약 설정
-
     @Column(nullable = false, updatable = false)
     private LocalDateTime enrollmentDate = LocalDateTime.now();
 
-    // 생성자 또는 메서드에서 클래스의 className을 설정
-    public Enrollment(CourseOpening courseOpening) {
-        this.courseName = courseOpening.getCourse().getCourseName(); // Classes 엔터티의 className으로 설정
-    }
-
-
-    public Enrollment(Student student, CourseOpening openingCourseInfo, String courseName) {
-        this.student = student;
-        this.courseOpening = openingCourseInfo;
-        this.courseName = courseName;
-    }
 }
