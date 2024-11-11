@@ -23,12 +23,13 @@ public class Grade {
     // 점수 일대일 관계
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "scoreId", nullable = false)
-    private Score score;
+    private Score score;  // Score 엔티티 참조
 
     // 강의 개설 정보와의 다대일 관계
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "openingId", nullable = false)
-    private CourseOpening courseOpening;
+    private CourseOpening courseOpening; // CourseOpening 엔티티 참조
+
 
 
 
