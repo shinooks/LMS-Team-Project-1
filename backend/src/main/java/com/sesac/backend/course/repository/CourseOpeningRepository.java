@@ -1,6 +1,7 @@
 package com.sesac.backend.course.repository;
 
 import com.sesac.backend.course.constant.CourseStatus;
+import com.sesac.backend.course.dto.CourseOpeningDto;
 import com.sesac.backend.entity.Course;
 import com.sesac.backend.entity.CourseOpening;
 import org.springframework.data.jpa.repository.JpaRepository;
