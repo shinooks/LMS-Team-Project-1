@@ -16,11 +16,9 @@ public class EnrollmentDto {
 
     private UUID enrollmentId;
 
-    private Student student; // 일단 등록할 학생 이름
+    private UUID studentId; // 일단 등록할 학생 이름
 
-    private CourseOpening courseOpening; // 최대인원, 현재인원, courseTimes
-
-    private String courseName; // unique 제약 설정
+    private UUID openingId; // 최대인원, 현재인원, courseTimes
 
     private LocalDateTime enrollmentDate = LocalDateTime.now();
 }

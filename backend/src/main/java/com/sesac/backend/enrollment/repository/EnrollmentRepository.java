@@ -19,6 +19,8 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
 
     List<Enrollment> findByStudent_StudentId(UUID studentId);
 
+    //@Query("SELECT co FROM CourseOpening co JOIN co.courseTimes cct JOIN CourseTime ct ON ct.")
+
     // : 기호는 JPQL (Java Persistence Query Language) 또는 JPA (Java Persistence API)에서 Named Parameters를 나타내는 데 사용됩니다.
     // Named Parameters는 쿼리에서 특정 값을 동적으로 바인딩할 수 있도록 해 주며, 코드 가독성을 높이고 SQL 인젝션 공격을 방지하는 데 도움을 줍니다.
     // 특정 학생이 시간 겹침이 있는 강의를 이미 등록했는지 확인
@@ -31,4 +33,6 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
                                                 @Param("day") DayOfWeek day,
                                                 @Param("startTime") LocalTime startTime,
                                                 @Param("endTime") LocalTime endTime);
+
+    Enrollment findByStudent_StudentIdAndCourseOpening_OpeningId(UUID studentId, UUID openingId);
 }
