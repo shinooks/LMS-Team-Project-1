@@ -17,7 +17,9 @@ import java.util.UUID;
 public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
     Set<Enrollment> findByStudent(Student studentId);
 
-    List<Enrollment> findByStudent_StudentId(UUID studentId);
+    List<Object> findByStudent_StudentId(UUID studentId);
+
+    //@Query("SELECT e FROM Enrollment e JOIN ")
 
     // : 기호는 JPQL (Java Persistence Query Language) 또는 JPA (Java Persistence API)에서 Named Parameters를 나타내는 데 사용됩니다.
     // Named Parameters는 쿼리에서 특정 값을 동적으로 바인딩할 수 있도록 해 주며, 코드 가독성을 높이고 SQL 인젝션 공격을 방지하는 데 도움을 줍니다.

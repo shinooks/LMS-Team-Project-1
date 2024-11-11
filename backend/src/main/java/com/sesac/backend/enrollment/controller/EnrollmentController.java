@@ -24,10 +24,10 @@ public class EnrollmentController {
 
         UUID studentId = req.get("studentId") != null ? UUID.fromString(req.get("studentId").toString()) : null;
 
-        String classCode = req.get("classCode") != null ? req.get("classCode").toString() : null;
+        UUID courseId = req.get("classId") != null ? UUID.fromString(req.get("classId").toString()) : null;
         
         // 관심 강의 등록 시도 -> saveService에 학생과 강의에 대한 정보를 찾기 위해 studentId와 classCode를 보냄
-        enrollmentService.saveClassEnrollment(studentId, classCode);
+        enrollmentService.saveClassEnrollment(studentId, courseId);
 
         res.put("status", "success");
         res.put("message", "관심 강의가 성공적으로 등록되었습니다.");
@@ -45,11 +45,10 @@ public class EnrollmentController {
     @GetMapping("/myclasslist/{studentid}")
     public Map myclasslist(@PathVariable("studentid") String student) {
         Map map = new HashMap();
-//        //UserAuthentication studentId = UserAuthentication.fromString(student);
-//        UUID studentId = UUID.fromString(student);
-//        map.put("myClassList", enrollmentService.getEnrolledClassById(studentId));
-//        map.put("myTimeTable", enrollmentService.getTimeTableById(studentId));
-//        return map;
+        //UserAuthentication studentId = UserAuthentication.fromString(student);
+        UUID studentId = UUID.fromString(student);
+        map.put("myClassList", enrollmentService.getEnrolledCourses(studentId));
+        map.put("myTimeTable", enrollmentService.getTimeTableById(studentId));
         return map;
     }
 

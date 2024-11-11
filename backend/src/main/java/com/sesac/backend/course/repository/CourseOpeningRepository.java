@@ -5,6 +5,7 @@ import com.sesac.backend.course.dto.CourseOpeningDto;
 import com.sesac.backend.entity.Course;
 import com.sesac.backend.entity.CourseOpening;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -33,4 +34,8 @@ public interface CourseOpeningRepository extends JpaRepository<CourseOpening, UU
     // 특정 상태의 강의 목록 조회
     List<CourseOpening> findByStatus(CourseStatus status);
 
+    //gnuke
+    @Query("Select co From CourseOpening co JOIN co.courseTimes ct JOIN Course c ON ct.courseOpening = co " +
+    "WHERE c.courseId = :courseId")
+    List<CourseOpening> findByCourseId(UUID courseId);
 }

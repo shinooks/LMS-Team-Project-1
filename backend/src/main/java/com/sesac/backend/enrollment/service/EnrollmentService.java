@@ -56,9 +56,10 @@ public class EnrollmentService {
     }
 
     ////////////////////////////// save기능 set ////////////////////////////////////
-    public void saveClassEnrollment(UUID studentId, String courseCode) {
-        // classCode로 Course의 정보를 조회
-        Course course = courseRepository.findCourseByCourseCode(courseCode);
+    public void saveClassEnrollment(UUID studentId, UUID courseId) {
+
+        // classId로 Course의 정보를 조회
+        List<Course> course = courseRepository.findCourseByCourseId(courseId);
 
         if( course == null ) {
             throw new IllegalArgumentException("Course not found");
@@ -68,8 +69,10 @@ public class EnrollmentService {
         Student student = enrollStudentRepository.findById(studentId)
                 .orElseThrow(() -> new IllegalArgumentException("Student not found"));
 
+        Course course1 = course.get(0);
+
         // 강의 개설 정보 조회
-        List<CourseOpening> courseOpenings = courseOpeningRepository.findByCourse(course);
+        List<CourseOpening> courseOpenings = courseOpeningRepository.findByCourse(course1);
 
         // list type에서 CourseOpening type으로 변경... repository의 type도 변경해야 하지 않을까..?
         CourseOpening openingCourseInfo = courseOpenings.get(0); // 첫 번째 요소 선택
@@ -86,7 +89,7 @@ public class EnrollmentService {
             );
 
             if(!conflictingEnrollments.isEmpty()) {
-                throw new TimeOverlapException("시간이 겹치는 강의가 이미 등록되어 있습니다." + course.getCourseName());
+                throw new TimeOverlapException("시간이 겹치는 강의가 이미 등록되어 있습니다." + course.get(0).getCourseName());
             }
         }
 
@@ -133,6 +136,7 @@ public class EnrollmentService {
                 day = time.getDayOfWeek();
             }
 
+            courseInfo.add(courseId);
             courseInfo.add(courseCode);
             courseInfo.add(courseName);
             courseInfo.add(credit);
@@ -146,12 +150,13 @@ public class EnrollmentService {
         return allCoursesList;
     }
 
+    public List<Object> getEnrolledCourses(UUID studentId) {
+        List<Object> enrollmentList = enrollmentRepository.findByStudent_StudentId(studentId);
 
-    //public List<EnrollmentDto> getEnrolledClassById (UserAuthentication studentId){
-//    public List<EnrollmentDto> getEnrolledClassById (UUID studentId){
-//        return convertToDto(studentId);
-//    }
+        System.out.println(studentId + "가 등록한 거 List : " + enrollmentList);
 
+        return enrollmentList;
+    }
 
     public EnrollmentDto[][] getTimeTableById (UUID studentId){
         List<EnrollmentDto> courseListById = convertToDto(studentId);

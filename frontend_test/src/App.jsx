@@ -10,21 +10,21 @@ function App() {
   // 2번째 학생 : 02195b9b-6654-4037-9e78-f60f90f9356b
 
   useEffect(() => {
-    getAllClasses();
     requestData();
   }, [studentId]);
 
+  useEffect(() => {
+    getAllClasses();
+  }, []);
+
   const requestData = () => {
-    if(studentId === "dcd7ef04-84f2-44d1-8dbf-48ba37da9230"){
-      console.log("aaa 학생");
-    }else{
-      console.log("bbb 학생")
-    }
+    console.log(studentId === "dcd7ef04-84f2-44d1-8dbf-48ba37da9230" ? "aaa 학생" : "bbb 학생");
     
     axios.get(`http://localhost:8081/myclasslist/${studentId}`).then(function (res) {
       if (res.status === 200) {
-        // setEnrolledClasses(res.data.myClassList);
-        //
+        setEnrolledClasses(res.data.myClassList);
+        console.log("myClassList : " + enrolledClasses);
+
         // const formattedTimeTable = res.data.myTimeTable.map(row => row.map(cell => {
         //   if (cell) {
         //     return {
@@ -35,9 +35,20 @@ function App() {
         //   return null;
         // })
         // );
-        // setMyTimeTable(formattedTimeTable);
-        // console.log(res.data);
-        return null;
+        const formattedTimeTable = res.data.myTimeTable ? res.data.myTimeTable.map(row => row.map(cell => {
+          if (cell) {
+            return {
+              classId: cell.classes.classId,
+              className: cell.classes.className
+            };
+          }
+          return null;
+        })) : Array(9).fill().map(() => Array(5).fill(null)); // 기본값 설정
+
+
+        setMyTimeTable(formattedTimeTable);
+        console.log(res.data);
+        //return null;
       }
     });
   }
@@ -61,7 +72,7 @@ function App() {
     axios.post("http://localhost:8081/enrollment", {
       studentId: studentId,
       // 전체 강의 배열에 담겨져있는 courseCode를 백으로 보냄
-      classCode: classes[0]
+      classId: classes[0]
     })
       .then(function (res) {
         if (res.status === 200) {
@@ -115,8 +126,8 @@ function App() {
 
       {/* studentId 선택 버튼 */}
       <div>
-        <button onClick={() => changeStudentId("aaa")}>학생 ID: aaa</button>
-        <button onClick={() => changeStudentId("bbb")}>학생 ID: bbb</button>
+        <button onClick={() => changeStudentId("dcd7ef04-84f2-44d1-8dbf-48ba37da9230")}>학생 ID: aaa</button>
+        <button onClick={() => changeStudentId("02195b9b-6654-4037-9e78-f60f90f9356b")}>학생 ID: bbb</button>
       </div>
 
 
@@ -127,12 +138,12 @@ function App() {
         ) : (
           classes.map((classes, index) => (
             <div key={index} style={{ margin: '10px 0' }}>
-              강의코드: {classes[0]}&nbsp;&nbsp;&nbsp;
-              강의명: {classes[1]}&nbsp;&nbsp;&nbsp;
-              학점: {classes[2]}&nbsp;&nbsp;&nbsp;
-              요일: {classes[3]}&nbsp;&nbsp;&nbsp;
-              시작시간: {classes[4]} ~
-              끝시간: {classes[5]}&nbsp;&nbsp;&nbsp;
+              강의코드: {classes[1]}&nbsp;&nbsp;&nbsp;
+              강의명: {classes[2]}&nbsp;&nbsp;&nbsp;
+              학점: {classes[3]}&nbsp;&nbsp;&nbsp;
+              요일: {classes[4]}&nbsp;&nbsp;&nbsp;
+              시작시간: {classes[5]} ~
+              끝시간: {classes[6]}&nbsp;&nbsp;&nbsp;
               <button onClick={() => enroll(classes)}>신청</button>
             </div>
           ))
@@ -178,22 +189,22 @@ function App() {
 
       <div style={{ flex: 1 }}>
         <h2 style={{ borderBottom: '2px solid blue' }}>신청 목록</h2>
-        {enrolledClasses.length === 0 ? (
-          <div>신청한 강의가 없습니다.</div>
-        ) : (
-          enrolledClasses.map((enrolledClass, index) => (
-            <div key={index} style={{ margin: '10px 0' }}>
-              강의번호: {enrolledClass.classes.classId}&nbsp;&nbsp;&nbsp;
-              강의명: {enrolledClass.classes.className}&nbsp;&nbsp;&nbsp;
-              최대인원: {enrolledClass.classes.maxEnrollments}&nbsp;&nbsp;&nbsp;
-              학점: {enrolledClass.classes.credit}&nbsp;&nbsp;&nbsp;
-              요일: {enrolledClass.classes.day}&nbsp;&nbsp;&nbsp;
-              시작시간: {enrolledClass.classes.startTime} ~
-              끝시간: {enrolledClass.classes.endTime}&nbsp;&nbsp;&nbsp;
-              <button onClick={() => deleteClass(enrolledClass.enrollmentId)}>삭제</button>
-            </div>
-          ))
-        )}
+        {/*{enrolledClasses.length === 0 ? (*/}
+        {/*  <div>신청한 강의가 없습니다.</div>*/}
+        {/*) : (*/}
+        {/*  enrolledClasses.map((enrolledClass, index) => (*/}
+        {/*    <div key={index} style={{ margin: '10px 0' }}>*/}
+        {/*      강의번호: {enrolledClass.classes.classId}&nbsp;&nbsp;&nbsp;*/}
+        {/*      강의명: {enrolledClass.classes.className}&nbsp;&nbsp;&nbsp;*/}
+        {/*      최대인원: {enrolledClass.classes.maxEnrollments}&nbsp;&nbsp;&nbsp;*/}
+        {/*      학점: {enrolledClass.classes.credit}&nbsp;&nbsp;&nbsp;*/}
+        {/*      요일: {enrolledClass.classes.day}&nbsp;&nbsp;&nbsp;*/}
+        {/*      시작시간: {enrolledClass.classes.startTime} ~*/}
+        {/*      끝시간: {enrolledClass.classes.endTime}&nbsp;&nbsp;&nbsp;*/}
+        {/*      <button onClick={() => deleteClass(enrolledClass.enrollmentId)}>삭제</button>*/}
+        {/*    </div>*/}
+        {/*  ))*/}
+        {/*)}*/}
       </div>
     </div>
   );
