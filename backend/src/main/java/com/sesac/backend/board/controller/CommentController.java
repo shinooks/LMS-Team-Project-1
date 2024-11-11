@@ -28,7 +28,7 @@ public class CommentController {
             @PathVariable UUID boardId,
             @PathVariable UUID postId,
             @RequestBody @Valid CommentRequestDTO requestDTO,
-            @RequestParam UUID userId) {
+            @RequestHeader("X-USER-ID") UUID userId)  {
         try {
             log.info("Creating comment for post {}: {}", postId, requestDTO);
             requestDTO.setPostId(postId); // URL의 postId를 DTO에 설정
@@ -45,10 +45,11 @@ public class CommentController {
     @PutMapping("/{commentId}")
     public ResponseEntity<?> updateComment(
             @PathVariable UUID commentId,
-            @RequestBody @Valid CommentRequestDTO requestDTO) {
+            @RequestBody @Valid CommentRequestDTO requestDTO,
+            @RequestHeader("X-USER-ID") UUID userId) {  // Header에서 userId를 받음
         try {
             log.info("Updating comment {}: {}", commentId, requestDTO);
-            CommentResponseDTO response = commentService.updateComment(commentId, requestDTO);
+            CommentResponseDTO response = commentService.updateComment(commentId, requestDTO, userId);  // userId 전달
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             log.error("Error updating comment", e);

@@ -30,5 +30,5 @@ public class Comment extends BaseEntity {
     private String content; // 내용
 
     @Column(columnDefinition = "BOOLEAN DEFAULT false")
-    private boolean isAnonymous; // 익명여부
+    private boolean anonymous; // 익명여부
 }

@@ -39,12 +39,15 @@ public class Post extends BaseEntity {
     @Column(columnDefinition = "INTEGER DEFAULT 0")
     private int viewCount; // 조회수
 
+    @Builder.Default
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();    // 댓글 목록
 
+    @Builder.Default
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PostFile> files = new ArrayList<>();         // 첨부파일 목록
 
+    @Builder.Default
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PostLike> likes = new ArrayList<>();     // 좋아요 목록
 }

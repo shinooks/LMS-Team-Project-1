@@ -17,7 +17,8 @@ public class CommentResponseDTO {
     private UUID postId;            // 게시글 ID
     private String content;         // 댓글 내용
     private String authorName;      // 작성자 이름
-    private boolean isAnonymous;    // 익명 여부
+    private boolean anonymous;    // 익명 여부
     private LocalDateTime createdAt;// 작성일시
     private String createdBy;       // 작성자
+
 }

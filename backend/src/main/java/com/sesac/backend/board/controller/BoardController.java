@@ -24,10 +24,12 @@ public class BoardController {
 
     // 게시판 생성
     @PostMapping
-    public ResponseEntity<?> createBoard(@RequestBody @Valid BoardRequestDTO requestDTO) {
+    public ResponseEntity<?> createBoard(
+            @RequestBody @Valid BoardRequestDTO requestDTO,
+            @RequestHeader("X-USER-ID") UUID userId) {  // Header에서 userId를 받음
         try {
             log.info("Creating board: {}", requestDTO);
-            BoardResponseDTO response = boardService.createBoard(requestDTO);
+            BoardResponseDTO response = boardService.createBoard(requestDTO, userId);  // userId 전달
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             log.error("Error creating board", e);
@@ -43,10 +45,11 @@ public class BoardController {
     @PutMapping("/{boardId}")
     public ResponseEntity<?> updateBoard(
             @PathVariable UUID boardId,
-            @RequestBody @Valid BoardRequestDTO requestDTO) {
+            @RequestBody @Valid BoardRequestDTO requestDTO,
+            @RequestHeader("X-USER-ID") UUID userId) {
         try {
             log.info("Updating board: {}", requestDTO);
-            BoardResponseDTO response = boardService.updateBoard(boardId, requestDTO);
+            BoardResponseDTO response = boardService.updateBoard(boardId, requestDTO, userId);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             log.error("Error updating board", e);

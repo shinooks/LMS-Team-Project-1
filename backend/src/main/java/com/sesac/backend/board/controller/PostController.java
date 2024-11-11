@@ -20,36 +20,33 @@ import java.util.Map;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/posts")
+@RequestMapping("/boards/{boardId}/posts")
 @RequiredArgsConstructor
 @Slf4j
 public class PostController {
-
     private final PostService postService;
-
 
     // 게시글 작성
     @PostMapping
     public ResponseEntity<?> createPost(
+            @PathVariable UUID boardId,
             @RequestBody @Valid PostRequestDTO requestDTO,
             @RequestHeader("X-USER-ID") UUID userId) {
         try {
-            log.info("Creating post: {}, userId: {}", requestDTO, userId);
+            requestDTO.setBoardId(boardId);
+            log.info("Creating post for board {}: {}, userId: {}", boardId, requestDTO, userId);
             PostResponseDTO response = postService.createPost(requestDTO, userId);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             log.error("Error creating post", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of(
-                            "message", e.getMessage(),
-                            "error", e.getClass().getSimpleName()
-                    ));
+                    .body(Map.of("message", e.getMessage()));
         }
     }
 
-    // 게시글 목록 조회
+    // 게시판의 게시글 목록 조회
     @GetMapping
-    public ResponseEntity<?> getPostsByBoard(@RequestParam(required = false) UUID boardId) {
+    public ResponseEntity<?> getPostsByBoard(@PathVariable UUID boardId) {
         try {
             log.info("Fetching posts for boardId: {}", boardId);
             List<PostResponseDTO> response = postService.getPostsByBoard(boardId);
@@ -57,150 +54,71 @@ public class PostController {
         } catch (Exception e) {
             log.error("Error fetching posts", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of(
-                            "message", e.getMessage(),
-                            "error", e.getClass().getSimpleName()
-                    ));
+                    .body(Map.of("message", e.getMessage()));
         }
     }
 
-    // 게시글 상세 조회
+    // 게시판의 특정 게시글 조회
     @GetMapping("/{postId}")
-    public ResponseEntity<?> getPost(@PathVariable UUID postId) {
+    public ResponseEntity<?> getPost(
+            @PathVariable UUID boardId,
+            @PathVariable UUID postId) {
         try {
-            log.info("Fetching post: {}", postId);
+            log.info("Fetching post {} from board {}", postId, boardId);
             PostResponseDTO response = postService.getPost(postId);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             log.error("Error fetching post", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of(
-                            "message", e.getMessage(),
-                            "error", e.getClass().getSimpleName()
-                    ));
+                    .body(Map.of("message", e.getMessage()));
         }
     }
 
-    // 게시글 수정
+    // 게시판의 특정 게시글 수정
     @PutMapping("/{postId}")
     public ResponseEntity<?> updatePost(
+            @PathVariable UUID boardId,
             @PathVariable UUID postId,
             @RequestBody @Valid PostRequestDTO requestDTO) {
         try {
-            log.info("Updating post: {}", postId);
+            requestDTO.setBoardId(boardId);
+            log.info("Updating post {} in board {}", postId, boardId);
             PostResponseDTO response = postService.updatePost(postId, requestDTO);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             log.error("Error updating post", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of(
-                            "message", e.getMessage(),
-                            "error", e.getClass().getSimpleName()
-                    ));
+                    .body(Map.of("message", e.getMessage()));
         }
     }
 
-    // 게시글 제목 검색
-    @GetMapping("/search/title")
-    public ResponseEntity<?> searchPostsByTitle(@RequestParam String keyword) {
-        try {
-            log.info("Searching posts by title: {}", keyword);
-            List<PostResponseDTO> response = postService.searchPostsByTitle(keyword);
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            log.error("Error searching posts", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of(
-                            "message", e.getMessage(),
-                            "error", e.getClass().getSimpleName()
-                    ));
-        }
-    }
-
-    // 게시글 내용 검색
-    @GetMapping("/search/content")
-    public ResponseEntity<?> searchPostsByContent(@RequestParam String keyword) {
-        try {
-            log.info("Searching posts by content: {}", keyword);
-            List<PostResponseDTO> response = postService.searchPostsByContent(keyword);
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            log.error("Error searching posts", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of(
-                            "message", e.getMessage(),
-                            "error", e.getClass().getSimpleName()
-                    ));
-        }
-    }
-
-    // 작성자별 게시글 조회
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<?> getPostsByAuthor(@PathVariable UUID userId) {
-        try {
-            log.info("Fetching posts by author: {}", userId);
-            List<PostResponseDTO> response = postService.getPostsByAuthor(userId);
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            log.error("Error fetching posts", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of(
-                            "message", e.getMessage(),
-                            "error", e.getClass().getSimpleName()
-                    ));
-        }
-    }
-
-    // 특정 기간 내 게시글 조회
-    @GetMapping("/search/date")
-    public ResponseEntity<?> getPostsByDateRange(
-            @RequestParam LocalDateTime start,
-            @RequestParam LocalDateTime end) {
-        try {
-            log.info("Fetching posts between dates: {} and {}", start, end);
-            List<PostResponseDTO> response = postService.getPostsByDateRange(start, end);
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            log.error("Error fetching posts by date range", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of(
-                            "message", e.getMessage(),
-                            "error", e.getClass().getSimpleName()
-                    ));
-        }
-    }
-
-    // 게시판별 게시글 수 조회
-    @GetMapping("/count/{boardId}")
-    public ResponseEntity<?> getPostCount(@PathVariable UUID boardId) {
-        try {
-            log.info("Counting posts for board: {}", boardId);
-            long count = postService.getPostCount(boardId);  // Service로 위임
-            return ResponseEntity.ok(Map.of("count", count));
-        } catch (Exception e) {
-            log.error("Error counting posts", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of(
-                            "message", e.getMessage(),
-                            "error", e.getClass().getSimpleName()
-                    ));
-        }
-    }
-
-    // 게시글 삭제
+    // 게시판의 특정 게시글 삭제
     @DeleteMapping("/{postId}")
-    public ResponseEntity<?> deletePost(@PathVariable UUID postId) {
+    public ResponseEntity<?> deletePost(
+            @PathVariable UUID boardId,
+            @PathVariable UUID postId) {
         try {
-            log.info("Deleting post: {}", postId);
+            log.info("Deleting post {} from board {}", postId, boardId);
             postService.deletePost(postId);
             return ResponseEntity.ok(Map.of("message", "게시글이 성공적으로 삭제되었습니다."));
         } catch (Exception e) {
             log.error("Error deleting post", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of(
-                            "message", e.getMessage(),
-                            "error", e.getClass().getSimpleName()
-                    ));
+                    .body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    // 게시판의 게시글 수 조회
+    @GetMapping("/count")
+    public ResponseEntity<?> getPostCount(@PathVariable UUID boardId) {
+        try {
+            log.info("Counting posts for board: {}", boardId);
+            long count = postService.getPostCount(boardId);
+            return ResponseEntity.ok(Map.of("count", count));
+        } catch (Exception e) {
+            log.error("Error counting posts", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message", e.getMessage()));
         }
     }
 }

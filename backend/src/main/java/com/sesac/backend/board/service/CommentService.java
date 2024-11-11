@@ -10,6 +10,7 @@ import com.sesac.backend.entity.Post;
 import com.sesac.backend.entity.UserAuthentication;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+@Slf4j
 public class CommentService {
 
     private final CommentRepository commentRepository;
@@ -39,21 +41,27 @@ public class CommentService {
                 .post(post)
                 .author(author)
                 .content(requestDTO.getContent())
-                .isAnonymous(requestDTO.isAnonymous())
+                .anonymous(requestDTO.isAnonymous())  // 변경
                 .build();
-
+        comment.setCreatedBy(author.getName());
         Comment savedComment = commentRepository.save(comment);
         return convertToResponseDTO(savedComment);
     }
 
     // 댓글 수정
     @Transactional
-    public CommentResponseDTO updateComment(UUID commentId, CommentRequestDTO requestDTO) {
+    public CommentResponseDTO updateComment(UUID commentId, CommentRequestDTO requestDTO, UUID userId) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new EntityNotFoundException("댓글을 찾을 수 없습니다."));
 
+        UserAuthentication user = userRepository.findById(userId)  // 수정자 정보 조회
+                .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
+
+        log.info("Before update - anonymous: {}", comment.isAnonymous());
         comment.setContent(requestDTO.getContent());
         comment.setAnonymous(requestDTO.isAnonymous());
+        comment.setUpdatedBy(user.getName());
+        log.info("After update - anonymous: {}", comment.isAnonymous());
 
         return convertToResponseDTO(comment);
     }
@@ -76,14 +84,13 @@ public class CommentService {
                 .collect(Collectors.toList());
     }
 
-    // Entity -> DTO 변환
     private CommentResponseDTO convertToResponseDTO(Comment comment) {
         return CommentResponseDTO.builder()
                 .commentId(comment.getCommentId())
                 .postId(comment.getPost().getPostId())
                 .content(comment.getContent())
                 .authorName(comment.isAnonymous() ? "익명" : comment.getAuthor().getName())
-                .isAnonymous(comment.isAnonymous())
+                .anonymous(comment.isAnonymous())
                 .createdAt(comment.getCreatedAt())
                 .createdBy(comment.getCreatedBy())
                 .build();
