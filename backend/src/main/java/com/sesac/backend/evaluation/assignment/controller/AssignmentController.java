@@ -5,6 +5,8 @@ import com.sesac.backend.evaluation.assignment.dto.AssignResponse;
 import com.sesac.backend.evaluation.assignment.dto.AssignScoreRequest;
 import com.sesac.backend.evaluation.assignment.dto.AssignSubmissionRequest;
 import com.sesac.backend.evaluation.assignment.service.AssignmentService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin("*")
 @RequestMapping("/assignments")
 @RestController
+@Tag(name = "과제 관리 API", description = "과제 생성, 제출, 채점, 조회 관련 엔드포인트")
 public class AssignmentController {
 
     private final AssignmentService assignmentService;
@@ -32,6 +35,7 @@ public class AssignmentController {
      * @return
      */
     @PostMapping("/create")
+    @Operation(summary = "과제 생성", description = "강의개설아이디(openingId), 학생아이디(studentId), 제목(title), 문제(description), 시작시간(openAt), 기한(deadline)")
     public ResponseEntity<AssignCreationRequest> createAssignment(@RequestBody AssignCreationRequest assignCreationRequest) {
         try {
             return ResponseEntity.ok(assignmentService.createAssignment(assignCreationRequest));
@@ -48,6 +52,7 @@ public class AssignmentController {
      * @return
      */
     @PostMapping("/submit")
+    @Operation(summary = "과제 제출", description = "학생아이디(studentId), 강의개설아이디(openingId), 업로드파일(file), 파일명(fileName)")
     public ResponseEntity<AssignSubmissionRequest> submitAssignment(@RequestBody AssignSubmissionRequest request) {
         try {
             return ResponseEntity.ok(assignmentService.submitAssignment(request));
@@ -64,6 +69,7 @@ public class AssignmentController {
      * @return
      */
     @PostMapping("/score")
+    @Operation(summary = "과제 채점", description = "수강신청아이디(openingId), 학생아이디(studentId)")
     public ResponseEntity<AssignScoreRequest> submitAssignmentScore(@RequestBody AssignScoreRequest request) {
         try {
             return ResponseEntity.ok(assignmentService.updateAssignScore(request));
@@ -80,7 +86,8 @@ public class AssignmentController {
      * @param studentId
      * @return
      */
-    @GetMapping("/{opneingId}/{studentId}")
+    @GetMapping("/{openingId}/{studentId}")
+    @Operation(summary = "과제 조회", description = "수강신청아이디(openingId), 학생아이디(studentId)")
     public ResponseEntity<AssignResponse> getAssignment(@PathVariable UUID openingId, @PathVariable UUID studentId) {
         try {
             return ResponseEntity.ok(assignmentService.findAssign(openingId, studentId));

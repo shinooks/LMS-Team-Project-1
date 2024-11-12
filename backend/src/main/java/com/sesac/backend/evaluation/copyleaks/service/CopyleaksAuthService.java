@@ -14,8 +14,8 @@ import org.springframework.stereotype.Service;
 public class CopyleaksAuthService {
 
     private static final String AUTH_ENDPOINT = "https://id.copyleaks.com/v3/account/login/api";
-    private static final String EMAIL = "EMAIL";
-    private static final String API_KEY = "API_KEY";
+    private static final String EMAIL = "y2kf9a0q@gmail.com";
+    private static final String API_KEY = "66380d2d-b563-4205-8fb6-d00d3be394fe";
 
     public String getAccessToken() throws IOException {
         CloseableHttpClient client = HttpClients.createDefault();

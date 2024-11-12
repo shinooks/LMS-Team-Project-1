@@ -1,6 +1,8 @@
 package com.sesac.backend.evaluation.copyleaks.controller;
 
 import com.sesac.backend.evaluation.copyleaks.service.CopyleaksService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.IOException;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,12 +15,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/copyleaks")
+@Tag(name = "표절 검사 요청 API", description = "표절 검사 요청 엔드포인트")
 public class CopyleaksController {
 
     @Autowired
     private CopyleaksService copyleaksService;
 
     @PostMapping("/check/{assignId}")
+    @Operation(summary = "copyleaks 요청", description = "과제아이디(assignId)")
     public ResponseEntity<String> checkPlagiarism(@PathVariable UUID assignId) {
         try {
             copyleaksService.checkPlagiarism(assignId);
