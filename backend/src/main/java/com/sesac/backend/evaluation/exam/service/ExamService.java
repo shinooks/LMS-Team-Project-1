@@ -1,13 +1,21 @@
 package com.sesac.backend.evaluation.exam.service;
 
-import com.sesac.backend.course.repository.CourseRepository;
-import com.sesac.backend.entity.Course;
+import com.sesac.backend.course.repository.CourseOpeningRepository;
+import com.sesac.backend.entity.CourseOpening;
+import com.sesac.backend.entity.Student;
+import com.sesac.backend.evaluation.assignment.repository.StudentRepositoryDemo;
+import com.sesac.backend.evaluation.enums.Correctness;
+import com.sesac.backend.evaluation.enums.Type;
 import com.sesac.backend.evaluation.exam.domain.Exam;
 import com.sesac.backend.evaluation.exam.domain.ExamProblem;
-import com.sesac.backend.evaluation.exam.dto.ExamDto;
+import com.sesac.backend.evaluation.exam.dto.ExamAnswerDto;
+import com.sesac.backend.evaluation.exam.dto.ExamCreationRequest;
 import com.sesac.backend.evaluation.exam.dto.ExamProblemDto;
+import com.sesac.backend.evaluation.exam.dto.ExamSubmissionRequest;
 import com.sesac.backend.evaluation.exam.repository.ExamProblemRepository;
 import com.sesac.backend.evaluation.exam.repository.ExamRepository;
+import com.sesac.backend.evaluation.score.domain.Score;
+import com.sesac.backend.evaluation.score.repository.ScoreRepository;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,14 +29,20 @@ public class ExamService {
 
     private final ExamRepository examRepository;
     private final ExamProblemRepository examProblemRepository;
-    private final CourseRepository courseRepository;
+    private final CourseOpeningRepository courseOpeningRepository;
+    private final ScoreRepository scoreRepository;
+    private final StudentRepositoryDemo studentRepositoryDemo;
 
     @Autowired
     public ExamService(ExamRepository examRepository,
-        ExamProblemRepository examProblemRepository, CourseRepository courseRepository) {
+        ExamProblemRepository examProblemRepository,
+        CourseOpeningRepository courseOpeningRepository, ScoreRepository scoreRepository,
+        StudentRepositoryDemo studentRepositoryDemo) {
         this.examRepository = examRepository;
         this.examProblemRepository = examProblemRepository;
-        this.courseRepository = courseRepository;
+        this.courseOpeningRepository = courseOpeningRepository;
+        this.scoreRepository = scoreRepository;
+        this.studentRepositoryDemo = studentRepositoryDemo;
     }
 
     /**
@@ -37,7 +51,7 @@ public class ExamService {
      * @param finalExamId
      * @return FinalExamDto
      */
-    public ExamDto getByExamId(UUID finalExamId) {
+    public ExamCreationRequest getByExamId(UUID finalExamId) {
         return examRepository.findById(finalExamId).stream()
             .map(this::convertToDto).findFirst()
             .orElseThrow(RuntimeException::new);
@@ -48,32 +62,32 @@ public class ExamService {
      *
      * @return List<FinalExamDto>
      */
-    public List<ExamDto> getAllExams() {
+    public List<ExamCreationRequest> getAllExams() {
         return examRepository.findAll().stream().map(this::convertToDto).toList();
     }
 
     /**
      * FinalExam 테이블 레코드 생성
      *
-     * @param examDto
+     * @param examCreationRequest
      * @return FinalExamDto
      */
-    public ExamDto createExam(ExamDto examDto) {
-        return convertToDto(examRepository.save(convertToEntity(examDto)));
+    public ExamCreationRequest createExam(ExamCreationRequest examCreationRequest) {
+        return convertToDto(examRepository.save(convertToEntity(examCreationRequest)));
     }
 
     /**
      * FinalExam 테이블 레코드 업데이트
      *
-     * @param examDto
+     * @param examCreationRequest
      * @return FinalExamDto
      */
-    public ExamDto updateExam(ExamDto examDto) {
-        Exam saved = examRepository.findById(examDto.getExamId())
+    public ExamCreationRequest updateExam(ExamCreationRequest examCreationRequest) {
+        Exam saved = examRepository.findById(examCreationRequest.getExamId())
             .orElseThrow(RuntimeException::new);
 
-        saved.setStartTime(examDto.getStartTime());
-        saved.setEndTime(examDto.getEndTime());
+        saved.setStartTime(examCreationRequest.getStartTime());
+        saved.setEndTime(examCreationRequest.getEndTime());
         return convertToDto(examRepository.save(saved));
     }
 
@@ -90,23 +104,15 @@ public class ExamService {
     /**
      * FinalExam과 1:N 연관된 FinalExamProblems 업데이트 시험 문제 출제
      *
-     * @param examId
-     * @param examProblemDtos
-     * @return List<FinalExamDto>
+     * @param request
+     * @return ExamCreationRequest
      */
-    public List<ExamProblemDto> createExamProblems(UUID examId,
-        List<ExamProblemDto> examProblemDtos) {
-        Exam saved = examRepository.findById(examId)
-            .orElseThrow(RuntimeException::new);
+    public ExamCreationRequest saveExamProblems(ExamCreationRequest request) {
+        Exam entity = convertToEntity(request);
 
-        saved.getExamProblems().clear();
+        Exam saved = examRepository.save(entity);
 
-        List<ExamProblem> entities = examProblemDtos.stream()
-            .map(dto -> convertToEntity(saved, dto)).toList();
-
-        saved.getExamProblems().addAll(entities);
-
-        return entities.stream().map(this::convertToDto).toList();
+        return convertToDto(saved);
     }
 
     /**
@@ -122,60 +128,94 @@ public class ExamService {
             .toList();
     }
 
+    /**
+     * 시험 응시(제출)
+     */
+    public ExamSubmissionRequest submit(ExamSubmissionRequest request) {
+        Exam exam = examRepository.findById(request.getExamId()).orElseThrow(RuntimeException::new);
+        Student student = exam.getStudent();
+
+        int point = 0;
+
+        for (ExamAnswerDto examAnswerDto : request.getAnswers()) {
+            ExamProblem problem = exam.getExamProblems().stream()
+                .filter(p -> p.getProblemId().equals(examAnswerDto.getProblemId()))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("ExamProblem not found"));
+
+            if (problem.getCorrectAnswer() == examAnswerDto.getSelectedAnswer()) {
+                problem.setCorrectness(Correctness.CORRECT);
+                point += problem.getDifficulty().getPoint();
+            } else {
+                problem.setCorrectness(Correctness.WRONG);
+            }
+            problem.setSelectedAnswer(examAnswerDto.getSelectedAnswer()); // 선택된 답안 설정
+            examProblemRepository.save(problem); // 문제 저장
+        }
+
+        // `Score`가 기존에 존재하는지 확인 후 생성 또는 업데이트
+        Score score = scoreRepository.findByStudent(student)
+            .orElseGet(() -> Score.builder().student(student).build());
+
+        if (exam.getType() == Type.MIDTERM) {
+            score.setMidtermExam(exam);
+            score.setMidtermExamScore(point);
+        } else {
+            score.setFinalExam(exam);
+            score.setFinalExamScore(point);
+        }
+
+        scoreRepository.save(score);
+        return ExamSubmissionRequest.builder().examId(exam.getExamId())
+            .studentId(exam.getStudent().getStudentId()).answers(exam.getExamProblems().stream()
+                .map(entity -> ExamAnswerDto.builder().problemId(entity.getProblemId())
+                    .number(entity.getNumber()).selectedAnswer(entity.getSelectedAnswer()).build())
+                .toList()).build();
+    }
+
 
     /**
-     * FinalExam entity를 FinalExam dto로 변환
+     * Exam entity를 ExamCreationRequest로 변환
      *
      * @param entity
      * @return FinalExamDto
      */
-    private ExamDto convertToDto(Exam entity) {
-        List<UUID> examProblems = entity.getExamProblems().stream()
-            .map(ExamProblem::getProblemId).toList();
+    private ExamCreationRequest convertToDto(Exam entity) {
+        List<ExamProblemDto> examProblems = entity.getExamProblems().stream()
+            .map(this::convertToDto).toList();
 
-        return new ExamDto(entity.getExamId(), entity.getCourse().getCourseId(),
-            examProblems, entity.getType(), entity.getFinalExamEvaluationStatus(),
-            entity.getTitle(),
-            entity.getDescription(), entity.getStartTime(), entity.getEndTime());
+        return new ExamCreationRequest(entity.getExamId(), entity.getCourseOpening().getOpeningId(),
+            entity.getStudent().getStudentId(), examProblems, entity.getType(),
+            entity.getStartTime(), entity.getEndTime());
     }
 
     /**
      * FinalExam dto를 FinalExam entity로 변환
      *
-     * @param dto
+     * @param request
      * @return FinalExam
      */
-    private Exam convertToEntity(ExamDto dto) {
-        Course course = courseRepository.findById(dto.getCourseId())
+    private Exam convertToEntity(ExamCreationRequest request) {
+        CourseOpening courseOpening = courseOpeningRepository.findById(request.getOpeningId())
             .orElseThrow(RuntimeException::new);
 
-        List<ExamProblem> examProblems = dto.getExamProblems().stream()
-            .map(problemId ->
-                examProblemRepository.findById(problemId)
+        List<ExamProblem> examProblems = request.getProblems().stream()
+            .map(problemDto ->
+                examProblemRepository.findById(problemDto.getProblemId())
                     .orElseThrow(RuntimeException::new)).toList();
 
-        return new Exam(dto.getExamId(), course, examProblems, dto.getType(),
-            dto.getEvaluationStatus(), dto.getTitle(), dto.getDescription(), dto.getStartTime(),
-            dto.getEndTime());
-    }
+        Student student = studentRepositoryDemo.findById(request.getStudentId())
+            .orElseThrow(RuntimeException::new);
 
-    private ExamProblem convertToEntity(Exam exam, ExamProblemDto dto) {
-
-        return ExamProblem.builder()
-            .problemId(dto.getProblemId())
-            .exam(exam)
-            .number(dto.getNumber())
-            .correctAnswer(dto.getCorrectAnswer())
-            .difficulty(dto.getDifficulty())
-            .question(dto.getQuestion())
-            .choices(dto.getChoices())
-            .build();
+        return Exam.builder().examId(request.getExamId()).courseOpening(courseOpening).student(student)
+            .examProblems(examProblems).type(request.getType()).startTime(request.getStartTime())
+            .endTime(request.getEndTime()).build();
     }
 
     private ExamProblemDto convertToDto(ExamProblem entity) {
         return new ExamProblemDto(entity.getProblemId(),
-            entity.getExam().getExamId(),
-            entity.getNumber(), entity.getCorrectAnswer(), entity.getDifficulty(),
-            entity.getQuestion(), entity.getChoices());
+            entity.getNumber(), entity.getCorrectAnswer(),
+            entity.getDifficulty(), entity.getQuestion(),
+            entity.getChoices());
     }
 }

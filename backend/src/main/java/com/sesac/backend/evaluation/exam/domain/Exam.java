@@ -2,6 +2,8 @@ package com.sesac.backend.evaluation.exam.domain;
 
 import com.sesac.backend.entity.BaseEntity;
 import com.sesac.backend.entity.Course;
+import com.sesac.backend.entity.CourseOpening;
+import com.sesac.backend.entity.Student;
 import com.sesac.backend.evaluation.enums.EvaluationStatus;
 import com.sesac.backend.evaluation.enums.Type;
 import jakarta.persistence.*;
@@ -16,6 +18,7 @@ import lombok.*;
  */
 @Getter
 @Setter
+@Builder
 @ToString(exclude = {"course", "examProblems"})
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
@@ -32,20 +35,17 @@ public class Exam extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID examId;
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "courseId", nullable = false)
-    private Course course;
+    @JoinColumn(name = "openingId", nullable = false)
+    private CourseOpening courseOpening;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "studentId", nullable = false)
+    private Student student;
     @OneToMany(mappedBy = "exam", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     List<ExamProblem> examProblems = new ArrayList<>();
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Type type;
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private EvaluationStatus finalExamEvaluationStatus;
-    @Column(nullable = false)
-    private String title;
-    @Column(nullable = false)
-    private String description;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
+    private int score;
 }

@@ -1,6 +1,5 @@
 package com.sesac.backend.evaluation.exam.dto;
 
-import com.sesac.backend.evaluation.enums.EvaluationStatus;
 import com.sesac.backend.evaluation.enums.Type;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -14,10 +13,11 @@ import lombok.*;
  */
 @Getter
 @Setter
+@Builder
 @ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class ExamDto {
+public class ExamCreationRequest {
 
     /**
      * finalExamId:     PK
@@ -26,12 +26,10 @@ public class ExamDto {
      * endTime:         종료시간
      */
     private UUID examId;
-    private UUID courseId;
-    private List<UUID> examProblems;
+    private UUID openingId;
+    private UUID studentId;
+    private List<ExamProblemDto> problems;
     private Type type;
-    private EvaluationStatus evaluationStatus;
-    private String title;
-    private String description;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
 }

@@ -1,6 +1,7 @@
 package com.sesac.backend.evaluation.exam.dto;
 
 import com.sesac.backend.evaluation.enums.Answer;
+import com.sesac.backend.evaluation.enums.Correctness;
 import com.sesac.backend.evaluation.enums.Difficulty;
 import java.util.*;
 import lombok.*;
@@ -14,7 +15,6 @@ import lombok.*;
 public class ExamProblemDto {
 
     private UUID problemId;
-    private UUID examId;
     private Integer number;
     private Answer correctAnswer;
     private Difficulty difficulty;
