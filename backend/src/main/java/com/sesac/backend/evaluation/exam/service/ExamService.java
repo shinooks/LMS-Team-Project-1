@@ -139,6 +139,7 @@ public class ExamService {
     public ExamSubmissionRequest submit(ExamSubmissionRequest request) {
         Exam exam = examRepository.findById(request.getExamId()).orElseThrow(RuntimeException::new);
         Student student = exam.getStudent();
+        CourseOpening courseOpening = exam.getCourseOpening();
 
         LocalDateTime now = LocalDateTime.now();
 
@@ -165,7 +166,7 @@ public class ExamService {
         }
 
         // `Score`가 기존에 존재하는지 확인 후 생성 또는 업데이트
-        Score score = scoreRepository.findByStudent(student)
+        Score score = scoreRepository.findByStudentAndCourseOpening(student, courseOpening)
             .orElseGet(() -> Score.builder().student(student).build());
 
         if (exam.getType() == Type.MIDTERM) {
@@ -218,7 +219,8 @@ public class ExamService {
         Student student = studentRepositoryDemo.findById(request.getStudentId())
             .orElseThrow(RuntimeException::new);
 
-        return Exam.builder().examId(request.getExamId()).courseOpening(courseOpening).student(student)
+        return Exam.builder().examId(request.getExamId()).courseOpening(courseOpening)
+            .student(student)
             .examProblems(examProblems).type(request.getType()).startTime(request.getStartTime())
             .endTime(request.getEndTime()).build();
     }

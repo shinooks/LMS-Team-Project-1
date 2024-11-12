@@ -67,6 +67,7 @@ public class ScoreService {
     private ScoreDto convertToDto(Score entity) {
         return new ScoreDto(entity.getScoreId(), entity.getAssignment().getAssignId(),
             entity.getMidtermExam().getExamId(), entity.getFinalExam().getExamId(),
+            entity.getCourseOpening().getOpeningId(),
             entity.getStudent().getStudentId(), entity.getAssignScore(),
             entity.getMidtermExamScore(), entity.getFinalExamScore(), entity.getVisibility());
     }
@@ -80,8 +81,10 @@ public class ScoreService {
             .orElseThrow(RuntimeException::new);
         Student student = studentRepositoryDemo.findById(dto.getStudentId())
             .orElseThrow(RuntimeException::new);
+        CourseOpening courseOpening = courseOpeningRepository.findById(dto.getOpeningId())
+            .orElseThrow(RuntimeException::new);
 
-        return new Score(dto.getScoreId(), assignment, midtermExam, finalExam,
+        return new Score(dto.getScoreId(), assignment, midtermExam, finalExam, courseOpening,
             student, dto.getAssignScore(), dto.getMidtermExamScore(), dto.getFinalExamScore(),
             dto.getVisibility());
     }

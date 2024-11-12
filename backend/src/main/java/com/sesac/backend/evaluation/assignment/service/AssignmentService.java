@@ -89,7 +89,7 @@ public class AssignmentService {
         Assignment saved = assignmentRepository.findByStudentAndCourseOpening(student,
             courseOpening);
 
-        Score score = scoreRepository.findByStudent(student).orElse(
+        Score score = scoreRepository.findByStudentAndCourseOpening(student, courseOpening).orElse(
             Score.builder().student(student).build());
 
         score.setAssignment(saved);

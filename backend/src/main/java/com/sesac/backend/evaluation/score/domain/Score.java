@@ -31,7 +31,10 @@ public class Score extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "finalExamId")
     private Exam finalExam;
-    @OneToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "openingId", nullable = false)
+    private CourseOpening courseOpening;
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "studentId")
     private Student student;
     @Column(nullable = false)
