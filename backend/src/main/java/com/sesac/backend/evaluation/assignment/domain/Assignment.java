@@ -46,7 +46,6 @@ public class Assignment extends BaseEntity {
     @Column(nullable = false)
     private String description;
     private UUID scanId;
-    @Lob
     @Column(columnDefinition = "bytea")
     private byte[] file;
     private String fileName;
