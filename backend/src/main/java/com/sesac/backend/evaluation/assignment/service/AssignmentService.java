@@ -10,16 +10,20 @@ import com.sesac.backend.evaluation.assignment.dto.AssignScoreRequest;
 import com.sesac.backend.evaluation.assignment.dto.AssignSubmissionRequest;
 import com.sesac.backend.evaluation.assignment.repository.AssignmentRepository;
 import com.sesac.backend.evaluation.assignment.repository.StudentRepositoryDemo;
+import com.sesac.backend.evaluation.copyleaks.service.CopyleaksService;
 import com.sesac.backend.evaluation.score.domain.Score;
 import com.sesac.backend.evaluation.score.repository.ScoreRepository;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.UUID;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
  * @author dongjin 과제 service Assignment 비즈니스 로직 구현
  */
+@Slf4j
 @Service
 public class AssignmentService {
 
@@ -27,15 +31,18 @@ public class AssignmentService {
     private final CourseOpeningRepository courseOpeningRepository;
     private final StudentRepositoryDemo studentRepositoryDemo;
     private final ScoreRepository scoreRepository;
+    private final CopyleaksService copyleaksService;
 
     @Autowired
     public AssignmentService(AssignmentRepository assignmentRepository,
         CourseOpeningRepository courseOpeningRepository,
-        StudentRepositoryDemo studentRepositoryDemo, ScoreRepository scoreRepository) {
+        StudentRepositoryDemo studentRepositoryDemo, ScoreRepository scoreRepository,
+        CopyleaksService copyleaksService) {
         this.assignmentRepository = assignmentRepository;
         this.courseOpeningRepository = courseOpeningRepository;
         this.studentRepositoryDemo = studentRepositoryDemo;
         this.scoreRepository = scoreRepository;
+        this.copyleaksService = copyleaksService;
     }
 
     /**
@@ -70,6 +77,13 @@ public class AssignmentService {
         }
 
         saved.setFile(request.getFile());
+        saved.setFileName(request.getFileName());
+
+        try {
+            copyleaksService.checkPlagiarism(saved.getAssignId());
+        } catch (IOException e) {
+            log.error("Failed to Copyleaks");
+        }
 
         return convertToSubmissionRequest(saved);
     }
@@ -139,7 +153,7 @@ public class AssignmentService {
      */
     private AssignSubmissionRequest convertToSubmissionRequest(Assignment entity) {
         return new AssignSubmissionRequest(entity.getStudent().getStudentId(),
-            entity.getCourseOpening().getOpeningId(), entity.getFile());
+            entity.getCourseOpening().getOpeningId(), entity.getFile(), entity.getFileName());
     }
 
     /**

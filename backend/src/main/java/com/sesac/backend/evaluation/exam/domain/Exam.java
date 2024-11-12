@@ -13,8 +13,8 @@ import lombok.*;
 
 /**
  * @author dongjin
- * 기말고사 도메인
- * FinalExam 테이블 컬럼 정의
+ * 시험 도메인
+ * Exam 테이블 컬럼 정의
  */
 @Getter
 @Setter
@@ -25,12 +25,6 @@ import lombok.*;
 @Entity
 public class Exam extends BaseEntity {
 
-    /**
-     * finalExamId:     PK
-     * course:          기말고사 생성한 강의
-     * startTime:       시작시간
-     * endTime:         종료시간
-     */
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID examId;

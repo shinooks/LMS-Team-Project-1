@@ -15,4 +15,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface AssignmentRepository extends JpaRepository<Assignment, UUID> {
     Assignment findByStudentAndCourseOpening(Student student, CourseOpening courseOpening);
+
+    Assignment findByScanId(UUID scanId);
 }

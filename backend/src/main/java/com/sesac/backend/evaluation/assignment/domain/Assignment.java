@@ -45,9 +45,12 @@ public class Assignment extends BaseEntity {
     @Lob
     @Column(nullable = false)
     private String description;
+    private UUID scanId;
     @Lob
     @Column(columnDefinition = "bytea")
     private byte[] file;
+    private String fileName;
+    private String copyleaksResult;
     private LocalDateTime openAt;
     private LocalDateTime deadline;
 }

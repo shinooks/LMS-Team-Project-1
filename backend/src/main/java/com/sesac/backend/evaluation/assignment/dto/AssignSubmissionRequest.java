@@ -15,4 +15,5 @@ public class AssignSubmissionRequest {
     private UUID openingId;
     @Lob
     private byte[] file;
+    private String fileName;
 }
