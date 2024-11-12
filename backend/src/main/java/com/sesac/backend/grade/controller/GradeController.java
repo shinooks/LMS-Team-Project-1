@@ -3,7 +3,6 @@ package com.sesac.backend.grade.controller;
 import java.util.List;
 
 import java.util.UUID;  // 이 import 추가
-import java.util.List;
 
 
 import com.sesac.backend.grade.dto.*;
@@ -16,7 +15,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
+
+
+@Tag(name = "성적 관리", description = "성적 조회 및 관리 관련 API")
 @Slf4j
 @RestController
 @RequestMapping("/grades")
@@ -24,91 +30,77 @@ import org.springframework.web.bind.annotation.RestController;
 public class GradeController {
     private final GradeService gradeService;
 
-    // 단일 성적 조회
+    @Operation(summary = "단일 성적 조회", description = "특정 학생의 성적 정보를 조회합니다.")
+    @ApiResponse(responseCode = "200", description = "조회 성공")
+    @ApiResponse(responseCode = "404", description = "성적 정보를 찾을 수 없음")
     @GetMapping("/{gradeId}")
-    public ResponseEntity<GradeDto> getGrade(@PathVariable UUID gradeId) {
+    public ResponseEntity<GradeDto> getGrade(
+            @Parameter(description = "성적 ID") @PathVariable UUID gradeId) {
         return ResponseEntity.ok(gradeService.findById(gradeId));
     }
 
-    // 강의, 학기별 전체 성적 조회
+    @Operation(summary = "강의별 성적 조회", description = "강의명과 학기로 전체 성적을 조회합니다.")
+    @ApiResponse(responseCode = "200", description = "조회 성공")
     @GetMapping("/course")
     public ResponseEntity<List<GradeDto>> getAllGradesByCourseAndSemester(
-            @RequestParam String courseName,
-            @RequestParam String semester) {
-//        log.error("courseName: {}, semester: {}", courseName, semester);
-        List<GradeDto> grades = gradeService.findAllByCourseCourseNameAndCourseOpeningSemester(
-                courseName, semester);
-//        log.error("grades: {}", grades);
-        return ResponseEntity.ok(grades);
+            @Parameter(description = "강의명") @RequestParam String courseName,
+            @Parameter(description = "학기 (예: Fall, Spring)") @RequestParam String semester) {
+        return ResponseEntity.ok(gradeService.findAllByCourseCourseNameAndCourseOpeningSemester(courseName, semester));
     }
-    //    http://localhost:8081/grades/course?courseName=Chemistry&semester=Fall
 
-    // 여러 학생 성적 일괄 수정 API 수정
+    @Operation(summary = "성적 일괄 수정", description = "여러 학생의 성적을 한 번에 수정합니다.")
+    @ApiResponse(responseCode = "200", description = "수정 성공")
+    @ApiResponse(responseCode = "400", description = "잘못된 요청")
     @PutMapping("/scores/batch")
     public ResponseEntity<List<GradeDto>> updateMultipleGradeScores(
-            @RequestBody List<GradeUpdateRequest> updateRequests) {
-        List<GradeDto> updatedGrades = gradeService.updateMultipleGradeScores(updateRequests);
-        return ResponseEntity.ok(updatedGrades);
+            @Parameter(description = "성적 수정 요청 목록") @RequestBody List<GradeUpdateRequest> updateRequests) {
+        return ResponseEntity.ok(gradeService.updateMultipleGradeScores(updateRequests));
     }
-    //  http://localhost:8081/grades/scores/batch
 
-
-    // 학점 계산
+    @Operation(summary = "학점 계산", description = "성적을 기반으로 학점을 계산합니다.")
+    @ApiResponse(responseCode = "200", description = "계산 성공")
+    @ApiResponse(responseCode = "404", description = "성적 정보를 찾을 수 없음")
     @GetMapping("/gpa/{scoreId}")
-    public ResponseEntity<GpaCalculationDto> calculateGpa(@PathVariable UUID scoreId) {
+    public ResponseEntity<GpaCalculationDto> calculateGpa(
+            @Parameter(description = "점수 ID") @PathVariable UUID scoreId) {
         return ResponseEntity.ok(gradeService.calculateGpa(scoreId));
     }
-    // http://localhost:8081/grades/gpa/5a6b7c8d-9e0f-1a2b-3c4d-5e6f7a8b9c0d
 
-
-
+    @Operation(summary = "성적 목록 조회", description = "강의 개설 ID로 성적 목록을 조회하고 정렬합니다.")
+    @ApiResponse(responseCode = "200", description = "조회 성공")
     @GetMapping("/list/{openingId}")
     public ResponseEntity<List<GradeListResponseDto>> getGradeList(
-            @PathVariable UUID openingId,
-            @RequestParam(defaultValue = "totalScore") String sortBy) {
+            @Parameter(description = "강의 개설 ID") @PathVariable UUID openingId,
+            @Parameter(description = "정렬 기준 (기본값: totalScore)") @RequestParam(defaultValue = "totalScore") String sortBy) {
         return ResponseEntity.ok(gradeService.getGradeList(openingId, sortBy));
     }
-    // http://localhost:8081/grades/list/9e0f1a2b-3c4d-5e6f-7a8b-9c0d1f2a3b4c
 
-
-
+    @Operation(summary = "성적 통계 조회", description = "강의별 성적 통계를 조회합니다.")
+    @ApiResponse(responseCode = "200", description = "조회 성공")
     @GetMapping("/statistics/{openingId}")
-    public ResponseEntity<GradeStatisticsDto> getGradeStatistics(@PathVariable UUID openingId) {
+    public ResponseEntity<GradeStatisticsDto> getGradeStatistics(
+            @Parameter(description = "강의 개설 ID") @PathVariable UUID openingId) {
         return ResponseEntity.ok(gradeService.getGradeStatistics(openingId));
-
     }
-    // http://localhost:8081/grades/statistics/9e0f1a2b-3c4d-5e6f-7a8b-9c0d1f2a3b4c
 
-
-
-    //성적 공개
+    @Operation(summary = "성적 공개 설정", description = "성적 공개 기간을 설정합니다.")
+    @ApiResponse(responseCode = "200", description = "설정 성공")
+    @ApiResponse(responseCode = "400", description = "잘못된 요청")
     @PutMapping("/visibility")
-    public ResponseEntity<Void> updateGradeVisibility(@RequestBody GradeVisibilityRequest request) {
+    public ResponseEntity<Void> updateGradeVisibility(
+            @Parameter(description = "성적 공개 설정 정보") @RequestBody GradeVisibilityRequest request) {
         gradeService.updateGradeVisibility(request);
         return ResponseEntity.ok().build();
     }
 
-    //{
-    //    "openingId": "9e0f1a2b-3c4d-5e6f-7a8b-9c0d1f2a3b4c",
-    //    "startDate": "2024-06-10T00:00:00",
-    //    "endDate": "2024-07-30T23:59:59"
-    //} 날짜 수정해서 PUT
-
-    // 성적 공개 여부 확인하기
+    @Operation(summary = "성적 공개 여부 확인", description = "특정 성적의 공개 여부를 확인합니다.")
+    @ApiResponse(responseCode = "200", description = "확인 성공")
     @GetMapping("/visibility/{gradeId}")
-    public ResponseEntity<Boolean> checkGradeVisibility(@PathVariable UUID gradeId) {
+    public ResponseEntity<Boolean> checkGradeVisibility(
+            @Parameter(description = "성적 ID") @PathVariable UUID gradeId) {
         return ResponseEntity.ok(gradeService.isGradeVisible(gradeId));
     }
-
-
-
-
-
-
-
 }
-
-
 
 
 
