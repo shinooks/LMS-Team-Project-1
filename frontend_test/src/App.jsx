@@ -21,20 +21,21 @@ function App() {
 
     axios.get(`http://localhost:8081/myclasslist/${studentId}`).then(function (res) {
       if (res.status === 200) {
-        // setEnrolledClasses(res.data.myClassList);
-        //
-        // const formattedTimeTable = res.data.myTimeTable.map(row => row.map(cell => {
-        //   if (cell) {
-        //     return {
-        //       classId: cell.classes.classId,
-        //       className: cell.classes.className
-        //     };
-        //   }
-        //   return null;
-        // })
-        // );
-        // setMyTimeTable(formattedTimeTable);
-        // console.log(res.data);
+        setEnrolledClasses(res.data.myClassList);
+
+        const formattedTimeTable = res.data.myTimeTable.map(row => row.map(cell => {
+          if (cell) {
+            return {
+              classId: cell.courseCode,
+              className: cell.courseName
+            };
+          }
+          return null;
+        })
+        );
+
+        setMyTimeTable(formattedTimeTable);
+        console.log(res.data);
         return null;
       }
     });
@@ -44,7 +45,7 @@ function App() {
     try {
       axios.get(`http://localhost:8081/allclasses`).then(function (res) {
         if (res.status === 200) {
-          console.log(res.data);
+          console.log("all classes" + res.data);
           setClasses(res.data.allClasses);
         }
       })
@@ -55,8 +56,6 @@ function App() {
 
   // 관심강의 등록 함수
   const enroll = (classes) => {
-    console.log(studentId)
-    console.log(classes.openingId)
 
     axios.post("http://localhost:8081/enrollment", {
       studentId: studentId,
@@ -66,7 +65,7 @@ function App() {
       .then(function (res) {
         if (res.status === 200) {
           console.log("정상응답");
-          // requestData();
+          requestData();
         } else {
           console.log("비정상응답");
         }
@@ -92,11 +91,11 @@ function App() {
 
   // 관심강의 삭제 함수
   const deleteClass = (enrollmentId) => {
-    axios.delete(`http://localhost:8081/myclasslist/delete/${enrollmentId}`, {
-      myTimeTable: myTimeTable
-    })
+
+    axios.delete(`http://localhost:8081/myclasslist/delete/${enrollmentId}`)
       .then(function (res) {
         if (res.status === 200) {
+          console.log(enrollmentId)
           console.log("삭제완료");
           requestData();
         }
@@ -133,6 +132,8 @@ function App() {
               요일: {classes.day}&nbsp;&nbsp;&nbsp;
               시작시간: {classes.startTime} ~
               끝시간: {classes.endTime}&nbsp;&nbsp;&nbsp;
+              최대 수강인원: {classes.maxStudents}&nbsp;&nbsp;&nbsp;
+              현재 수강인원: {classes.currentStudents}&nbsp;&nbsp;&nbsp;
               <button onClick={() => enroll(classes)}>신청</button>
             </div>
           ))
@@ -183,13 +184,13 @@ function App() {
         ) : (
           enrolledClasses.map((enrolledClass, index) => (
             <div key={index} style={{ margin: '10px 0' }}>
-              강의번호: {enrolledClass.classes.classId}&nbsp;&nbsp;&nbsp;
-              강의명: {enrolledClass.classes.className}&nbsp;&nbsp;&nbsp;
-              최대인원: {enrolledClass.classes.maxEnrollments}&nbsp;&nbsp;&nbsp;
-              학점: {enrolledClass.classes.credit}&nbsp;&nbsp;&nbsp;
-              요일: {enrolledClass.classes.day}&nbsp;&nbsp;&nbsp;
-              시작시간: {enrolledClass.classes.startTime} ~
-              끝시간: {enrolledClass.classes.endTime}&nbsp;&nbsp;&nbsp;
+              강의번호: {enrolledClass.courseCode}&nbsp;&nbsp;&nbsp;
+              강의명: {enrolledClass.courseName}&nbsp;&nbsp;&nbsp;
+              학점: {enrolledClass.credit}&nbsp;&nbsp;&nbsp;
+              요일: {enrolledClass.day}&nbsp;&nbsp;&nbsp;
+              시작시간: {enrolledClass.startTime} ~
+              끝시간: {enrolledClass.endTime}&nbsp;&nbsp;&nbsp;
+              최대인원: {enrolledClass.maxStudents}&nbsp;&nbsp;&nbsp;
               <button onClick={() => deleteClass(enrolledClass.enrollmentId)}>삭제</button>
             </div>
           ))

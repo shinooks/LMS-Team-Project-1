@@ -14,8 +14,7 @@ import java.util.Set;
 import java.util.UUID;
 
 @Repository
-public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
-    Set<Enrollment> findByStudent(Student studentId);
+public interface EnrollmentRepository extends JpaRepository<Enrollment, UUID> {
 
     List<Enrollment> findByStudent_StudentId(UUID studentId);
 
@@ -34,5 +33,4 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
                                                 @Param("startTime") LocalTime startTime,
                                                 @Param("endTime") LocalTime endTime);
 
-    Enrollment findByStudent_StudentIdAndCourseOpening_OpeningId(UUID studentId, UUID openingId);
 }
