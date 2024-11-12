@@ -20,9 +20,11 @@ public class ScoreDto {
     private UUID assignId;
     private UUID midtermExamId;
     private UUID finalExamId;
+    private UUID openingId;
     private UUID studentId;
     private int assignScore;
     private int midtermExamScore;
     private int finalExamScore;
     private Visibility visibility;
+
 }

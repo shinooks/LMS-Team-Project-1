@@ -1,5 +1,6 @@
 package com.sesac.backend.assignment.domain;
 
+import com.sesac.backend.entity.CourseOpening;
 import com.sesac.backend.entity.Student;
 import jakarta.persistence.*;
 import lombok.*;
@@ -25,6 +26,10 @@ public class Score {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "finalExamId", nullable = false)
     private FinalExam finalExam;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name ="openingId" , nullable = false)
+    private CourseOpening courseOpening;
 
     @OneToOne
     @JoinColumn(name = "studentId", nullable = false)

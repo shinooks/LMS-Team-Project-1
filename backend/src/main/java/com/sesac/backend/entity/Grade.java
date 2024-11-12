@@ -4,6 +4,8 @@ import com.sesac.backend.assignment.domain.Score;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 /**
@@ -31,6 +33,14 @@ public class Grade {
     private CourseOpening courseOpening; // CourseOpening 엔티티 참조
 
 
+    @Column(nullable = false)
+    private boolean visibility = false;  // 성적 공개 여부
+
+    @Column
+    private LocalDateTime visibilityStartDate;  // 공개 시작일
+
+    @Column
+    private LocalDateTime visibilityEndDate;    // 공개 종료일
 
 
     public int getAssignScore() {

@@ -81,6 +81,28 @@ public class GradeController {
 
 
 
+    //성적 공개
+    @PutMapping("/visibility")
+    public ResponseEntity<Void> updateGradeVisibility(@RequestBody GradeVisibilityRequest request) {
+        gradeService.updateGradeVisibility(request);
+        return ResponseEntity.ok().build();
+    }
+
+    //{
+    //    "openingId": "9e0f1a2b-3c4d-5e6f-7a8b-9c0d1f2a3b4c",
+    //    "startDate": "2024-06-10T00:00:00",
+    //    "endDate": "2024-07-30T23:59:59"
+    //} 날짜 수정해서 PUT
+
+    // 성적 공개 여부 확인하기
+    @GetMapping("/visibility/{gradeId}")
+    public ResponseEntity<Boolean> checkGradeVisibility(@PathVariable UUID gradeId) {
+        return ResponseEntity.ok(gradeService.isGradeVisible(gradeId));
+    }
+
+
+
+
 
 
 

@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -86,6 +87,7 @@ public class GradeService {
                 grade.getScore().getAssignment().getAssignId(),
                 grade.getScore().getMidtermExam().getMidtermExamId(),
                 grade.getScore().getFinalExam().getFinalExamId(),
+                grade.getCourseOpening().getOpeningId(),
                 grade.getScore().getStudent().getStudentId(),
                 request.getAssignScore(),
                 request.getMidtermScore(),
@@ -263,6 +265,51 @@ public class GradeService {
 
 
     }
+
+    @Transactional
+    public void updateGradeVisibility(GradeVisibilityRequest request) {
+        //강의존재 여부 확인
+        CourseOpening courseOpening = courseOpeningRepository.findById(request.getOpeningId())
+                .orElseThrow(() -> new EntityNotFoundException("해당 강의를 찾을 수 없습니다."));
+
+        // 해당 강의의 모든 성적 조회
+        List<Grade> grades = gradeRepository.findByCourseOpening_OpeningId(request.getOpeningId());
+
+        if (grades.isEmpty()) {
+            throw new EntityNotFoundException("해당 강의의 성적 정보가 없습니다. openingId=" + request.getOpeningId());
+        }
+
+        //모든 성적의 공개 설정 업데이트
+        grades.forEach(grade -> {
+        grade.setVisibility(true);
+        grade.setVisibilityStartDate(request.getStartDate());
+        grade.setVisibilityEndDate(request.getEndDate());
+        });
+
+        gradeRepository.saveAll(grades);
+
+
+    }
+
+    // 성적 공개 여부 확인
+    public boolean isGradeVisible(UUID gradeId) {
+        Grade grade = gradeRepository.findById(gradeId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 성적 정보가 없습니다. id=" + gradeId));
+
+        LocalDateTime now = LocalDateTime.now();
+        return grade.isVisibility() &&
+                now.isAfter(grade.getVisibilityStartDate()) &&
+                now.isBefore(grade.getVisibilityEndDate());
+    }
+
+
+
+
+
+
+
+
+
 
 
 
