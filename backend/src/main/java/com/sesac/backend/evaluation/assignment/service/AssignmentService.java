@@ -12,6 +12,7 @@ import com.sesac.backend.evaluation.assignment.repository.AssignmentRepository;
 import com.sesac.backend.evaluation.assignment.repository.StudentRepositoryDemo;
 import com.sesac.backend.evaluation.score.domain.Score;
 import com.sesac.backend.evaluation.score.repository.ScoreRepository;
+import java.time.LocalDateTime;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -61,6 +62,12 @@ public class AssignmentService {
 
         Assignment saved = assignmentRepository.findByStudentAndCourseOpening(student,
             courseOpening);
+
+        LocalDateTime now = LocalDateTime.now();
+
+        if (now.isBefore(saved.getOpenAt()) || now.isAfter(saved.getDeadline())) {
+            throw new RuntimeException("제출기한이 지났습니다.");
+        }
 
         saved.setFile(request.getFile());
 

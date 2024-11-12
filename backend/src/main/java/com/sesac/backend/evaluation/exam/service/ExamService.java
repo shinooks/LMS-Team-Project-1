@@ -16,6 +16,7 @@ import com.sesac.backend.evaluation.exam.repository.ExamProblemRepository;
 import com.sesac.backend.evaluation.exam.repository.ExamRepository;
 import com.sesac.backend.evaluation.score.domain.Score;
 import com.sesac.backend.evaluation.score.repository.ScoreRepository;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -138,6 +139,12 @@ public class ExamService {
     public ExamSubmissionRequest submit(ExamSubmissionRequest request) {
         Exam exam = examRepository.findById(request.getExamId()).orElseThrow(RuntimeException::new);
         Student student = exam.getStudent();
+
+        LocalDateTime now = LocalDateTime.now();
+
+        if (now.isBefore(exam.getStartTime()) || now.isAfter(exam.getEndTime())) {
+            throw new RuntimeException("제출기한이 지났습니다.");
+        }
 
         int point = 0;
 
