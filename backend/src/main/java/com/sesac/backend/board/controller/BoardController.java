@@ -63,11 +63,18 @@ public class BoardController {
 
     // 게시판 삭제
     @DeleteMapping("/{boardId}")
-    public ResponseEntity<?> deleteBoard(@PathVariable UUID boardId) {
+    public ResponseEntity<?> deleteBoard(
+            @PathVariable UUID boardId,
+            @RequestHeader("X-USER-ID") UUID userId) {
         try {
             log.info("Deleting board with id: {}", boardId);
-            boardService.deleteBoard(boardId);
+            boardService.deleteBoard(boardId, userId);
             return ResponseEntity.ok(Map.of("message", "게시판이 성공적으로 삭제되었습니다."));
+        } catch (IllegalStateException e) {
+            // 권한 없음 예외 처리
+            log.error("Permission denied for deleting board", e);
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("message", e.getMessage()));
         } catch (Exception e) {
             log.error("Error deleting board", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

@@ -79,12 +79,23 @@ public class PostController {
     public ResponseEntity<?> updatePost(
             @PathVariable UUID boardId,
             @PathVariable UUID postId,
-            @RequestBody @Valid PostRequestDTO requestDTO) {
+            @RequestBody @Valid PostRequestDTO requestDTO,
+            @RequestHeader("X-USER-ID") UUID userId) {
         try {
             requestDTO.setBoardId(boardId);
             log.info("Updating post {} in board {}", postId, boardId);
-            PostResponseDTO response = postService.updatePost(postId, requestDTO);
+            PostResponseDTO response = postService.updatePost(postId, requestDTO, userId);
             return ResponseEntity.ok(response);
+        } catch (IllegalStateException e) {
+            // 권한 없음 예외 처리
+            log.error("Permission denied for updating post", e);
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("message", e.getMessage()));
+        } catch (EntityNotFoundException e) {
+            // 엔티티를 찾을 수 없는 경우
+            log.error("Entity not found", e);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("message", e.getMessage()));
         } catch (Exception e) {
             log.error("Error updating post", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -96,11 +107,22 @@ public class PostController {
     @DeleteMapping("/{postId}")
     public ResponseEntity<?> deletePost(
             @PathVariable UUID boardId,
-            @PathVariable UUID postId) {
+            @PathVariable UUID postId,
+            @RequestHeader("X-USER-ID") UUID userId) {
         try {
             log.info("Deleting post {} from board {}", postId, boardId);
-            postService.deletePost(postId);
+            postService.deletePost(postId, userId);
             return ResponseEntity.ok(Map.of("message", "게시글이 성공적으로 삭제되었습니다."));
+        } catch (IllegalStateException e) {
+            // 권한 없음 예외 처리
+            log.error("Permission denied for deleting post", e);
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("message", e.getMessage()));
+        } catch (EntityNotFoundException e) {
+            // 엔티티를 찾을 수 없는 경우
+            log.error("Entity not found", e);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("message", e.getMessage()));
         } catch (Exception e) {
             log.error("Error deleting post", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

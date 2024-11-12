@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -24,4 +25,8 @@ public class PostResponseDTO {
     private int likeCount;          // 좋아요 수
     private LocalDateTime createdAt;// 작성일시
     private String createdBy;       // 작성자
+
+    private List<PostLikeResponseDTO> likes;     // 좋아요 목록
+    private List<CommentResponseDTO> comments;    // 댓글 목록
+    private List<PostFileResponseDTO> files;// 첨부파일 목록 추가
 }

@@ -11,6 +11,8 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -31,17 +33,19 @@ public class PostLikeService {
         UserAuthentication user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
 
-        // 이미 좋아요가 있는지 확인
-        if (postLikeRepository.existsByPostAndUser(post, user)) {
-            // 좋아요가 있으면 삭제
-            postLikeRepository.deleteByPostAndUser(post, user);
+        Optional<PostLike> existingLike = postLikeRepository.findByPostAndUser(post, user);
+
+        if (existingLike.isPresent()) {
+            postLikeRepository.delete(existingLike.get());
             return null;
         } else {
-            // 좋아요가 없으면 생성
             PostLike postLike = PostLike.builder()
                     .post(post)
                     .user(user)
                     .build();
+
+            // 직접 작성자 정보 설정
+            postLike.setCreatedBy(user.getName());
 
             PostLike savedLike = postLikeRepository.save(postLike);
             return convertToResponseDTO(savedLike);

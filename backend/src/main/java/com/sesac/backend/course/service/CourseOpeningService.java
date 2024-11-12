@@ -101,6 +101,33 @@ public class CourseOpeningService {
                 .collect(Collectors.toList());
     }
 
+    // 강의 개설 수정
+    public CourseOpeningDto updateCourseOpening(UUID openingId, CourseOpeningDto courseOpeningDto) {
+        CourseOpening courseOpening = courseOpeningRepository.findById(openingId)
+                .orElseThrow(() -> new RuntimeException("개설된 강의를 찾을 수 없습니다."));
+
+        Course course = courseRepository.findById(courseOpeningDto.getCourseId())
+                .orElseThrow(() -> new RuntimeException("강의를 찾을 수 없습니다."));
+
+        courseOpening.setCourse(course);
+        courseOpening.setProfessorId(courseOpeningDto.getProfessorId());
+        courseOpening.setSemester(courseOpeningDto.getSemester());
+        courseOpening.setYear(courseOpeningDto.getYear());
+        courseOpening.setMaxStudents(courseOpeningDto.getMaxStudents());
+        courseOpening.setStatus(courseOpeningDto.getStatus());
+
+        CourseOpening updatedOpening = courseOpeningRepository.save(courseOpening);
+        return convertToDto(updatedOpening);
+    }
+
+    // 강의 개설 삭제 (연관된 강의시간, 강의계획서도 자동 삭제)
+    public void deleteCourseOpening(UUID openingId) {
+        CourseOpening courseOpening = courseOpeningRepository.findById(openingId)
+                .orElseThrow(() -> new RuntimeException("개설된 강의를 찾을 수 없습니다."));
+
+        courseOpeningRepository.delete(courseOpening);
+    }
+
     // Entity를 DTO로 변환
     private CourseOpeningDto convertToDto(CourseOpening courseOpening) {
         return CourseOpeningDto.builder()
@@ -132,32 +159,5 @@ public class CourseOpeningService {
                                 .build()
                         : null)
                 .build();
-    }
-
-    // 강의 개설 수정
-    public CourseOpeningDto updateCourseOpening(UUID openingId, CourseOpeningDto courseOpeningDto) {
-        CourseOpening courseOpening = courseOpeningRepository.findById(openingId)
-                .orElseThrow(() -> new RuntimeException("개설된 강의를 찾을 수 없습니다."));
-
-        Course course = courseRepository.findById(courseOpeningDto.getCourseId())
-                .orElseThrow(() -> new RuntimeException("강의를 찾을 수 없습니다."));
-
-        courseOpening.setCourse(course);
-        courseOpening.setProfessorId(courseOpeningDto.getProfessorId());
-        courseOpening.setSemester(courseOpeningDto.getSemester());
-        courseOpening.setYear(courseOpeningDto.getYear());
-        courseOpening.setMaxStudents(courseOpeningDto.getMaxStudents());
-        courseOpening.setStatus(courseOpeningDto.getStatus());
-
-        CourseOpening updatedOpening = courseOpeningRepository.save(courseOpening);
-        return convertToDto(updatedOpening);
-    }
-
-    // 강의 개설 삭제 (연관된 강의시간, 강의계획서도 자동 삭제)
-    public void deleteCourseOpening(UUID openingId) {
-        CourseOpening courseOpening = courseOpeningRepository.findById(openingId)
-                .orElseThrow(() -> new RuntimeException("개설된 강의를 찾을 수 없습니다."));
-
-        courseOpeningRepository.delete(courseOpening);
     }
 }

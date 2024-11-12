@@ -33,9 +33,11 @@ public class PostFileController {
         try {
             log.info("Uploading file for post {}: {}", postId, file.getOriginalFilename());
 
+            // storedName은 서비스에서 생성되므로 null로 전달
             PostFileRequestDTO requestDTO = PostFileRequestDTO.builder()
                     .postId(postId)
                     .originalName(file.getOriginalFilename())
+                    .storedName(null)  // 서비스에서 생성됨
                     .fileSize(file.getSize())
                     .fileType(file.getContentType())
                     .build();
