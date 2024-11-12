@@ -2,6 +2,9 @@ package com.sesac.backend.evaluation.assignment.domain;
 
 import com.sesac.backend.entity.BaseEntity;
 import com.sesac.backend.entity.Course;
+import com.sesac.backend.entity.CourseOpening;
+import com.sesac.backend.entity.Student;
+import com.sesac.backend.evaluation.enums.Visibility;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -13,8 +16,9 @@ import lombok.*;
  * Assignment 테이블 컬럼 정의
  */
 @Getter
+@Setter
 @Builder
-@ToString(exclude = {"course"})
+@ToString(exclude = {"courseOpening", "student"})
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Entity
@@ -32,18 +36,18 @@ public class Assignment extends BaseEntity {
     private UUID assignId;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "courseId", nullable = false)
-    private Course course;
+    private CourseOpening courseOpening;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "studentId", nullable = false)
+    private Student student;
     @Column(nullable = false)
     private String title;
     @Lob
     @Column(nullable = false)
     private String description;
+    @Lob
+    @Column(columnDefinition = "bytea")
+    private byte[] file;
+    private LocalDateTime openAt;
     private LocalDateTime deadline;
-
-    public void setAssign(Course course, String title, String description, LocalDateTime deadline) {
-        this.course = course;
-        this.title = title;
-        this.description = description;
-        this.deadline = deadline;
-    }
 }

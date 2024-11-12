@@ -1,5 +1,7 @@
 package com.sesac.backend.evaluation.score.service;
 
+import com.sesac.backend.course.repository.CourseOpeningRepository;
+import com.sesac.backend.entity.CourseOpening;
 import com.sesac.backend.entity.Student;
 import com.sesac.backend.evaluation.assignment.domain.Assignment;
 import com.sesac.backend.evaluation.assignment.repository.AssignmentRepository;
@@ -20,14 +22,18 @@ public class ScoreService {
     private final AssignmentRepository assignmentRepository;
     private final ExamRepository examRepository;
     private final StudentRepositoryDemo studentRepositoryDemo;
+    private final CourseOpeningRepository courseOpeningRepository;
 
     @Autowired
-    public ScoreService(ScoreRepository scoreRepository, AssignmentRepository assignmentRepository, ExamRepository examRepository,
-        StudentRepositoryDemo studentRepositoryDemo) {
+    public ScoreService(ScoreRepository scoreRepository, AssignmentRepository assignmentRepository,
+        ExamRepository examRepository,
+        StudentRepositoryDemo studentRepositoryDemo,
+        CourseOpeningRepository courseOpeningRepository) {
         this.scoreRepository = scoreRepository;
         this.assignmentRepository = assignmentRepository;
         this.examRepository = examRepository;
         this.studentRepositoryDemo = studentRepositoryDemo;
+        this.courseOpeningRepository = courseOpeningRepository;
     }
 
     public ScoreDto findById(UUID scoreId) {
@@ -75,8 +81,8 @@ public class ScoreService {
         Student student = studentRepositoryDemo.findById(dto.getStudentId())
             .orElseThrow(RuntimeException::new);
 
-        return new Score(dto.getScoreId(), assignment, midtermExam, finalExam, student,
-            dto.getAssignScore(), dto.getMidtermExamScore(), dto.getFinalExamScore(),
+        return new Score(dto.getScoreId(), assignment, midtermExam, finalExam,
+            student, dto.getAssignScore(), dto.getMidtermExamScore(), dto.getFinalExamScore(),
             dto.getVisibility());
     }
 }

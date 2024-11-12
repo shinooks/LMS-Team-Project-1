@@ -1,11 +1,17 @@
 package com.sesac.backend.evaluation.assignment.service;
 
-import com.sesac.backend.course.repository.CourseRepository;
-import com.sesac.backend.entity.Course;
+import com.sesac.backend.course.repository.CourseOpeningRepository;
+import com.sesac.backend.entity.CourseOpening;
+import com.sesac.backend.entity.Student;
 import com.sesac.backend.evaluation.assignment.domain.Assignment;
-import com.sesac.backend.evaluation.assignment.dto.AssignmentDto;
+import com.sesac.backend.evaluation.assignment.dto.AssignCreationRequest;
+import com.sesac.backend.evaluation.assignment.dto.AssignResponse;
+import com.sesac.backend.evaluation.assignment.dto.AssignScoreRequest;
+import com.sesac.backend.evaluation.assignment.dto.AssignSubmissionRequest;
 import com.sesac.backend.evaluation.assignment.repository.AssignmentRepository;
-import java.util.List;
+import com.sesac.backend.evaluation.assignment.repository.StudentRepositoryDemo;
+import com.sesac.backend.evaluation.score.domain.Score;
+import com.sesac.backend.evaluation.score.repository.ScoreRepository;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,87 +23,126 @@ import org.springframework.stereotype.Service;
 public class AssignmentService {
 
     private final AssignmentRepository assignmentRepository;
-    private final CourseRepository courseRepository;
+    private final CourseOpeningRepository courseOpeningRepository;
+    private final StudentRepositoryDemo studentRepositoryDemo;
+    private final ScoreRepository scoreRepository;
 
     @Autowired
     public AssignmentService(AssignmentRepository assignmentRepository,
-        CourseRepository courseRepository) {
+        CourseOpeningRepository courseOpeningRepository,
+        StudentRepositoryDemo studentRepositoryDemo, ScoreRepository scoreRepository) {
         this.assignmentRepository = assignmentRepository;
-        this.courseRepository = courseRepository;
+        this.courseOpeningRepository = courseOpeningRepository;
+        this.studentRepositoryDemo = studentRepositoryDemo;
+        this.scoreRepository = scoreRepository;
     }
 
     /**
-     * Assignment 테이블 레코드 생성
+     * 과제 생성
      *
-     * @param assignmentDto
-     * @return AssignmentDto
+     * @param request
+     * @return
      */
-    public AssignmentDto createAssign(AssignmentDto assignmentDto) {
-        return convertToDto(assignmentRepository.save(convertToEntity(assignmentDto)));
+    public AssignCreationRequest createAssignment(AssignCreationRequest request) {
+        return convertToCreationRequest(assignmentRepository.save(convertToEntity(request)));
     }
 
     /**
-     * Assignment 테이블 레코드 수정
+     * 과제 제출
      *
-     * @param assignmentDto
-     * @return AssignmentDto
+     * @param request
+     * @return
      */
-    public AssignmentDto updateAssign(AssignmentDto assignmentDto) {
-        Assignment saved = assignmentRepository.findById(assignmentDto.getAssignId())
+    public AssignSubmissionRequest submitAssignment(AssignSubmissionRequest request) {
+        Student student = studentRepositoryDemo.findById(request.getStudentId())
+            .orElseThrow(RuntimeException::new);
+        CourseOpening courseOpening = courseOpeningRepository.findById(request.getOpeningId())
             .orElseThrow(RuntimeException::new);
 
-        Course course = courseRepository.findById(assignmentDto.getCourseId())
+        Assignment saved = assignmentRepository.findByStudentAndCourseOpening(student,
+            courseOpening);
+
+        saved.setFile(request.getFile());
+
+        return convertToSubmissionRequest(saved);
+    }
+
+    /**
+     * 과제 채점
+     *
+     * @param request
+     * @return
+     */
+    public AssignScoreRequest updateAssignScore(AssignScoreRequest request) {
+        Student student = studentRepositoryDemo.findById(request.getStudentId())
             .orElseThrow(RuntimeException::new);
-        saved.setAssign(course, assignmentDto.getTitle(), assignmentDto.getDescription(),
-            assignmentDto.getDeadline());
-
-        return convertToDto(assignmentRepository.save(saved));
-    }
-
-    /**
-     * Assignment 테이블 전체조회
-     *
-     * @return List<AssignmentDto>
-     */
-    public List<AssignmentDto> findAll() {
-        return assignmentRepository.findAll().stream()
-            .map(entity -> new AssignmentDto(entity.getAssignId(),
-                entity.getCourse().getCourseId(), entity.getTitle(), entity.getDescription(),
-                entity.getDeadline())).toList();
-    }
-
-    /**
-     * Assignment 테이블 레코드 assignId(PK)로 조회
-     *
-     * @param assignId
-     * @return AssignmentDto
-     */
-    public AssignmentDto findById(UUID assignId) {
-        return convertToDto(
-            assignmentRepository.findById(assignId).orElseThrow(RuntimeException::new));
-    }
-
-    /**
-     * Assignment 테이블 레코드 assignId(PK)로 삭제
-     *
-     * @param assignId
-     */
-    public void delete(UUID assignId) {
-        assignmentRepository.findById(assignId).orElseThrow(RuntimeException::new);
-        assignmentRepository.deleteById(assignId);
-    }
-
-    private AssignmentDto convertToDto(Assignment entity) {
-        return new AssignmentDto(entity.getAssignId(), entity.getCourse().getCourseId(),
-            entity.getTitle(),
-            entity.getDescription(), entity.getDeadline());
-    }
-
-    private Assignment convertToEntity(AssignmentDto dto) {
-        Course course = courseRepository.findById(dto.getCourseId())
+        CourseOpening courseOpening = courseOpeningRepository.findById(request.getOpeningId())
             .orElseThrow(RuntimeException::new);
 
-        return new Assignment(dto.getAssignId(), course, dto.getTitle(), dto.getDescription(),
-            dto.getDeadline());
+        Assignment saved = assignmentRepository.findByStudentAndCourseOpening(student,
+            courseOpening);
+
+        Score score = scoreRepository.findByStudent(student).orElse(
+            Score.builder().student(student).build());
+
+        score.setAssignment(saved);
+        score.setAssignScore(request.getScore());
+
+        return request;
+    }
+
+    /**
+     * 과제 조회
+     *
+     * @param openingId
+     * @param studentId
+     * @return
+     */
+    public AssignResponse findAssign(UUID openingId, UUID studentId) {
+        CourseOpening courseOpening = courseOpeningRepository.findById(openingId).orElseThrow(RuntimeException::new);
+        Student student = studentRepositoryDemo.findById(studentId).orElseThrow(RuntimeException::new);
+
+        Assignment saved = assignmentRepository.findByStudentAndCourseOpening(student, courseOpening);
+        return new AssignResponse(saved.getTitle(), saved.getDescription());
+    }
+
+    /**
+     * AssignCreationRequest > Assignment
+     *
+     * @param dto
+     * @return
+     */
+    private Assignment convertToEntity(AssignCreationRequest dto) {
+        CourseOpening courseOpening = courseOpeningRepository.findById(dto.getOpeningId())
+            .orElseThrow(RuntimeException::new);
+
+        Student student = studentRepositoryDemo.findById(dto.getStudentId())
+            .orElseThrow(RuntimeException::new);
+
+        return Assignment.builder().courseOpening(courseOpening).student(student)
+            .title(dto.getTitle()).description(dto.getDescription()).openAt(dto.getOpenAt())
+            .deadline(dto.getDeadline()).build();
+    }
+
+    /**
+     * Assignment > AssignSubmissionRequest
+     *
+     * @param entity
+     * @return
+     */
+    private AssignSubmissionRequest convertToSubmissionRequest(Assignment entity) {
+        return new AssignSubmissionRequest(entity.getStudent().getStudentId(),
+            entity.getCourseOpening().getOpeningId(), entity.getFile());
+    }
+
+    /**
+     * Assignment > AssignCreationRequest
+     *
+     * @param entity
+     * @return
+     */
+    private AssignCreationRequest convertToCreationRequest(Assignment entity) {
+        return new AssignCreationRequest(entity.getAssignId(), entity.getStudent().getStudentId(),
+            entity.getTitle(), entity.getDescription(), entity.getOpenAt(), entity.getDeadline());
     }
 }

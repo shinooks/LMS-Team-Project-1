@@ -1,6 +1,7 @@
 package com.sesac.backend.evaluation.score.domain;
 
 import com.sesac.backend.entity.BaseEntity;
+import com.sesac.backend.entity.CourseOpening;
 import com.sesac.backend.entity.Student;
 import com.sesac.backend.evaluation.assignment.domain.Assignment;
 import com.sesac.backend.evaluation.enums.Visibility;

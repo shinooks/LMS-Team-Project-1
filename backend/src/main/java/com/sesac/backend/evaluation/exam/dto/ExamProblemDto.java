@@ -1,7 +1,6 @@
 package com.sesac.backend.evaluation.exam.dto;
 
 import com.sesac.backend.evaluation.enums.Answer;
-import com.sesac.backend.evaluation.enums.Correctness;
 import com.sesac.backend.evaluation.enums.Difficulty;
 import java.util.*;
 import lombok.*;

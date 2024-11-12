@@ -26,6 +26,7 @@ public class ExamController {
 
     /**
      * 새로운 시험 출제
+     *
      * @param examCreationRequest 시험 정보
      * @return 생성된 시험 정보
      */
@@ -37,6 +38,7 @@ public class ExamController {
 
     /**
      * 특정 시험 조회
+     *
      * @param examId 조회할 시험 ID
      * @return 조회된 시험 정보
      */
@@ -48,6 +50,7 @@ public class ExamController {
 
     /**
      * 전체 시험 조회
+     *
      * @return 모든 시험 리스트
      */
     @GetMapping("")
@@ -58,6 +61,7 @@ public class ExamController {
 
     /**
      * 특정 시험에 문제 추가
+     *
      * @param request
      * @return 추가된 문제 리스트
      */
@@ -69,6 +73,7 @@ public class ExamController {
 
     /**
      * 특정 시험 문제 조회
+     *
      * @param examId 조회할 시험 ID
      * @return 시험 문제 리스트
      */
@@ -80,6 +85,7 @@ public class ExamController {
 
     /**
      * 시험 응시 및 채점
+     *
      * @param examSubmissionRequest
      * @return 채점된 점수
      */
@@ -91,6 +97,7 @@ public class ExamController {
 
     /**
      * 시험 정보 업데이트
+     *
      * @param examId 시험 ID
      * @param examCreationRequest 수정할 시험 정보
      * @return 수정된 시험 정보
@@ -106,6 +113,7 @@ public class ExamController {
 
     /**
      * 시험 삭제
+     *
      * @param examId 삭제할 시험 ID
      * @return 상태 코드 반환
      */

@@ -46,7 +46,7 @@ public class ExamService {
     }
 
     /**
-     * FinalExam 테이블 레코드 finalExamId(PK)로 조회
+     * Exam 테이블 레코드 finalExamId(PK)로 조회
      *
      * @param finalExamId
      * @return FinalExamDto
@@ -58,7 +58,7 @@ public class ExamService {
     }
 
     /**
-     * FinalExam 테이블 레코드 전체조회
+     * Exam 테이블 레코드 전체조회
      *
      * @return List<FinalExamDto>
      */
@@ -67,7 +67,7 @@ public class ExamService {
     }
 
     /**
-     * FinalExam 테이블 레코드 생성
+     * Exam 테이블 레코드 생성
      *
      * @param examCreationRequest
      * @return FinalExamDto
@@ -77,7 +77,7 @@ public class ExamService {
     }
 
     /**
-     * FinalExam 테이블 레코드 업데이트
+     * Exam 테이블 레코드 업데이트
      *
      * @param examCreationRequest
      * @return FinalExamDto
@@ -92,7 +92,7 @@ public class ExamService {
     }
 
     /**
-     * FinalExam 테이블 레코드 finalExamId(PK)로 삭제
+     * Exam 테이블 레코드 finalExamId(PK)로 삭제
      *
      * @param finalExamId
      */
@@ -102,7 +102,7 @@ public class ExamService {
     }
 
     /**
-     * FinalExam과 1:N 연관된 FinalExamProblems 업데이트 시험 문제 출제
+     * Exam과 1:N 연관된 FinalExamProblems 업데이트 시험 문제 출제
      *
      * @param request
      * @return ExamCreationRequest
@@ -116,7 +116,7 @@ public class ExamService {
     }
 
     /**
-     * FinalExam과 1:N 연관된 FinalExamProblems 조회 시험 문제 조회
+     * Exam과 1:N 연관된 FinalExamProblems 조회 시험 문제 조회
      *
      * @param finalExamId
      * @return
@@ -128,8 +128,12 @@ public class ExamService {
             .toList();
     }
 
+
     /**
      * 시험 응시(제출)
+     *
+     * @param request
+     * @return
      */
     public ExamSubmissionRequest submit(ExamSubmissionRequest request) {
         Exam exam = examRepository.findById(request.getExamId()).orElseThrow(RuntimeException::new);

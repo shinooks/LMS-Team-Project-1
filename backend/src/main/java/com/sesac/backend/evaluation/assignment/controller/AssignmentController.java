@@ -1,14 +1,14 @@
 package com.sesac.backend.evaluation.assignment.controller;
 
-import com.sesac.backend.evaluation.assignment.dto.AssignmentDto;
+import com.sesac.backend.evaluation.assignment.dto.AssignCreationRequest;
+import com.sesac.backend.evaluation.assignment.dto.AssignResponse;
+import com.sesac.backend.evaluation.assignment.dto.AssignScoreRequest;
+import com.sesac.backend.evaluation.assignment.dto.AssignSubmissionRequest;
 import com.sesac.backend.evaluation.assignment.service.AssignmentService;
-import java.net.URI;
-import java.util.List;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 /**
  * @author dongjin 과제 controller http 요청을 받아 Assignment service 호출
@@ -26,14 +26,15 @@ public class AssignmentController {
     }
 
     /**
-     * Assignment 테이블 전체 조회
-     *
-     * @return List<AssignmentDto>
+     * 과제 생성 컨트롤러
+     * 
+     * @param assignCreationRequest
+     * @return
      */
-    @GetMapping("")
-    public ResponseEntity<List<AssignmentDto>> getAllAssignments() {
+    @PostMapping("/create")
+    public ResponseEntity<AssignCreationRequest> createAssignment(@RequestBody AssignCreationRequest assignCreationRequest) {
         try {
-            return ResponseEntity.ok(assignmentService.findAll());
+            return ResponseEntity.ok(assignmentService.createAssignment(assignCreationRequest));
         } catch (RuntimeException e) {
             log.error(e.getMessage());
             return ResponseEntity.badRequest().build();
@@ -41,38 +42,15 @@ public class AssignmentController {
     }
 
     /**
-     * Assignment 테이블 레코드 assignId(PK)로 조회
-     *
-     * @param assignId
-     * @return Map<String, AssignmentDto>
+     * 과제 제출 컨트롤러
+     * 
+     * @param request
+     * @return
      */
-    @GetMapping("/{assignId}")
-    public ResponseEntity<AssignmentDto> getAssignmentById(
-        @PathVariable("assignId") UUID assignId) {
+    @PostMapping("/submit")
+    public ResponseEntity<AssignSubmissionRequest> submitAssignment(@RequestBody AssignSubmissionRequest request) {
         try {
-            return ResponseEntity.ok(assignmentService.findById(assignId));
-        } catch (RuntimeException e) {
-            log.error(e.getMessage());
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    /**
-     * Assignment 테이블 레코드 생성
-     *
-     * @param assignmentDto
-     * @return ResponseEntity<AssignmentDto>
-     */
-    @PostMapping("")
-    public ResponseEntity<AssignmentDto> createAssign(AssignmentDto assignmentDto) {
-        try {
-            URI location = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{assignId}")
-                .buildAndExpand(assignmentDto.getAssignId())
-                .toUri();
-
-            return ResponseEntity.created(location)
-                .body(assignmentService.createAssign(assignmentDto));
+            return ResponseEntity.ok(assignmentService.submitAssignment(request));
         } catch (RuntimeException e) {
             log.error(e.getMessage());
             return ResponseEntity.badRequest().build();
@@ -80,15 +58,15 @@ public class AssignmentController {
     }
 
     /**
-     * Assignment 테이블 레코드 수정
-     *
-     * @param assignmentDto
-     * @return Map<String, Boolean>
+     * 과제 채점 컨트롤러
+     * 
+     * @param request
+     * @return
      */
-    @PutMapping("")
-    public ResponseEntity<AssignmentDto> updateAssignment(AssignmentDto assignmentDto) {
+    @PostMapping("/score")
+    public ResponseEntity<AssignScoreRequest> submitAssignmentScore(@RequestBody AssignScoreRequest request) {
         try {
-            return ResponseEntity.ok(assignmentService.updateAssign(assignmentDto));
+            return ResponseEntity.ok(assignmentService.updateAssignScore(request));
         } catch (RuntimeException e) {
             log.error(e.getMessage());
             return ResponseEntity.badRequest().build();
@@ -96,19 +74,19 @@ public class AssignmentController {
     }
 
     /**
-     * Assignment 테이블 레코드 assignId(PK)로 삭제
+     * 과제 조회 컨트롤러
      *
-     * @param assignId
-     * @return Map<String, Boolean>
+     * @param openingId
+     * @param studentId
+     * @return
      */
-    @DeleteMapping("/{assignId}")
-    public ResponseEntity<Void> deleteAssignment(@PathVariable("assignId") UUID assignId) {
+    @GetMapping("/{opneingId}/{studentId}")
+    public ResponseEntity<AssignResponse> getAssignment(@PathVariable UUID openingId, @PathVariable UUID studentId) {
         try {
-            assignmentService.delete(assignId);
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.ok(assignmentService.findAssign(openingId, studentId));
         } catch (RuntimeException e) {
             log.error(e.getMessage());
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.badRequest().build();
         }
     }
 }

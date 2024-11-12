@@ -19,7 +19,7 @@ import lombok.*;
 @Getter
 @Setter
 @Builder
-@ToString(exclude = {"course", "examProblems"})
+@ToString(exclude = {"courseOpening", "examProblems"})
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Entity
@@ -34,7 +34,7 @@ public class Exam extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID examId;
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "openingId", nullable = false)
     private CourseOpening courseOpening;
     @ManyToOne(fetch = FetchType.LAZY)
