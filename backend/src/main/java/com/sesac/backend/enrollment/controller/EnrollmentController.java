@@ -2,6 +2,8 @@ package com.sesac.backend.enrollment.controller;
 
 import com.sesac.backend.enrollment.dto.EnrollmentDto;
 import com.sesac.backend.enrollment.service.EnrollmentService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,11 +13,13 @@ import java.util.UUID;
 
 @RestController
 @CrossOrigin(origins = "*")
+@Tag(name = "수강신청", description = "전체 강의 목록을 로드하고 원하는 강의를 신청, 삭제할 수 있으며 신청된 강의는 수강 신청 목록 및 시간표에 표시")
 public class EnrollmentController {
 
     @Autowired
     EnrollmentService enrollmentService;
 
+    @Operation(summary = "신청 강의 저장", description = "수강신청아이디(enrollmentId), 학생아이디(studentId), 강의개설아이디(openingId), 강의수강신청일(enrollmentDate)")
     @PostMapping("/enrollment")
     public Map<String, Object> enrollment(@RequestBody EnrollmentDto enrollmentDto) {
 
@@ -34,6 +38,7 @@ public class EnrollmentController {
         return res;
     }
 
+    @Operation(summary = "전체 강의 목록 불러오기")
     @GetMapping("/allclasses")
     public Map allClasses() {
         Map map = new HashMap<>();
@@ -41,19 +46,18 @@ public class EnrollmentController {
         return map;
     }
 
+    @Operation(summary = "학생별 신청 강의 목록 불러오기", description = "학생아이디(studentId)")
     @GetMapping("/myclasslist/{studentid}")
-    public Map myclasslist(@PathVariable("studentid") String student) {
+    public Map myclasslist(@PathVariable("studentid") UUID studentId) {
         Map map = new HashMap();
 
-        UUID studentId = UUID.fromString(student);
-        map.put("myClassList", enrollmentService.getEnrolledClassForStudent(studentId));
+        map.put("myClassList", enrollmentService.getEnrolledClassById(studentId));
         map.put("myTimeTable", enrollmentService.getTimeTableById(studentId));
 
-//        System.out.println("수업 리스트 : " + map.get("myClassList"));
-//        System.out.println("시간표 배열 : " + map.get("myTimeTable"));
         return map;
     }
 
+    @Operation(summary = "수강신청취소(삭제)", description = "수강신청아이디(enrollmentid)")
     @DeleteMapping("/myclasslist/delete/{enrollmentid}")
     public void deleteClassEnrollment(@PathVariable("enrollmentid") UUID enrollmentid) {
         try {

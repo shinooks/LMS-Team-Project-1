@@ -5,7 +5,8 @@ import com.sesac.backend.course.repository.CourseRepository;
 import com.sesac.backend.course.repository.CourseTimeRepository;
 import com.sesac.backend.enrollment.domain.ScheduleChecker;
 import com.sesac.backend.enrollment.domain.exceptionControl.TimeOverlapException;
-import com.sesac.backend.enrollment.dto.EnrollmentDetailDto;
+import com.sesac.backend.enrollment.dto.EnrollmentDto;
+import com.sesac.backend.enrollment.dto.TimeTableCellDto;
 import com.sesac.backend.enrollment.repository.EnrollmentRepository;
 import com.sesac.backend.enrollment.repository.StudentRepositoryTmp;
 import com.sesac.backend.entity.*;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class EnrollmentService {
@@ -38,32 +40,6 @@ public class EnrollmentService {
     @Autowired
     private StudentRepositoryTmp studentRepository;
 
-
-    private List<EnrollmentDetailDto> convertToDto(UUID studentId) {
-        Student student = studentRepository.findById(studentId)
-                .orElseThrow(() -> new EntityNotFoundException("학생을 찾을 수 없습니다."));
-
-        enrollmentRepository.findEnrollmentsWithCourseDetails(student);
-
-        List<EnrollmentDetailDto> classListById = new ArrayList<>();
-
-        for(EnrollmentDetailDto edd : enrollmentRepository.findEnrollmentsWithCourseDetails(student)) {
-            classListById.add(new EnrollmentDetailDto(
-                    edd.getEnrollmentId(),
-                    edd.getCourseCode(),
-                    edd.getCourseName(),
-                    edd.getCredits(),
-                    edd.getDayOfWeek(),
-                    edd.getStartTime(),
-                    edd.getEndTime(),
-                    edd.getCurrentStudents(),
-                    edd.getMaxStudents()
-            ));
-        }
-
-        return classListById;
-    }
-
     ////////////////////////////// save기능 set ////////////////////////////////////
     public void saveClassEnrollment(UUID studentId, UUID openingId) {
         Student student = studentRepository.findById(studentId).orElseThrow(()
@@ -77,7 +53,7 @@ public class EnrollmentService {
         // 중복 및 시간 겹침 검사
         List<Enrollment> conflictingEnrollments = new ArrayList<>();
 
-        for(CourseTime ct : openingCourseTimes) {
+        for (CourseTime ct : openingCourseTimes) {
             List<Enrollment> enrollments = enrollmentRepository.findConflictingEnrollments(
                     student,
                     ct.getDayOfWeek(),
@@ -89,12 +65,12 @@ public class EnrollmentService {
         }
 
         //중복검사를 통과하지 못하는 강의가 있을 때 예외 발생
-        if(!conflictingEnrollments.isEmpty()) {
+        if (!conflictingEnrollments.isEmpty()) {
             throw new TimeOverlapException("시간이 겹치는 강의가 이미 등록되어 있습니다." + courseOpening.getCourse().getCourseName());
         }
 
         // 통과 시 강의 등록
-        System.out.println("중복검사 통과---------------------------------------------------------------------");
+        System.out.println("중복검사 통과");
 
         Enrollment enrollment = new Enrollment();
 
@@ -117,18 +93,16 @@ public class EnrollmentService {
             UUID courseOpeningId = c.getOpeningId();
             UUID courseId = c.getCourse().getCourseId();
 
-            List<Course> courses = courseRepository.findCourseByCourseId(courseId);
+            Course course = courseRepository.findById(courseId).orElse(null);
+            CourseOpening opening = courseOpeningRepository.findById(courseOpeningId).orElse(null);
             List<CourseTime> times = courseTimeRepository.findByCourseOpeningOpeningId(courseOpeningId);
 
-            String courseCode = "";
-            String courseName = "";
-            Integer credit = 0;
+            String courseCode = course.getCourseCode();
+            String courseName = course.getCourseName();
+            Integer credit = course.getCredits();
 
-            for (Course cs : courses) {
-                courseCode = cs.getCourseCode();
-                courseName = cs.getCourseName();
-                credit = cs.getCredits();
-            }
+            Integer maxStudents = opening.getMaxStudents();
+            Integer currentStudents = opening.getCurrentStudents();
 
             LocalTime startTime = null;
             LocalTime endTime = null;
@@ -148,6 +122,8 @@ public class EnrollmentService {
             courseInfo.put("day", day);
             courseInfo.put("startTime", startTime);
             courseInfo.put("endTime", endTime);
+            courseInfo.put("maxStudents", maxStudents);
+            courseInfo.put("currentStudents", currentStudents);
 
             allCoursesList.add(courseInfo);
         }
@@ -155,45 +131,82 @@ public class EnrollmentService {
         return allCoursesList;
     }
 
-    public List<EnrollmentDetailDto> getEnrolledClassForStudent (UUID studentId){
-        Student student = studentRepository.findById(studentId)
-                .orElseThrow(() -> new EntityNotFoundException("학생을 찾을 수 없습니다."));
+    public List<Map<String, Object>> getEnrolledClassById(UUID studentId) {
+        List<Enrollment> tmpList = enrollmentRepository.findByStudent_StudentId(studentId);
 
-        return enrollmentRepository.findEnrollmentsWithCourseDetails(student);
+        List<Map<String, Object>> enrolledCourseList = new ArrayList<>();
+
+        for (Enrollment c : tmpList) {
+
+            Map<String, Object> enrolledCourseInfo = new HashMap<>();
+
+            UUID enrollmentId = c.getEnrollmentId();
+            String courseCode = c.getCourseOpening().getCourse().getCourseCode();
+            String courseName = c.getCourseOpening().getCourse().getCourseName();
+            Integer credit = c.getCourseOpening().getCourse().getCredits();
+
+            Integer maxStudents = c.getCourseOpening().getMaxStudents();
+            Integer currentStudents = c.getCourseOpening().getCurrentStudents();
+
+            String day = null;
+            LocalTime startTime = null;
+            LocalTime endTime = null;
+
+            for (CourseTime courseTime : c.getCourseOpening().getCourseTimes()) {
+                day = courseTime.getDayOfWeek().getDescription();
+                startTime = courseTime.getStartTime();
+                endTime = courseTime.getEndTime();
+            }
+
+            enrolledCourseInfo.put("enrollmentId", enrollmentId);
+            enrolledCourseInfo.put("courseCode", courseCode);
+            enrolledCourseInfo.put("courseName", courseName);
+            enrolledCourseInfo.put("credit", credit);
+            enrolledCourseInfo.put("day", day);
+            enrolledCourseInfo.put("startTime", startTime);
+            enrolledCourseInfo.put("endTime", endTime);
+            enrolledCourseInfo.put("maxStudents", maxStudents);
+            enrolledCourseInfo.put("currentStudents", currentStudents);
+
+            enrolledCourseList.add(enrolledCourseInfo);
+        }
+        return enrolledCourseList;
     }
 
-    public EnrollmentDetailDto[][] getTimeTableById (UUID studentId){
-        List<EnrollmentDetailDto> courseListById = convertToDto(studentId);
+    public TimeTableCellDto[][] getTimeTableById(UUID studentId) {
 
-        // courseListById의 내용을 확인하기 위한 로그 출력
-//        System.out.println("Course List by ID: ");
-//        for (EnrollmentDetailDto dto : courseListById) {
-//            System.out.println("dto는 : " + dto);
-//        }
+        List<Enrollment> enrollments = enrollmentRepository.findByStudent_StudentId(studentId);
 
-        return scheduleChecker.timeTableMaker(courseListById);
+        List<TimeTableCellDto> enrollmentsForTable = enrollments.stream()
+                .map(enrollment -> new TimeTableCellDto(
+                        enrollment.getEnrollmentId(),
+                        enrollment.getCourseOpening().getOpeningId(),
+                        enrollment.getCourseOpening().getCourse().getCourseCode(),
+                        enrollment.getCourseOpening().getCourse().getCourseName()
+                ))
+                .toList();
+        return scheduleChecker.timeTableMaker(enrollmentsForTable);
     }
 
 
-    public void deleteClassEnrollmentById (UUID enrollmentId){
+    public void deleteClassEnrollmentById(UUID enrollmentId) {
         // 수업 등록 정보 조회
         Enrollment enrollment = enrollmentRepository.findById(enrollmentId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 등록 정보가 존재하지 않습니다: " + enrollmentId));
 
-        EnrollmentDetailDto[][] deleteTargetTable = getTimeTableById(enrollment.getStudent().getStudentId());
+        TimeTableCellDto[][] deleteTargetTable = getTimeTableById(enrollment.getStudent().getStudentId());
 
-        if(deleteTargetTable != null) {
+        if (deleteTargetTable != null) {
             for (int i = 0; i < deleteTargetTable.length; i++) {
                 for (int j = 0; j < deleteTargetTable[i].length; j++) {
-                    if(deleteTargetTable[i][j] != null) {
-                        if (deleteTargetTable[i][j].getEnrollmentId().equals(enrollmentId)) {
+                    if (deleteTargetTable[i][j] != null) {
+                        if (enrollmentId.equals(deleteTargetTable[i][j].getEnrollmentId())) {
                             deleteTargetTable[i][j] = null;
                         }
                     }
                 }
             }
         }
-
         // DB에서 삭제
         enrollmentRepository.deleteById(enrollmentId);
     }

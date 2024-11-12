@@ -1,8 +1,6 @@
 package com.sesac.backend.enrollment.repository;
 
 import com.sesac.backend.course.constant.DayOfWeek;
-import com.sesac.backend.enrollment.dto.EnrollmentDetailDto;
-import com.sesac.backend.enrollment.dto.EnrollmentDto;
 import com.sesac.backend.entity.Enrollment;
 import com.sesac.backend.entity.Student;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -35,14 +33,4 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, UUID> {
                                                 @Param("startTime") LocalTime startTime,
                                                 @Param("endTime") LocalTime endTime);
 
-    Set<Enrollment> findByStudent_StudentIdAndCourseOpening_OpeningId(UUID studentId, UUID openingId);
-
-    @Query("SELECT new com.sesac.backend.enrollment.dto.EnrollmentDetailDto(e.enrollmentId, c.courseCode, c.courseName, c.credits, ct.dayOfWeek, ct.startTime, ct.endTime, " +
-            "co.currentStudents, co.maxStudents) " +
-            "FROM Enrollment e " +
-            "JOIN e.courseOpening co " +
-            "JOIN co.course c " +
-            "JOIN co.courseTimes ct " +
-            "WHERE e.student = :student")
-    List<EnrollmentDetailDto> findEnrollmentsWithCourseDetails(@Param("student") Student student);
 }

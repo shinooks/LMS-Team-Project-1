@@ -1,10 +1,8 @@
 package com.sesac.backend.enrollment.domain;
 
-import com.sesac.backend.course.constant.DayOfWeek;
-import com.sesac.backend.course.repository.CourseOpeningRepository;
 import com.sesac.backend.course.repository.CourseTimeRepository;
-import com.sesac.backend.enrollment.dto.EnrollmentDetailDto;
 import com.sesac.backend.enrollment.dto.EnrollmentDto;
+import com.sesac.backend.enrollment.dto.TimeTableCellDto;
 import com.sesac.backend.entity.CourseTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -39,9 +37,6 @@ public class ScheduleChecker {
     private final String SATURDAY = "토";
     private final String SUNDAY = "일";
 
-    @Autowired
-    private CourseOpeningRepository courseOpeningRepository;
-
     {
         periods.put(FIRST_PERIOD, 0);
         periods.put(SECOND_PERIOD, 1);
@@ -63,33 +58,49 @@ public class ScheduleChecker {
     }
 
 
-    public EnrollmentDetailDto[][] timeTableMaker(List<EnrollmentDetailDto> courseListById) {
+    public TimeTableCellDto[][] timeTableMaker(List<TimeTableCellDto> list) {
 
-        //System.out.println("코리바 : " + courseListById);
-        EnrollmentDetailDto[][] timeTable = new EnrollmentDetailDto[9][5];
+        TimeTableCellDto[][] timeTable = new TimeTableCellDto[9][5];
 
-        for(EnrollmentDetailDto enrollmentDetailDto : courseListById) {
-            LocalTime startTime = enrollmentDetailDto.getStartTime();
-            LocalTime endTime = enrollmentDetailDto.getEndTime();
-            String day = enrollmentDetailDto.getDayOfWeek().getDescription();
 
-            if (startTime != null && endTime != null && day != null){
-                int startHour = startTime.getHour();
-                int endHour = endTime.getHour();
-                Integer dayIndex = days.get(day); // 요일 인덱스
+        for (TimeTableCellDto info : list) {
 
-                Integer startPeriodIndex = periods.get(startHour); // 시작 교시 인덱스
-                int period = endHour - startHour; // 수업 기간
+            UUID openingId = info.getOpeningId();
 
-                for( int i = 0; i < period; i++ ){
-                    if (timeTable[startPeriodIndex][dayIndex] == null) {
-                        timeTable[startPeriodIndex][dayIndex] = enrollmentDetailDto;
-                        startPeriodIndex++; // 다음교시로 이동
-                    }
+            List<CourseTime> tmpList = courseTimeRepository.findByCourseOpeningOpeningId(openingId);
+
+            LocalTime tmpStartTime = null;
+            LocalTime tmpEndTime = null;
+            String day = null;
+
+            for (CourseTime times : tmpList) {
+                tmpStartTime = times.getStartTime();
+                tmpEndTime = times.getEndTime();
+                day = times.getDayOfWeek().getDescription();
+            }
+
+            int startHour = 0;
+            int endHour = 0;
+            Integer dayIndex = 0;
+
+            if (tmpStartTime != null && tmpEndTime != null && day != null) {
+                startHour = tmpStartTime.getHour();
+                endHour = tmpEndTime.getHour();
+                dayIndex = days.get(day);
+            } else {
+                System.out.println("시간 혹은 요일 정보가 없습니다.");
+            }
+
+            Integer startPeriodIndex = periods.get(startHour);
+            int period = endHour - startHour;
+
+            for (int i = 0; i < period; i++) {
+                if (timeTable[startPeriodIndex][dayIndex] == null) {
+                    timeTable[startPeriodIndex][dayIndex] = info;
+                    startPeriodIndex++;
                 }
             }
         }
-
         return timeTable;
     }
 }
