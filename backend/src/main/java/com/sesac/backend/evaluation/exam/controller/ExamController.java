@@ -50,7 +50,7 @@ public class ExamController {
 
     /**
      * 시험 목록 조회
-     * 
+     *
      * @param request 시험 정보를 찾을 요청
      * @return 응시할 시험
      */

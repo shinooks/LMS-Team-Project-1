@@ -18,7 +18,6 @@ public class ScoreDto {
     private UUID finalExamId;
     private UUID openingId;
     private UUID studentId;
-    private UUID openingId;
     private int assignScore;
     private int midtermExamScore;
     private int finalExamScore;
