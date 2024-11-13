@@ -11,9 +11,9 @@ public class SwaggerConfig {
     @Bean
     public OpenAPI openAPI() {
         return new OpenAPI()
-                .info(new Info()
-                        .title("LMS API Documentation")
-                        .description("LMS 시스템 API 문서")
-                        .version("1.0.0"));
+            .info(new Info()
+                .title("LMS API Documentation")
+                .description("LMS 시스템 API 문서")
+                .version("1.0.0"));
     }
 }

@@ -4,19 +4,17 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
+
 
 @Getter
 @Setter
 @NoArgsConstructor
-public class GradeUpdateRequest {
-
-    private UUID gradeId;
-    private int assignScore;
-    private int midtermScore;
-    private int finalScore;
-
-
+public class GradeVisibilityRequest {
+    private UUID openingId;
+    private LocalDateTime startDate;
+    private LocalDateTime endDate;
 
 
 }

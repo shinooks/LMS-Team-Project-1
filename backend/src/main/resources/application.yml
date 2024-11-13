@@ -1,17 +1,10 @@
 spring:
-  # Swagger UI 설정 추가
-  springdoc:
-    swagger-ui:
-      path: /swagger-ui.html
-      tags-sorter: alpha
-      operations-sorter: alpha
-    api-docs:
-      path: /api-docs
-    default-consumes-media-type: application/json
-    default-produces-media-type: application/json
-
   application:
     name: backend
+    
+  output:
+    ansi:
+      enabled: always
 
   security:
     basic:
@@ -21,7 +14,7 @@ spring:
     generate-ddl: true
     show-sql: true
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     properties:
       hibernate:
         format_sql: true
