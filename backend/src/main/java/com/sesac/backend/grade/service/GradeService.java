@@ -10,9 +10,12 @@ import com.sesac.backend.evaluation.score.dto.ScoreDto;
 import com.sesac.backend.evaluation.score.service.ScoreService;
 import com.sesac.backend.grade.dto.*;
 import com.sesac.backend.grade.repository.GradeRepository;
+import com.sesac.backend.notification.domain.NotificationType;
+import com.sesac.backend.notification.service.NotificationService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,10 +29,11 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class GradeService {
 
+    @Autowired
     private final GradeRepository gradeRepository;
     private final ScoreService scoreService;
     private final CourseOpeningRepository courseOpeningRepository;
-
+    private final NotificationService notificationService;
 
     /**
      * Grade 생성 - 다른 서비스에서 호출하여 사용
@@ -41,6 +45,18 @@ public class GradeService {
         grade.setCourseOpening(courseOpening);
 
         Grade savedGrade = gradeRepository.save(grade);
+
+        // 성적 입력 알림 발송
+        UUID studentId = score.getStudent().getStudentId();
+        String title = "성적 입력 완료";
+        String content = String.format(
+                "%s 과목의 성적이 입력되었습니다.",
+                courseOpening.getCourse().getCourseName()
+        );
+        notificationService.sendNotification(savedGrade.getScore().getStudent(), title, content, NotificationType.GRADE);
+
+
+
         return GradeDto.from(savedGrade);
     }
 
@@ -95,7 +111,12 @@ public class GradeService {
 
         //3. ScoreService를 통해 점수 업데이트
         scoreService.updateScore(scoreDto);
+//        ScoreDto updatedScore = scoreService.updateScore(scoreDto);
 
+
+        // 알림 발송
+//        NotificationService notificationService;
+//        notificationService.notifyGradeUpdate(grade.getScore().getStudent().getStudentId(), grade);
         //4. 업데이트된 Grade 정보 변환
         return GradeDto.from(grade);
     }
