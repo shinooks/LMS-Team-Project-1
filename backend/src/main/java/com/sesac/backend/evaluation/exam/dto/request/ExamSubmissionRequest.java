@@ -1,4 +1,4 @@
-package com.sesac.backend.evaluation.exam.dto;
+package com.sesac.backend.evaluation.exam.dto.request;
 
 import java.util.List;
 import java.util.UUID;

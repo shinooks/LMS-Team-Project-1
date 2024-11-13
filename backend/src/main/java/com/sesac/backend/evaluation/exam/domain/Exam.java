@@ -41,5 +41,4 @@ public class Exam extends BaseEntity {
     private Type type;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
-    private int score;
 }

@@ -1,9 +1,15 @@
-package com.sesac.backend.evaluation.exam.dto;
+package com.sesac.backend.evaluation.exam.dto.response;
 
-import com.sesac.backend.evaluation.enums.Answer;
 import com.sesac.backend.evaluation.enums.Difficulty;
-import java.util.*;
-import lombok.*;
+import java.util.List;
+import java.util.UUID;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
@@ -11,11 +17,10 @@ import lombok.*;
 @ToString()
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class ExamProblemDto {
+public class ExamProblemReadDto {
 
     private UUID problemId;
     private Integer number;
-    private Answer correctAnswer;
     private Difficulty difficulty;
     private String question;
     private List<String> choices;

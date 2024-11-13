@@ -64,7 +64,7 @@ public class AssignmentController {
         try {
             AssignSubmissionRequest request = new AssignSubmissionRequest(studentId, openingId,
                 multipartFile.getBytes(), fileName);
-            
+
             return ResponseEntity.ok(assignmentService.submitAssignment(request));
         } catch (RuntimeException | IOException e) {
             log.error(e.getMessage());

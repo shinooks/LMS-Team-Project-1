@@ -1,6 +1,5 @@
-package com.sesac.backend.evaluation.exam.dto;
+package com.sesac.backend.evaluation.exam.dto.response;
 
-import com.sesac.backend.evaluation.enums.Answer;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -13,11 +12,11 @@ import lombok.ToString;
 @Getter
 @Setter
 @Builder
-@ToString()
+@ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class ExamAnswerDto {
-    private UUID problemId;
-    private Integer number;
-    private Answer selectedAnswer;
+public class ExamResponse {
+
+    private UUID examId;
+    private String title;
 }

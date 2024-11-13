@@ -1,4 +1,4 @@
-package com.sesac.backend.evaluation.exam.dto;
+package com.sesac.backend.evaluation.exam.dto.request;
 
 import com.sesac.backend.evaluation.enums.Type;
 import java.time.LocalDateTime;
@@ -9,7 +9,7 @@ import lombok.*;
 /**
  * @author dongjin
  * 기말고사 dto
- * FinalExam 데이터 전달 객체
+ * Exam 데이터 전달 객체
  */
 @Getter
 @Setter
@@ -25,10 +25,8 @@ public class ExamCreationRequest {
      * startTime:       시작시간
      * endTime:         종료시간
      */
-    private UUID examId;
     private UUID openingId;
-    private UUID studentId;
-    private List<ExamProblemDto> problems;
+    private List<ExamProblemCreationDto> problems;
     private Type type;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
