@@ -10,6 +10,8 @@ import com.sesac.backend.assignment.repository.*;
 
 import java.util.*;
 
+import com.sesac.backend.course.repository.CourseOpeningRepository;
+import com.sesac.backend.entity.CourseOpening;
 import com.sesac.backend.entity.Student;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,14 +24,16 @@ public class ScoreService {
     private final FinalExamRepository finalExamRepository;
     private final AssignmentRepository assignmentRepository;
     private final StudentRepositoryDemo studentRepository;
+    private final CourseOpeningRepository courseOpeningRepository;
 
     @Autowired
-    public ScoreService(ScoreRepository scoreRepository, MidtermExamRepository midtermExamRepository, FinalExamRepository finalExamRepository, AssignmentRepository assignmentRepository, StudentRepositoryDemo studentRepository) {
+    public ScoreService(ScoreRepository scoreRepository, MidtermExamRepository midtermExamRepository, FinalExamRepository finalExamRepository, AssignmentRepository assignmentRepository, StudentRepositoryDemo studentRepository, CourseOpeningRepository courseOpeningRepository) {
         this.scoreRepository = scoreRepository;
         this.midtermExamRepository = midtermExamRepository;
         this.finalExamRepository = finalExamRepository;
         this.assignmentRepository = assignmentRepository;
         this.studentRepository = studentRepository;
+        this.courseOpeningRepository = courseOpeningRepository;
     }
 
     public ScoreDto findById(UUID scoreId) {
@@ -61,7 +65,7 @@ public class ScoreService {
 
     //엔티티를 dto로
     private ScoreDto convertToDto(Score entity) {
-        return new ScoreDto(entity.getScoreId(), entity.getAssignment().getAssignId(), entity.getMidtermExam().getMidtermExamId(), entity.getFinalExam().getFinalExamId(), entity.getStudent().getStudentId(), entity.getAssignScore(), entity.getMidtermExamScore(), entity.getFinalExamScore(), entity.getVisibility());
+        return new ScoreDto(entity.getScoreId(), entity.getAssignment().getAssignId(), entity.getMidtermExam().getMidtermExamId(), entity.getFinalExam().getFinalExamId(), entity.getCourseOpening().getOpeningId(), entity.getStudent().getStudentId(), entity.getAssignScore(), entity.getMidtermExamScore(), entity.getFinalExamScore(), entity.getVisibility());
     }
 
     // dto 를 엔티티로
@@ -70,7 +74,8 @@ public class ScoreService {
         MidtermExam midtermExam = midtermExamRepository.findById(dto.getMidtermExamId()).orElse(null);
         FinalExam finalExam = finalExamRepository.findById(dto.getFinalExamId()).orElse(null);
         Student student = studentRepository.findById(dto.getStudentId()).orElse(null);
+        CourseOpening courseOpening = courseOpeningRepository.findById(dto.getOpeningId()).orElse(null);
 
-        return new Score(dto.getScoreId(), assignment, midtermExam, finalExam, student, dto.getAssignScore(), dto.getMidtermExamScore(), dto.getFinalExamScore(), dto.getVisibility());
+        return new Score(dto.getScoreId(), assignment, midtermExam, finalExam, courseOpening, student, dto.getAssignScore(), dto.getMidtermExamScore(), dto.getFinalExamScore(), dto.getVisibility());
     }
 }

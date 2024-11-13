@@ -1,4 +1,17 @@
 spring:
+
+  # Swagger UI 설정 추가
+  springdoc:
+    api-docs:
+      enabled: true
+      path: /api-docs
+    swagger-ui:
+      path: /swagger-ui.html
+      enabled: true
+      operations-sorter: alpha
+      tags-sorter: alpha
+
+
   application:
     name: backend
     
@@ -45,5 +58,4 @@ my_value:
 #  org:
 #    springframework:
 #      security: DEBUG
-
 
