@@ -1,5 +1,6 @@
 package com.sesac.backend.evaluation.exam.controller;
 
+import com.sesac.backend.evaluation.enums.Type;
 import com.sesac.backend.evaluation.exam.dto.request.ExamCreationRequest;
 import com.sesac.backend.evaluation.exam.dto.request.ExamSubmissionRequest;
 import com.sesac.backend.evaluation.exam.dto.request.ExamRequest;
@@ -13,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -51,12 +53,19 @@ public class ExamController {
     /**
      * 시험 목록 조회
      *
-     * @param request 시험 정보를 찾을 요청
+     * @param openingId 수강신청아이디
+     * @param studentId 학생아이디
+     * @param type 시험타입
      * @return 응시할 시험
      */
-    private ResponseEntity<ExamResponse> getExamProblems(ExamRequest request) {
+    @GetMapping("/{openingId}/{studentId}/{type}")
+    private ResponseEntity<ExamResponse> getExamProblems(
+        @PathVariable UUID openingId,
+        @PathVariable UUID studentId,
+        @PathVariable String type
+    ) {
         try {
-            ExamResponse savedExam = examService.getMyExam(request);
+            ExamResponse savedExam = examService.getMyExam(new ExamRequest(openingId, studentId, Type.getType(type)));
             return ResponseEntity.status(HttpStatus.CREATED).body(savedExam);
         } catch (RuntimeException e) {
             log.error(e.getMessage());
@@ -90,7 +99,7 @@ public class ExamController {
      * @return 채점된 점수
      */
     @Operation(summary = "시험 응시", description = "시험아이디(examId), 학생아이디(studentId), 응답(answers[problemId, number, selectedAnswer])")
-    @PostMapping("/{examId}/submit")
+    @PostMapping("/submit")
     public ResponseEntity<ExamSubmissionRequest> submitExam(
         ExamSubmissionRequest examSubmissionRequest) {
         ExamSubmissionRequest request = examService.submit(examSubmissionRequest);

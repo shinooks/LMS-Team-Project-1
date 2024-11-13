@@ -12,14 +12,18 @@ import org.springframework.stereotype.Service;
 @Service
 public class CopyleaksService {
 
-    @Autowired
-    private AssignmentRepository assignmentRepository;
+    private final AssignmentRepository assignmentRepository;
+    private final CopyleaksAuthService authService;
+    private final CopyleaksScanService scanService;
 
     @Autowired
-    private CopyleaksAuthService authService;
-
-    @Autowired
-    private CopyleaksScanService scanService;
+    public CopyleaksService(AssignmentRepository assignmentRepository,
+        CopyleaksAuthService authService,
+        CopyleaksScanService scanService) {
+        this.assignmentRepository = assignmentRepository;
+        this.authService = authService;
+        this.scanService = scanService;
+    }
 
     public void checkPlagiarism(UUID assignId) throws IOException {
         // 1. 파일 데이터 가져오기

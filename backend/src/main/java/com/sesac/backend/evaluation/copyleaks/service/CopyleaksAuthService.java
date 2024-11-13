@@ -17,21 +17,26 @@ public class CopyleaksAuthService {
     private static final String EMAIL = "y2kf9a0q@gmail.com";
     private static final String API_KEY = "66380d2d-b563-4205-8fb6-d00d3be394fe";
 
-    public String getAccessToken() throws IOException {
-        CloseableHttpClient client = HttpClients.createDefault();
-        HttpPost httpPost = new HttpPost(AUTH_ENDPOINT);
+    public String getAccessToken() {
 
-        String json = String.format("{\"email\":\"%s\",\"key\":\"%s\"}", EMAIL, API_KEY);
-        StringEntity entity = new StringEntity(json);
-        httpPost.setEntity(entity);
-        httpPost.setHeader("Content-Type", "application/json");
+        try (CloseableHttpClient client = HttpClients.createDefault()) {
+            HttpPost httpPost = new HttpPost(AUTH_ENDPOINT);
 
-        CloseableHttpResponse response = client.execute(httpPost);
-        String responseBody = EntityUtils.toString(response.getEntity());
-        client.close();
+            String json = String.format("{\"email\":\"%s\",\"key\":\"%s\"}", EMAIL, API_KEY);
+            StringEntity entity = new StringEntity(json);
+            httpPost.setEntity(entity);
+            httpPost.setHeader("Content-Type", "application/json");
 
-        ObjectMapper mapper = new ObjectMapper();
-        Map<String, Object> responseMap = mapper.readValue(responseBody, Map.class);
-        return (String) responseMap.get("access_token");
+            CloseableHttpResponse response = client.execute(httpPost);
+            String responseBody = EntityUtils.toString(response.getEntity());
+            client.close();
+
+            ObjectMapper mapper = new ObjectMapper();
+            Map<String, Object> responseMap = mapper.readValue(responseBody, Map.class);
+            return (String) responseMap.get("access_token");
+        } catch (IOException e) {
+            return "IOException";
+        }
+
     }
 }

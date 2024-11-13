@@ -1,10 +1,8 @@
 package com.sesac.backend.evaluation.exam.domain;
 
 import com.sesac.backend.entity.BaseEntity;
-import com.sesac.backend.entity.Course;
 import com.sesac.backend.entity.CourseOpening;
 import com.sesac.backend.entity.Student;
-import com.sesac.backend.evaluation.enums.EvaluationStatus;
 import com.sesac.backend.evaluation.enums.Type;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;

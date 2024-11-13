@@ -17,8 +17,12 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "표절 검사 응답 API", description = "표절검사 응답 엔드포인트")
 public class CopyleaksWebhookController {
 
+    private final AssignmentRepository assignmentRepository;
+
     @Autowired
-    private AssignmentRepository assignmentRepository;
+    public CopyleaksWebhookController(AssignmentRepository assignmentRepository) {
+        this.assignmentRepository = assignmentRepository;
+    }
 
     @PostMapping("")
     @Operation(summary = "copyleaks 결과 hook", description = "결과(payload)")
