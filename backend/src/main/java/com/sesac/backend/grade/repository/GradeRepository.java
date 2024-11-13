@@ -1,7 +1,5 @@
 package com.sesac.backend.grade.repository;
 
-import com.sesac.backend.assignment.domain.Score;
-import com.sesac.backend.entity.Course;
 import com.sesac.backend.entity.Grade;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

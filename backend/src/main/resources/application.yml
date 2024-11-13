@@ -27,7 +27,7 @@ spring:
     generate-ddl: true
     show-sql: true
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     properties:
       hibernate:
         format_sql: true
@@ -58,4 +58,5 @@ my_value:
 #  org:
 #    springframework:
 #      security: DEBUG
+
 

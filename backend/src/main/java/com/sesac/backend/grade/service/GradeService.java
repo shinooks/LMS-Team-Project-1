@@ -1,15 +1,13 @@
 package com.sesac.backend.grade.service;
 
-
-import com.sesac.backend.assignment.domain.Score;
-import com.sesac.backend.assignment.dto.ScoreDto;
-import com.sesac.backend.assignment.repository.ScoreRepository;
-import com.sesac.backend.assignment.service.ScoreService;
 import com.sesac.backend.course.repository.CourseOpeningRepository;
 import com.sesac.backend.course.repository.CourseRepository;
 import com.sesac.backend.entity.Course;
 import com.sesac.backend.entity.CourseOpening;
 import com.sesac.backend.entity.Grade;
+import com.sesac.backend.evaluation.score.domain.Score;
+import com.sesac.backend.evaluation.score.dto.ScoreDto;
+import com.sesac.backend.evaluation.score.service.ScoreService;
 import com.sesac.backend.grade.dto.*;
 import com.sesac.backend.grade.repository.GradeRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -85,8 +83,8 @@ public class GradeService {
         ScoreDto scoreDto = new ScoreDto(
                 grade.getScore().getScoreId(),
                 grade.getScore().getAssignment().getAssignId(),
-                grade.getScore().getMidtermExam().getMidtermExamId(),
-                grade.getScore().getFinalExam().getFinalExamId(),
+                grade.getScore().getMidtermExam().getExamId(),
+                grade.getScore().getFinalExam().getExamId(),
                 grade.getCourseOpening().getOpeningId(),
                 grade.getScore().getStudent().getStudentId(),
                 request.getAssignScore(),
