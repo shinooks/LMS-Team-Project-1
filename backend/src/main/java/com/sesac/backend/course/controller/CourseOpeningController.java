@@ -3,6 +3,9 @@ package com.sesac.backend.course.controller;
 import com.sesac.backend.course.constant.CourseStatus;
 import com.sesac.backend.course.dto.CourseOpeningDto;
 import com.sesac.backend.course.service.CourseOpeningService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -17,11 +20,18 @@ import java.util.UUID;
 @RequestMapping("/course-openings")
 @RequiredArgsConstructor
 @Slf4j
+@Tag(name = "CourseOpening", description = "강의 개설 관리 API")
 public class CourseOpeningController {
 
     private final CourseOpeningService courseOpeningService;
 
     // 강의 개설 생성
+    @Operation(
+        summary = "강의 개설 생성",
+        description = "새로운 강의 개설을 생성합니다."
+    )
+    @ApiResponse(responseCode = "200", description = "강의 개설이 성공적으로 생성되었습니다.")
+    @ApiResponse(responseCode = "500", description = "내부 서버 오류")
     @PostMapping
     public ResponseEntity<?> createCourseOpening(@RequestBody CourseOpeningDto courseOpeningDto) {
         try {
@@ -39,6 +49,12 @@ public class CourseOpeningController {
     }
 
     // 전체 강의 개설 목록 조회
+    @Operation(
+        summary = "전체 강의 개설 목록 조회",
+        description = "등록된 모든 강의 개설을 조회합니다."
+    )
+    @ApiResponse(responseCode = "200", description = "강의 개설 목록을 성공적으로 조회했습니다.")
+    @ApiResponse(responseCode = "500", description = "내부 서버 오류")
     @GetMapping
     public ResponseEntity<?> getAllCourseOpenings() {
         try {
@@ -56,6 +72,12 @@ public class CourseOpeningController {
     }
 
     // 특정 강의 개설 조회
+    @Operation(
+        summary = "특정 강의 개설 조회",
+        description = "특정 ID를 가진 강의 개설을 조회합니다."
+    )
+    @ApiResponse(responseCode = "200", description = "강의 개설을 성공적으로 조회했습니다.")
+    @ApiResponse(responseCode = "500", description = "내부 서버 오류")
     @GetMapping("/{openingId}")
     public ResponseEntity<?> getCourseOpening(@PathVariable UUID openingId) {
         try {
@@ -73,6 +95,12 @@ public class CourseOpeningController {
     }
 
     // 특정 강의의 개설 목록 조회
+    @Operation(
+        summary = "특정 강의의 개설 목록 조회",
+        description = "특정 강의에 대한 모든 개설 목록을 조회합니다."
+    )
+    @ApiResponse(responseCode = "200", description = "강의 개설 목록을 성공적으로 조회했습니다.")
+    @ApiResponse(responseCode = "500", description = "내부 서버 오류")
     @GetMapping("/course/{courseId}")
     public ResponseEntity<?> getCourseOpeningsByCourse(@PathVariable UUID courseId) {
         try {
@@ -90,14 +118,19 @@ public class CourseOpeningController {
     }
 
     // 특정 교수의 특정 학기 강의 목록 조회
+    @Operation(
+        summary = "특정 교수의 특정 학기 강의 목록 조회",
+        description = "특정 교수의 특정 학기에 해당하는 모든 강의 개설을 조회합니다."
+    )
+    @ApiResponse(responseCode = "200", description = "교수의 강의 목록을 성공적으로 조회했습니다.")
+    @ApiResponse(responseCode = "500", description = "내부 서버 오류")
     @GetMapping("/professor/{professorId}")
     public ResponseEntity<?> getProfessorCourses(
             @PathVariable String professorId,
             @RequestParam Integer year,
             @RequestParam String semester) {
         try {
-            log.info("Fetching courses for professor: {}, year: {}, semester: {}",
-                    professorId, year, semester);
+            log.info("Fetching courses for professor: {}, year: {}, semester: {}", professorId, year, semester);
             List<CourseOpeningDto> courses = courseOpeningService
                     .getProfessorCourses(professorId, year, semester);
             return ResponseEntity.ok(courses);
@@ -112,6 +145,12 @@ public class CourseOpeningController {
     }
 
     // 특정 상태의 강의 목록 조회
+    @Operation(
+        summary = "특정 상태의 강의 목록 조회",
+        description = "특정 상태에 해당하는 모든 강의 개설을 조회합니다."
+    )
+    @ApiResponse(responseCode = "200", description = "상태별 강의 목록을 성공적으로 조회했습니다.")
+    @ApiResponse(responseCode = "500", description = "내부 서버 오류")
     @GetMapping("/status/{status}")
     public ResponseEntity<?> getCoursesByStatus(@PathVariable CourseStatus status) {
         try {
@@ -129,6 +168,12 @@ public class CourseOpeningController {
     }
 
     // 강의 개설 수정
+    @Operation(
+        summary = "강의 개설 수정",
+        description = "특정 ID를 가진 강의 개설을 수정합니다."
+    )
+    @ApiResponse(responseCode = "200", description = "강의 개설이 성공적으로 수정되었습니다.")
+    @ApiResponse(responseCode = "500", description = "내부 서버 오류")
     @PutMapping("/{openingId}")
     public ResponseEntity<?> updateCourseOpening(
             @PathVariable UUID openingId,
@@ -148,6 +193,12 @@ public class CourseOpeningController {
     }
 
     // 강의 개설 삭제
+    @Operation(
+        summary = "강의 개설 삭제",
+        description = "특정 ID를 가진 강의 개설을 삭제합니다."
+    )
+    @ApiResponse(responseCode = "200", description = "강의 개설이 성공적으로 삭제되었습니다.")
+    @ApiResponse(responseCode = "500", description = "내부 서버 오류")
     @DeleteMapping("/{openingId}")
     public ResponseEntity<?> deleteCourseOpening(@PathVariable UUID openingId) {
         try {

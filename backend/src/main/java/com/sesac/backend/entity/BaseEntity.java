@@ -12,13 +12,13 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @MappedSuperclass // 다른 엔티티에서 부모클래스로 사용하기 위해
 @Getter
 @Setter
-public abstract class  BaseEntity extends BaseTimeEntity {
+public abstract class BaseEntity extends BaseTimeEntity {
 
     @CreatedBy // 최초로 등록한 사람의 id
-    @Column(updatable = false) // 해당 컬럼에 대한 값은 업데이트 X
+    @Column(name = "created_by", updatable = false, length = 36) // 해당 컬럼에 대한 값은 업데이트 X
     private String createdBy; // 등록한 사람
 
     @LastModifiedBy // 게시물을 수정한 사람의 id를 저장 및 감지
-    private String modifiedBy; // 수정한 사람
-
+    @Column(name = "updated_by", length = 36)
+    private String updatedBy; // 수정한 사람
 }

@@ -1,5 +1,6 @@
 package com.sesac.backend.entity;
 
+import com.sesac.backend.board.constant.BoardType;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,7 +14,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Board {
+public class Board extends BaseEntity {
 
     @Id
     @GeneratedValue
@@ -24,17 +25,17 @@ public class Board {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private BoardType boardType; // 게시판유형
+    private BoardType boardType; // 게시판유형 (공지사항, 일반, Q&A)
 
-    private boolean allowAnonymous = false; // 익명허용
-    private boolean allowComments = true; // 댓글허용
-    private boolean allowEdit = true; // 수정허용
-    private boolean allowDelete = true; // 삭제허용
+    @Column(columnDefinition = "BOOLEAN DEFAULT false")
+    private boolean allowAnonymous; // 익명허용
 
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now(); // 생성일시
+    @Column(columnDefinition = "BOOLEAN DEFAULT true")
+    private boolean allowComments; // 댓글허용
 
-    public enum BoardType {
-        NOTICE, GENERAL, QNA
-    }
+    @Column(columnDefinition = "BOOLEAN DEFAULT true")
+    private boolean allowEdit; // 수정허용
+
+    @Column(columnDefinition = "BOOLEAN DEFAULT true")
+    private boolean allowDelete; // 삭제허용
 }

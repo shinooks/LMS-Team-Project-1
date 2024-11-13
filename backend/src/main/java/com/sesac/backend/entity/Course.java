@@ -1,6 +1,5 @@
 package com.sesac.backend.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.sesac.backend.course.constant.Credit;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -12,7 +11,6 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "course")
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
