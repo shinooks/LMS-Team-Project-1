@@ -20,14 +20,13 @@ function App() {
 
   useEffect(() => {
     requestData();
-  }, [studentId]);
-
-  useEffect(() => {
     getAllClasses();
-  }, []);
+  }, [studentId]);
 
   // WebSocket 연결 설정
   useEffect(() => {
+    console.log("Attempting WebSocket connection...");
+
     const client = new Client({
       webSocketFactory: () => new SockJS('http://localhost:8081/ws-enrollment'),
       reconnectDelay: 5000,
@@ -36,8 +35,42 @@ function App() {
     });
 
     client.onConnect = () => {
-      console.log("WebSocket Connected!");
+      console.log("WebSocket Connected Successfully!");
+
       setStompClient(client);
+
+      // 1. 수강신청 결과 구독
+      client.subscribe(`/user/topic/enrollment-result`, message => {
+        const result = JSON.parse(message.body);
+        console.log("수강신청 결과: ", result);
+
+        alert(result.message);
+
+        if (result.success) {
+          Promise.all([
+            requestData(),
+            getAllClasses()
+          ]);
+        }
+
+      });
+
+      // 2. 강의별 상태 업데이트 구독
+      if (classes.length > 0) {
+        classes.forEach(course => {
+          client.subscribe(
+            `/topic/course-status/${course.openingId}`,
+            message => {
+              const update = JSON.parse(message.body);
+              console.log("강의 상태 업데이트: ", update);
+              setCurrentEnrollments(prev => ({
+                ...prev,
+                [update.openingId]: update.currentEnrollment
+              }));
+            }
+          );
+        });
+      }
     };
 
     client.activate();
@@ -47,44 +80,7 @@ function App() {
         client.deactivate();
       }
     };
-  }, []); // 의존성 배열 비움
-
-  // classes가 변경될 때마다 구독 설정
-  useEffect(() => {
-    if (stompClient && stompClient.connected && classes.length > 0) {
-      console.log("강의 구독 설정");
-
-      // 기존 구독 해제
-      Object.keys(stompClient.subscriptions || {}).forEach(subId => {
-        stompClient.unsubscribe(subId);
-      });
-
-      // 초기 수강인원 상태 설정
-      const initialEnrollments = {};
-      classes.forEach(course => {
-        initialEnrollments[course.openingId] = course.currentStudents;
-      });
-      setCurrentEnrollments(initialEnrollments);
-
-      // 새로운 구독 설정
-      classes.forEach(course => {
-        const subscriptionId = `sub-${course.openingId}`;
-        stompClient.subscribe(
-          `/topic/enrollment-updates/${course.openingId}`,
-          message => {
-            const update = JSON.parse(message.body);
-            console.log("수강인원 업데이트:", update);
-            setCurrentEnrollments(prev => ({
-              ...prev,
-              [update.openingId]: update.currentEnrollment
-            }));
-          },
-          { id: subscriptionId }
-        );
-      });
-    }
-  }, [stompClient, classes])
-
+  }, [studentId, classes]);
 
   const requestData = async () => {
     try {
@@ -92,17 +88,12 @@ function App() {
       if (res.status === 200) {
         setEnrolledClasses(res.data.myClassList);
 
-        const formattedTimeTable = res.data.myTimeTable.map(row => row.map(cell => {
-          if (cell) {
-            return {
-              classId: cell.courseCode,
-              className: cell.courseName
-            };
-          }
-          return null;
-        }));
-        setMyTimeTable(formattedTimeTable);
-        console.log("데이터 갱신 완료:", res.data);
+        setMyTimeTable(res.data.myTimeTable.map(row =>
+          row.map(cell => cell ? {
+            classId: cell.courseCode,
+            className: cell.courseName
+          } : null)
+        ));
       }
     } catch (error) {
       console.log("데이터 갱신 중 오류 발생:", error)
@@ -113,92 +104,36 @@ function App() {
     try {
       const res = await axios.get(`http://localhost:8081/allclasses`);
       if (res.status === 200) {
-        console.log("all classes" + res.data);
         setClasses(res.data.allClasses);
       }
     } catch (error) {
-      console.error("Error fetching all classes:", error);
-      alert("강의 목록을 불러오는데 실패했습니다")
+      console.error("강의 목록 조회 실패:", error);
     }
   };
 
   // 관심강의 등록 함수
   const enroll = async (classes) => {
-
-    // const currentEnrollment = currentEnrollments[classes.openingId] || classes.currentStudents;
-
     try {
-      // 낙관적 업데이트: 먼저 UI 업데이트
-      // setCurrentEnrollments(prev => ({
-      //   ...prev,
-      //   [classes.openingId]: currentEnrollments[classes.openingId] || classes.currentStudents + 1
-      // }));
-
-      const res = await axios.post("http://localhost:8081/enrollment", {
+      await axios.post("http://localhost:8081/enrollment", {
         studentId: studentId,
         // 전체 강의 배열에 담겨져있는 courseCode를 백으로 보냄
         openingId: classes.openingId
       });
+      console.log("수강신청 요청 전송됨");
+      // 실제 성공/실패는 WebSocket으로 받을 예정이므로 여기서는 데이터 갱신하지 않음
 
-      if (res.status === 200) {
-        console.log("수강신청 성공");
-
-        setCurrentEnrollments(prev => ({
-          ...prev,
-          [classes.openingId]: currentEnrollments[classes.openingId] || classes.currentStudents + 1
-        }));
-
-        await Promise.all([
-          requestData(),
-          getAllClasses()
-        ]);
-
-        // setTimeout(async () => {
-        //   // 지연 후 데이터 갱신(200ms)
-        //   await requestData();
-        //   getAllClasses();
-        // }, 200);
-      }
     } catch (error) {
-      // 실패 시 원래 값으로 복구
-      setCurrentEnrollments(prev => ({
-        ...prev,
-        [classes.openingId]: currentEnrollments[classes.openingId] || classes.currentStudents
-      }));
-
-      if (error.response) {
-        // 서버가 응답했지만 상태 코드가 2xx가 아닌 경우
-        if (error.response.status === 409) {
-          alert("시간이 겹치는 강의가 이미 등록되어 있습니다.");
-        } else if (error.response.status == 400) {
-          alert("이미 신청한 강의입니다.")
-        } else {
-          alert("오류 발생: " + error.response.data.message || "알 수 없는 오류가 발생했습니다"); // 다른 오류 메시지 처리
-        }
-      } else if (error.request) {
-        // 요청이 이루어졌지만 응답을 받지 못한 경우
-        alert("서버 응답이 없습니다.");
-      } else {
-        // 오류를 발생시킨 요청 설정 중에 문제가 발생한 경우
-        alert("오류: " + error.message);
-      }
-      console.error("수강신청 중 오류", error)
+      console.error("수강신청 요청 실패: ", error);
+      alert("수강시청 요청 중 오류가 발생했습니다")
     }
   };
 
   // 관심강의 삭제 함수
   const deleteClass = async (enrollmentId) => {
     try {
-      const res = await axios.delete(`http://localhost:8081/myclasslist/delete/${enrollmentId}`);
-      if (res.status === 200) {
-        console.log("삭제완료", enrollmentId);
+      await axios.delete(`http://localhost:8081/myclasslist/delete/${enrollmentId}`);
+      await Promise.all([requestData(), getAllClasses()]);
 
-        // 동시에 데이터 갱신
-        await Promise.all([
-          requestData(), // 신청 목록 갱신
-          getAllClasses() // 전체 강의 목록 갱신
-        ])
-      }
     } catch (error) {
       console.error("삭제 중 오류 발생:", error);
       alert("삭제 중 오류가 발생했습니다.")

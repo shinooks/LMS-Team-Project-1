@@ -43,16 +43,6 @@ spring:
       enabled: true
       force: true
 
-  springdoc:
-    swagger-ui:
-      path: /swagger-ui.html
-      tags-sorter: alpha
-      operations-sorter: alpha
-    api-docs:
-      path: /api-docs
-    default-consumes-media-type: application/json
-    default-produces-media-type: application/json
-
   kafka:
     bootstrap-servers: 172.16.6.79:9092
     producer:
