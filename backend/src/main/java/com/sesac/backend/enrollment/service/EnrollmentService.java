@@ -3,6 +3,7 @@ package com.sesac.backend.enrollment.service;
 import com.sesac.backend.course.repository.CourseOpeningRepository;
 import com.sesac.backend.course.repository.CourseRepository;
 import com.sesac.backend.course.repository.CourseTimeRepository;
+import com.sesac.backend.enrollment.domain.InterestScheduleChecker;
 import com.sesac.backend.enrollment.domain.EnrollmentProducer;
 import com.sesac.backend.enrollment.domain.ScheduleChecker;
 import com.sesac.backend.enrollment.domain.exceptionControl.TimeOverlapException;
@@ -36,7 +37,7 @@ public class EnrollmentService {
     private EnrollmentRepository enrollmentRepository;
 
     @Autowired
-    private ScheduleChecker scheduleChecker;
+    private InterestScheduleChecker scheduleChecker;
 
     @Autowired
     private CourseOpeningRepository courseOpeningRepository;

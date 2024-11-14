@@ -1,7 +1,7 @@
 spring:
   application:
     name: backend
-
+    
   output:
     ansi:
       enabled: always
@@ -27,15 +27,11 @@ spring:
     username: postgres
     password: popost
 
-  springdoc:
-    swagger-ui:
-      path: /swagger-ui.html
-      tags-sorter: alpha
-      operations-sorter: alpha
-    api-docs:
-      path: /api-docs
-    default-consumes-media-type: application/json
-    default-produces-media-type: application/json
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 6379
+      password: redis
 
   servlet:
     encoding:
