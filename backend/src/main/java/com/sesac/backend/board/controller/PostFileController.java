@@ -48,25 +48,25 @@ public class PostFileController {
         @ApiResponse(responseCode = "500", description = "내부 서버 오류",
                      content = @Content)
     })
+
+
     @PostMapping
     public ResponseEntity<?> uploadFile(
             @PathVariable UUID boardId,
             @PathVariable UUID postId,
-            @Parameter(description = "업로드할 파일", required = true)
+            @RequestHeader("X-USER-ID") UUID userId,  // userId 받아오기
             @RequestParam("file") MultipartFile file) {
         try {
-            log.info("Uploading file for post {}: {}", postId, file.getOriginalFilename());
-
-            // storedName은 서비스에서 생성되므로 null로 전달
             PostFileRequestDTO requestDTO = PostFileRequestDTO.builder()
                     .postId(postId)
                     .originalName(file.getOriginalFilename())
-                    .storedName(null)  // 서비스에서 생성됨
+                    .storedName(null)
                     .fileSize(file.getSize())
                     .fileType(file.getContentType())
                     .build();
 
-            PostFileResponseDTO response = postFileService.uploadFile(requestDTO, file.getBytes());
+            // userId를 서비스로 전달
+            PostFileResponseDTO response = postFileService.uploadFile(requestDTO, file.getBytes(), userId);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             log.error("Error uploading file", e);

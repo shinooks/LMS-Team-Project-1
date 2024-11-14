@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -38,4 +40,8 @@ public class Board extends BaseEntity {
 
     @Column(columnDefinition = "BOOLEAN DEFAULT true")
     private boolean allowDelete; // 삭제허용
+
+    @Builder.Default
+    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL)
+    private List<Post> posts = new ArrayList<>();
 }

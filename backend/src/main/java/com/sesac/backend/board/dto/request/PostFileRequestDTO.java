@@ -32,4 +32,6 @@ public class PostFileRequestDTO {
 
     @NotBlank(message = "파일 타입은 필수입니다")
     private String fileType;            // 파일 MIME 타입
+
+    private String createdBy;
 }
