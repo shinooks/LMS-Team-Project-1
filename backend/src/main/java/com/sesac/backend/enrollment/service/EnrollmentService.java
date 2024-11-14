@@ -3,9 +3,8 @@ package com.sesac.backend.enrollment.service;
 import com.sesac.backend.course.repository.CourseOpeningRepository;
 import com.sesac.backend.course.repository.CourseRepository;
 import com.sesac.backend.course.repository.CourseTimeRepository;
-import com.sesac.backend.enrollment.domain.ScheduleChecker;
+import com.sesac.backend.enrollment.domain.InterestScheduleChecker;
 import com.sesac.backend.enrollment.domain.exceptionControl.TimeOverlapException;
-import com.sesac.backend.enrollment.dto.EnrollmentDto;
 import com.sesac.backend.enrollment.dto.TimeTableCellDto;
 import com.sesac.backend.enrollment.repository.EnrollmentRepository;
 import com.sesac.backend.enrollment.repository.StudentRepositoryTmp;
@@ -17,7 +16,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class EnrollmentService {
@@ -26,7 +24,7 @@ public class EnrollmentService {
     private EnrollmentRepository enrollmentRepository;
 
     @Autowired
-    private ScheduleChecker scheduleChecker;
+    private InterestScheduleChecker scheduleChecker;
 
     @Autowired
     private CourseOpeningRepository courseOpeningRepository;
@@ -141,6 +139,7 @@ public class EnrollmentService {
             Map<String, Object> enrolledCourseInfo = new HashMap<>();
 
             UUID enrollmentId = c.getEnrollmentId();
+            UUID openingId = c.getCourseOpening().getOpeningId();
             String courseCode = c.getCourseOpening().getCourse().getCourseCode();
             String courseName = c.getCourseOpening().getCourse().getCourseName();
             Integer credit = c.getCourseOpening().getCourse().getCredits();
@@ -159,6 +158,7 @@ public class EnrollmentService {
             }
 
             enrolledCourseInfo.put("enrollmentId", enrollmentId);
+            enrolledCourseInfo.put("openingId", openingId);
             enrolledCourseInfo.put("courseCode", courseCode);
             enrolledCourseInfo.put("courseName", courseName);
             enrolledCourseInfo.put("credit", credit);
