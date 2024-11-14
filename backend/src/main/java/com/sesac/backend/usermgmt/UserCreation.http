@@ -1,0 +1,19 @@
+### 회원가입 API - userNumber, password, userType(STUDENT, PROFESSOR, STAFF) 필수 입력 (
+POST http://localhost:8081/join
+Content-Type: application/json
+
+{
+  "userNumber" : "2024001002",
+  "password" : "1111",
+  "userType" : "STUDENT"
+}
+
+
+### 사용자 로그인 API [POST] /api/user/login
+POST http://localhost:8081/login
+Content-Type: application/json
+
+{
+  "userNumber" : "2024001002",
+  "password" : "1111"
+}
