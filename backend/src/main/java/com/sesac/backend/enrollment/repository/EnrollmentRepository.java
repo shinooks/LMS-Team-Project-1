@@ -32,5 +32,4 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, UUID> {
                                                 @Param("day") DayOfWeek day,
                                                 @Param("startTime") LocalTime startTime,
                                                 @Param("endTime") LocalTime endTime);
-
 }

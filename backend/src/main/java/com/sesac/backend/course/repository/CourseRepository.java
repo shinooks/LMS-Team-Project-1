@@ -24,5 +24,5 @@ public interface CourseRepository extends JpaRepository<Course, UUID> {
     boolean existsByCourseCode(String courseCode);
 
     //class 전체 목록에서 CourseId가 없기 때문에 CourseCode로 조회하기 위한 method
-    List<Course> findCourseByCourseId(UUID courseId);
+    Course findCourseByCourseCode(String courseCode);
 }

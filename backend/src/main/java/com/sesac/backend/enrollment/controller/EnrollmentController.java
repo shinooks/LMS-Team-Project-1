@@ -27,13 +27,15 @@ public class EnrollmentController {
             throw new IllegalArgumentException("studentId와 openingId는 필수 값입니다.");
         }
 
+        enrollmentService.requestEnrollment(
+                enrollmentDto.getStudentId(),
+                enrollmentDto.getOpeningId()
+        );
+
         Map<String, Object> res = new HashMap<>();
 
-        // 관심 강의 등록 시도 -> saveService에 학생과 강의에 대한 정보를 찾기 위해 studentId와 classCode를 보냄
-        enrollmentService.saveClassEnrollment(enrollmentDto.getStudentId(), enrollmentDto.getOpeningId());
-
-        res.put("status", "success");
-        res.put("message", "관심 강의가 성공적으로 등록되었습니다.");
+        res.put("status", "pending");
+        res.put("message", "수강신청이 요청되었습니다. 결과를 기다려주세요");
 
         return res;
     }

@@ -44,39 +44,69 @@ function App() {
     }
   };
 
-  // 전체 강의 목록에서 강의등록 함수
-  const enroll = (classes) => {
-    axios.post("http://localhost:8081/enrollment", {
-      studentId: studentId,
-      // 전체 강의 배열에 담겨져있는 courseCode를 백으로 보냄
-      openingId: classes.openingId
-    })
-        .then(function (res) {
-          if (res.status === 200) {
-            alert("수강신청 성공");
-            //requestData();
-          } else {
-            console.log("비정상응답");
-          }
-        })
-        .catch(function (error) {
-          // 오류가 발생했을 때
-          if (error.response) {
-            // 서버가 응답했지만 상태 코드가 2xx가 아닌 경우
-            if (error.response.status === 409) {
-              alert("시간이 겹치는 강의가 이미 등록되어 있습니다.");
-            } else {
-              alert("오류 발생: " + error.response.data.message); // 다른 오류 메시지 처리
-            }
-          } else if (error.request) {
-            // 요청이 이루어졌지만 응답을 받지 못한 경우
-            alert("서버 응답이 없습니다.");
-          } else {
-            // 오류를 발생시킨 요청 설정 중에 문제가 발생한 경우
-            alert("오류: " + error.message);
-          }
-        });
-  }
+  // 관심강의 등록 함수
+  const enroll = async (classes) => {
+
+    // const currentEnrollment = currentEnrollments[classes.openingId] || classes.currentStudents;
+
+    try {
+      // 낙관적 업데이트: 먼저 UI 업데이트
+      // setCurrentEnrollments(prev => ({
+      //   ...prev,
+      //   [classes.openingId]: currentEnrollments[classes.openingId] || classes.currentStudents + 1
+      // }));
+
+      const res = await axios.post("http://localhost:8081/enrollment", {
+        studentId: studentId,
+        // 전체 강의 배열에 담겨져있는 courseCode를 백으로 보냄
+        openingId: classes.openingId
+      });
+
+      if (res.status === 200) {
+        console.log("수강신청 성공");
+
+        setCurrentEnrollments(prev => ({
+          ...prev,
+          [classes.openingId]: currentEnrollments[classes.openingId] || classes.currentStudents + 1
+        }));
+
+        await Promise.all([
+          requestData(),
+          getAllClasses()
+        ]);
+
+        // setTimeout(async () => {
+        //   // 지연 후 데이터 갱신(200ms)
+        //   await requestData();
+        //   getAllClasses();
+        // }, 200);
+      }
+    } catch (error) {
+      // 실패 시 원래 값으로 복구
+      setCurrentEnrollments(prev => ({
+        ...prev,
+        [classes.openingId]: currentEnrollments[classes.openingId] || classes.currentStudents
+      }));
+
+      if (error.response) {
+        // 서버가 응답했지만 상태 코드가 2xx가 아닌 경우
+        if (error.response.status === 409) {
+          alert("시간이 겹치는 강의가 이미 등록되어 있습니다.");
+        } else if (error.response.status == 400) {
+          alert("이미 신청한 강의입니다.")
+        } else {
+          alert("오류 발생: " + error.response.data.message || "알 수 없는 오류가 발생했습니다"); // 다른 오류 메시지 처리
+        }
+      } else if (error.request) {
+        // 요청이 이루어졌지만 응답을 받지 못한 경우
+        alert("서버 응답이 없습니다.");
+      } else {
+        // 오류를 발생시킨 요청 설정 중에 문제가 발생한 경우
+        alert("오류: " + error.message);
+      }
+      console.error("수강신청 중 오류", error)
+    }
+  };
 
   //관심강의 관련 함수-------------------------------------------------------------------------------------------------
   // 관심강의 목록에 강의 등록
@@ -117,7 +147,7 @@ function App() {
       }
     })
   }
-  
+
   // 관심강의 데이터 시간표에 세팅하는 함수
   const requestInterestTimeTable = () =>{
     axios.get(`http://localhost:8081/interestTimeTable/${studentId}`)

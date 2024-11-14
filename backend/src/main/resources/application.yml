@@ -33,6 +33,12 @@ spring:
       port: 6379
       password: redis
 
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+
   springdoc:
     swagger-ui:
       path: /swagger-ui.html
@@ -43,11 +49,29 @@ spring:
     default-consumes-media-type: application/json
     default-produces-media-type: application/json
 
-  servlet:
-    encoding:
-      charset: UTF-8
+  kafka:
+    bootstrap-servers: 172.16.6.79:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    consumer:
+      group-id: enrollment-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      enable-auto-commit: false    # 수동 커밋 사용 (안정성을 위해)
+      properties:
+        spring.json.trusted.packages: "*"
+    monitor:
       enabled: true
-      force: true
+      check-interval: 60000       # 1분마다 체크
+      lag-threshold: 1000         # Lag 임계값
+
+  redis:
+    data:
+      redis:
+        host: localhost
+        port: 6379
 
 server:
   port: 8081
