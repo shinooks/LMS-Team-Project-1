@@ -27,6 +27,16 @@ spring:
     username: postgres
     password: popost
 
+  springdoc:
+    swagger-ui:
+      path: /swagger-ui.html
+      tags-sorter: alpha
+      operations-sorter: alpha
+    api-docs:
+      path: /api-docs
+    default-consumes-media-type: application/json
+    default-produces-media-type: application/json
+
   servlet:
     encoding:
       charset: UTF-8
@@ -79,5 +89,3 @@ my_value:
 #  org:
 #    springframework:
 #      security: DEBUG
-
-
