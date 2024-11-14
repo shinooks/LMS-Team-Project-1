@@ -49,6 +49,7 @@ spring:
     default-consumes-media-type: application/json
     default-produces-media-type: application/json
 
+#version: 3.9.0
   kafka:
     bootstrap-servers: 172.16.6.79:9092
     producer:

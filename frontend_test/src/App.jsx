@@ -6,7 +6,7 @@ function App() {
   const [classes, setClasses] = useState([]);
   // mySqlDB
   // 수강 강의 목록
-  const [enrolledClasses, setEnrolledClasses] = useState([]);
+  const [currentEnrollments, setCurrentEnrollments] = useState([]);
   // 관심강의 목록 상태 redisDb
   const [interestCourses, setinterestCourses] = useState([]);
   const [interestTimeTable, setInterestTimeTable] = useState(Array(9).fill().map(() => Array(5).fill(null)));
@@ -16,7 +16,6 @@ function App() {
 
   // 관심강의 목록의 상태
   useEffect(() => {
-    //requestData();
     requestInterestData();
     requestInterestTimeTable();
   }, [studentId]);
@@ -44,17 +43,10 @@ function App() {
     }
   };
 
-  // 관심강의 등록 함수
+  // 수강신청 버튼 관련 함수 -> kafka 메시지를 통해 redis에 요청을 쌓고 mysql Db로 보냄
   const enroll = async (classes) => {
 
-    // const currentEnrollment = currentEnrollments[classes.openingId] || classes.currentStudents;
-
     try {
-      // 낙관적 업데이트: 먼저 UI 업데이트
-      // setCurrentEnrollments(prev => ({
-      //   ...prev,
-      //   [classes.openingId]: currentEnrollments[classes.openingId] || classes.currentStudents + 1
-      // }));
 
       const res = await axios.post("http://localhost:8081/enrollment", {
         studentId: studentId,
@@ -71,15 +63,9 @@ function App() {
         }));
 
         await Promise.all([
-          requestData(),
           getAllClasses()
         ]);
-
-        // setTimeout(async () => {
-        //   // 지연 후 데이터 갱신(200ms)
-        //   await requestData();
-        //   getAllClasses();
-        // }, 200);
+        
       }
     } catch (error) {
       // 실패 시 원래 값으로 복구
@@ -108,6 +94,7 @@ function App() {
     }
   };
 
+  
   //관심강의 관련 함수-------------------------------------------------------------------------------------------------
   // 관심강의 목록에 강의 등록
   const saveInterest = (classes) => {
@@ -190,7 +177,6 @@ function App() {
         .then(function (res) {
           if (res.status === 200) {
             alert("수강신청 성공");
-            //requestData();
           } else {
             console.log("비정상응답");
           }
@@ -238,8 +224,8 @@ function App() {
                 요일: {classes.day}&nbsp;&nbsp;&nbsp;
                 시작시간: {classes.startTime} ~
                 끝시간: {classes.endTime}&nbsp;&nbsp;&nbsp;
-                최대 수강인원: {classes.maxStudents}&nbsp;&nbsp;&nbsp;
                 현재 수강인원: {classes.currentStudents}&nbsp;&nbsp;&nbsp;
+                최대 수강인원: {classes.maxStudents}&nbsp;&nbsp;&nbsp;
                 <button onClick={() => saveInterest(classes)}>관심강의 등록</button>
                 <button onClick={() => enroll(classes)}>신청</button>
               </div>
