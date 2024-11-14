@@ -1,7 +1,7 @@
 spring:
   application:
     name: backend
-    
+
   output:
     ansi:
       enabled: always
@@ -42,6 +42,30 @@ spring:
       path: /api-docs
     default-consumes-media-type: application/json
     default-produces-media-type: application/json
+
+  kafka:
+    bootstrap-servers: 172.16.6.79:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    consumer:
+      group-id: enrollment-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      enable-auto-commit: false    # 수동 커밋 사용 (안정성을 위해)
+      properties:
+        spring.json.trusted.packages: "*"
+    monitor:
+      enabled: true
+      check-interval: 60000       # 1분마다 체크
+      lag-threshold: 1000         # Lag 임계값
+
+  redis:
+    data:
+      redis:
+        host: localhost
+        port: 6379
 
 server:
   port: 8081
