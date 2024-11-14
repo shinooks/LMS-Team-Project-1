@@ -7,8 +7,9 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Data
-@AllArgsConstructor
+@Builder
+@Getter
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor
 @ToString
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"student_id", "opening_id"}))

@@ -54,46 +54,46 @@ public class EnrollmentService {
     private final RedisTemplate<String, String> redisTemplate;
     private final SimpMessagingTemplate messagingTemplate;
 
-    ////////////////////////////// save기능 set ////////////////////////////////////
-    public void saveClassEnrollment(UUID studentId, UUID openingId) {
-        Student student = studentRepository.findById(studentId).orElseThrow(()
-                -> new EntityNotFoundException("학생을 찾을 수 없습니다"));
-        CourseOpening courseOpening = courseOpeningRepository.findById(openingId).orElseThrow(()
-                -> new EntityNotFoundException("강의를 찾을 수 없습니다"));
-
-        // 강의의 모든 CourseTime 가져옴
-        List<CourseTime> openingCourseTimes = courseOpening.getCourseTimes();
-
-        // 중복 및 시간 겹침 검사
-        List<Enrollment> conflictingEnrollments = new ArrayList<>();
-
-        for (CourseTime ct : openingCourseTimes) {
-            List<Enrollment> enrollments = enrollmentRepository.findConflictingEnrollments(
-                    student,
-                    ct.getDayOfWeek(),
-                    ct.getStartTime(),
-                    ct.getEndTime()
-            );
-
-            conflictingEnrollments.addAll(enrollments);
-        }
-
-        //중복검사를 통과하지 못하는 강의가 있을 때 예외 발생
-        if (!conflictingEnrollments.isEmpty()) {
-            throw new TimeOverlapException("시간이 겹치는 강의가 이미 등록되어 있습니다." + courseOpening.getCourse().getCourseName());
-        }
-
-        // 통과 시 강의 등록
-        System.out.println("중복검사 통과");
-
-        Enrollment enrollment = new Enrollment();
-
-        enrollment.setStudent(student);
-        enrollment.setCourseOpening(courseOpening);
-        enrollment.setEnrollmentDate(LocalDateTime.now());
-
-        enrollmentRepository.save(enrollment);
-    }
+//    ////////////////////////////// save기능 set ////////////////////////////////////
+//    public void saveClassEnrollment(UUID studentId, UUID openingId) {
+//        Student student = studentRepository.findById(studentId).orElseThrow(()
+//                -> new EntityNotFoundException("학생을 찾을 수 없습니다"));
+//        CourseOpening courseOpening = courseOpeningRepository.findById(openingId).orElseThrow(()
+//                -> new EntityNotFoundException("강의를 찾을 수 없습니다"));
+//
+//        // 강의의 모든 CourseTime 가져옴
+//        List<CourseTime> openingCourseTimes = courseOpening.getCourseTimes();
+//
+//        // 중복 및 시간 겹침 검사
+//        List<Enrollment> conflictingEnrollments = new ArrayList<>();
+//
+//        for (CourseTime ct : openingCourseTimes) {
+//            List<Enrollment> enrollments = enrollmentRepository.findConflictingEnrollments(
+//                    student,
+//                    ct.getDayOfWeek(),
+//                    ct.getStartTime(),
+//                    ct.getEndTime()
+//            );
+//
+//            conflictingEnrollments.addAll(enrollments);
+//        }
+//
+//        //중복검사를 통과하지 못하는 강의가 있을 때 예외 발생
+//        if (!conflictingEnrollments.isEmpty()) {
+//            throw new TimeOverlapException("시간이 겹치는 강의가 이미 등록되어 있습니다." + courseOpening.getCourse().getCourseName());
+//        }
+//
+//        // 통과 시 강의 등록
+//        System.out.println("중복검사 통과");
+//
+//        Enrollment enrollment = new Enrollment();
+//
+//        enrollment.setStudent(student);
+//        enrollment.setCourseOpening(courseOpening);
+//        enrollment.setEnrollmentDate(LocalDateTime.now());
+//
+//        enrollmentRepository.save(enrollment);
+//    }
 
     public List<Map<String, Object>> getAllClasses() {
         List<CourseOpening> tmpList = courseOpeningRepository.findAll();
@@ -326,7 +326,7 @@ public class EnrollmentService {
             log.info("수강신청 요청 전송: student={}, openingId={}", studentId, openingId);
 
         } catch (Exception e) {
-            log.error("수강신청 요청 실패: student={}, openingId={}, error={}", studentId, openingId,e.getMessage());
+            log.error("수강신청 요청 실패: student={}, openingId={}, error={}", studentId, openingId, e.getMessage());
             throw new RuntimeException("수강신청 요청 처리 중 오류가 발생했습니다.", e);
         }
     }
@@ -335,98 +335,144 @@ public class EnrollmentService {
     public void processEnrollment(UUID studentId, UUID openingId) {
         CourseOpening courseInfo = courseOpeningRepository.findById(openingId).orElseThrow(() -> new EntityNotFoundException("강의를 찾을 수 없습니다"));
 
+        Student student = studentRepository.findById(studentId).orElseThrow(() -> new EntityNotFoundException("학생을 찾을 수 없습니다."));
+
         String redisKey = "course:" + openingId + ":enrollment";
 
-        // Redis의 increment 작업은 원자적(atomic)으로 실행됨
-        // 1. Redis 수강인원 증가 (실시간 처리)
-        Integer currentEnrollment = redisTemplate.opsForValue().increment(redisKey).intValue();
-        Integer maxEnrollment = courseInfo.getMaxStudents();
-
-        if (currentEnrollment > maxEnrollment) {
-            // 수강인원 초과 시 카운트 감소
-            redisTemplate.opsForValue().decrement(redisKey);
-
-            // 실패
-            EnrollmentResultDto result = new EnrollmentResultDto(
-                    openingId,
-                    courseInfo.getCourse().getCourseCode(),
-                    courseInfo.getCourse().getCourseName(),
-                    "수강인원이 초과되었습니다",
-                    maxEnrollment,
-                    currentEnrollment - 1,
-                    false
-            );
-            notifyStudent(studentId, result);
-
-            log.warn("수강인원 초과: student={}, course={}", studentId, openingId);
-            return;
-        }
-
-        // 수강신청 처리
         try {
-            // 2. 수강신청 정보 저장(DB 처리)
-            saveClassEnrollment(studentId, openingId);
+            // 1. 동일 강의 중복 검사
+            if (enrollmentRepository.existsByStudent_StudentIdAndCourseOpening_OpeningId(studentId, openingId)) {
+                log.info("중복 수강신청 감지: student={}, course={}", studentId, openingId);
+                notifyStudent(studentId, new EnrollmentResultDto(
+                        openingId,
+                        courseInfo.getCourse().getCourseCode(),
+                        courseInfo.getCourse().getCourseName(),
+                        "이미 수강신청된 강의입니다",
+                        courseInfo.getMaxStudents(),
+                        courseInfo.getCurrentStudents(),
+                        false
+                ));
+                return;
+            }
 
-            // 3. 실시간 알림 전송(WebSocket)
-            // 3-1. 신청 학생에게 성공 메시지 전송
-            EnrollmentResultDto result = new EnrollmentResultDto(
+            // 2. 시간 중복 검사
+            List<CourseTime> times = courseInfo.getCourseTimes();
+            List<Enrollment> conflictingEnrollments = new ArrayList<>();
+
+            for (CourseTime ct : times) {
+                conflictingEnrollments.addAll(
+                        enrollmentRepository.findConflictingEnrollments(
+                                student,
+                                ct.getDayOfWeek(),
+                                ct.getStartTime(),
+                                ct.getEndTime()
+                        )
+                );
+            }
+
+            if (!conflictingEnrollments.isEmpty()) {
+                log.info("시간 중복 감지: student={}, course={}", studentId, openingId);
+                notifyStudent(studentId, new EnrollmentResultDto(
+                        openingId,
+                        courseInfo.getCourse().getCourseCode(),
+                        courseInfo.getCourse().getCourseName(),
+                        "시간이 겹치는 강의가 이미 등록되어 있습니다",
+                        courseInfo.getMaxStudents(),
+                        courseInfo.getCurrentStudents(),
+                        false
+                ));
+                return;
+            }
+
+            // Redis의 increment 작업은 원자적(atomic)으로 실행됨
+            // 3. Redis 수강인원 증가 (실시간 처리)
+            Integer currentEnrollment = redisTemplate.opsForValue().increment(redisKey).intValue();
+            Integer maxEnrollment = courseInfo.getMaxStudents();
+
+            // 4. 수강인언 초과 체크
+            if (currentEnrollment > maxEnrollment) {
+                // 수강인원 초과 시 카운트 감소
+                redisTemplate.opsForValue().decrement(redisKey);
+                notifyStudent(studentId, new EnrollmentResultDto(
+                        openingId,
+                        courseInfo.getCourse().getCourseCode(),
+                        courseInfo.getCourse().getCourseName(),
+                        "수강인원이 초과되었습니다",
+                        maxEnrollment,
+                        currentEnrollment - 1,
+                        false
+                ));
+                return;
+            }
+
+            // 5. DB에 수강신청 정보 저장 (기존 saveClassEnrollment 로직)
+            Enrollment enrollment = Enrollment.builder()
+                    .student(student)
+                    .courseOpening(courseInfo)
+                    .enrollmentDate(LocalDateTime.now())
+                    .build();
+
+            enrollmentRepository.save(enrollment);
+
+
+            // 6. 성공 알림 및 후속 처리
+            EnrollmentResultDto successResult = new EnrollmentResultDto(
                     openingId,
                     courseInfo.getCourse().getCourseCode(),
                     courseInfo.getCourse().getCourseName(),
-                    "수강신청이 완료되었습니다.",
+                    "수강인원이 완료되었습니다",
                     maxEnrollment,
                     currentEnrollment,
-                    true
+                    false
             );
-            notifyStudent(studentId, result);
-
-            // 전체 학생에게 현재 수강신청 상태 알림
+            notifyStudent(studentId, successResult);
             notifyAllStudents(openingId, currentEnrollment, maxEnrollment);
 
-            // 4. DB 업데이트를 위한 메시지 발행(비동기 처리)
+            // 7. DB 업데이트를 위한 메시지 발행
             enrollmentProducer.sendEnrollmentUpdate(new EnrollmentUpdateMessageDto(
                     openingId,
                     studentId,
                     currentEnrollment
             ));
 
-            log.info("수강신청 성공: student={}, course={}", studentId, openingId);
+            log.warn("수강신청 성공: student={}, course={}", studentId, openingId);
 
         } catch (Exception e) {
-            // 실패 시 카운트 감소
-            redisTemplate.opsForValue().decrement(redisKey);
-            log.error("수강신청 실패: student={}, course={}, error={}", studentId, openingId, e.getMessage());
+            if (redisTemplate.opsForValue().get(redisKey) != null) {
+                redisTemplate.opsForValue().decrement(redisKey);
+            }
+            log.error("수강신청 실패: student={}, course={}, error={}",
+                    studentId, openingId, e.getMessage());
             throw e;
         }
-
     }
 
-    private void notifyStudent(UUID studentId, EnrollmentResultDto result) {
-        messagingTemplate.convertAndSendToUser(
-                studentId.toString(),
-                "/topic/enrollment-result",
-                result
+private void notifyStudent(UUID studentId, EnrollmentResultDto result) {
+    messagingTemplate.convertAndSendToUser(
+            studentId.toString(),
+            "/topic/enrollment-result",
+            result
+    );
+}
+
+private void notifyAllStudents(UUID openingId, int currentEnrollment, int maxEnrollment) {
+    try {
+        CourseOpening courseInfo = courseOpeningRepository.findById(openingId).orElseThrow(() -> new EntityNotFoundException("강의를 찾을 수 없습니다"));
+
+        Map<String, Object> status = Map.of(
+                "openingId", openingId,
+                "courseCode", courseInfo.getCourse().getCourseCode(),
+                "courseCode", courseInfo.getCourse().getCourseName(),
+                "currentEnrollment", currentEnrollment,
+                "maxEnrollment", maxEnrollment
         );
+
+        messagingTemplate.convertAndSend("/topic/course-status/" + openingId, status);
+
+    } catch (Exception e) {
+        log.error("전체 알림 전송 실패: course={}, error={}", openingId, e.getMessage());
     }
-
-    private void notifyAllStudents(UUID openingId, int currentEnrollment, int maxEnrollment) {
-        try {
-            CourseOpening courseInfo = courseOpeningRepository.findById(openingId).orElseThrow(() -> new EntityNotFoundException("강의를 찾을 수 없습니다"));
-
-            Map<String, Object> status = Map.of(
-                    "openingId", openingId,
-                    "courseCode", courseInfo.getCourse().getCourseCode(),
-                    "courseCode", courseInfo.getCourse().getCourseName(),
-                    "currentEnrollment", currentEnrollment,
-                    "maxEnrollment", maxEnrollment
-            );
-
-            messagingTemplate.convertAndSend("/topic/course-status/" + openingId, status);
-
-        } catch (Exception e) {
-            log.error("전체 알림 전송 실패: course={}, error={}", openingId, e.getMessage());
-        }
-    }
+}
 
 }
 
