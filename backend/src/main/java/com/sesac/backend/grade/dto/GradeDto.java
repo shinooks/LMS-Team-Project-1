@@ -15,6 +15,7 @@ import java.util.UUID;
 @ToString// 객체의 문자열 표현을 위한 toString 메서드 자동 생성
 public class GradeDto {
     private UUID gradeId;            // 성적 고유 ID
+    private UUID studentId;  // 추가
     private UUID scoreId;           // 추가
     private UUID courseOpeningId;   // 추가
     private String courseName;       // 과목명
@@ -39,6 +40,7 @@ public class GradeDto {
         GradeDto dto = new GradeDto();
         dto.gradeId = grade.getGradeId();
         dto.scoreId = grade.getScore().getScoreId();              // 추가
+        dto.studentId = grade.getScore().getStudent().getStudentId();  // 추가
         dto.courseOpeningId = grade.getCourseOpening().getOpeningId();   // 추가
         dto.courseName = grade.getCourseName();
         dto.courseCode = grade.getCourseCode();

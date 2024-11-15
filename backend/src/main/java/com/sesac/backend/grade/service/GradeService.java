@@ -5,6 +5,7 @@ import com.sesac.backend.course.repository.CourseRepository;
 import com.sesac.backend.entity.Course;
 import com.sesac.backend.entity.CourseOpening;
 import com.sesac.backend.entity.Grade;
+import com.sesac.backend.entity.Student;
 import com.sesac.backend.evaluation.score.domain.Score;
 import com.sesac.backend.evaluation.score.dto.ScoreDto;
 import com.sesac.backend.evaluation.score.service.ScoreService;
@@ -12,6 +13,7 @@ import com.sesac.backend.grade.dto.*;
 import com.sesac.backend.grade.repository.GradeRepository;
 import com.sesac.backend.notification.domain.NotificationType;
 import com.sesac.backend.notification.service.NotificationService;
+import com.sesac.backend.student.StudentRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +36,8 @@ public class GradeService {
     private final ScoreService scoreService;
     private final CourseOpeningRepository courseOpeningRepository;
     private final NotificationService notificationService;
+    @Autowired
+    private StudentRepository studentRepository;
 
     /**
      * Grade 생성 - 다른 서비스에서 호출하여 사용
@@ -95,7 +99,7 @@ public class GradeService {
         Grade grade = gradeRepository.findById(request.getGradeId())
                 .orElseThrow(() -> new EntityNotFoundException("해당 성적 정보가 없습니다. id=" + request.getGradeId()));
 
-        //2. Score 정보 업데이트를 위한 DTO 생성
+        // 2. Score 정보 업데이트를 위한 DTO 생성
         ScoreDto scoreDto = new ScoreDto(
                 grade.getScore().getScoreId(),
                 grade.getScore().getAssignment().getAssignId(),
@@ -109,24 +113,61 @@ public class GradeService {
                 grade.getScore().getVisibility()
         );
 
-        //3. ScoreService를 통해 점수 업데이트
+
+        // 3. ScoreService를 통해 점수 업데이트
         scoreService.updateScore(scoreDto);
-//        ScoreDto updatedScore = scoreService.updateScore(scoreDto);
 
 
-        // 알림 발송
-//        NotificationService notificationService;
-//        notificationService.notifyGradeUpdate(grade.getScore().getStudent().getStudentId(), grade);
-        //4. 업데이트된 Grade 정보 변환
+        // 4. 성적 수정 알림 발송
+        String title = "성적 수정 알림";
+        String content = String.format(
+                "%s 과목의 성적이 수정되었습니다. (과제: %d점, 중간: %d점, 기말: %d점)",
+                grade.getCourseOpening().getCourse().getCourseName(),
+                request.getAssignScore(),
+                request.getMidtermScore(),
+                request.getFinalScore()
+        );
+        notificationService.sendNotification(
+                grade.getScore().getStudent(),
+                title,
+                content,
+                NotificationType.GRADE
+        );
+
+
+        //5. 업데이트된 Grade 정보 변환
         return GradeDto.from(grade);
     }
 
-    //여러 성적 일괄 수정
+    // 여러 성적 일괄 수정
     @Transactional
-    public List<GradeDto> updateMultipleGradeScores(List<GradeUpdateRequest> requests){
-        return requests.stream()
+    public List<GradeDto> updateMultipleGradeScores(List<GradeUpdateRequest> requests) {
+        List<GradeDto> gradeDtos = requests.stream()
                 .map(this::updateGradeScores)
                 .collect(Collectors.toList());
+
+        // 각 학생별로 즉시 알림 전송
+        gradeDtos.forEach(dto -> {
+            Student student = studentRepository.findById(dto.getStudentId())
+                    .orElseThrow(() -> new EntityNotFoundException("학생을 찾을 수 없습니다."));
+                
+            String content = String.format(
+                    "%s 과목의 성적이 수정되었습니다. (과제: %d점, 중간: %d점, 기말: %d점)",
+                    dto.getCourseName(),
+                    dto.getAssignmentScore(),
+                    dto.getMidtermScore(),
+                    dto.getFinalScore()
+            );
+            
+            notificationService.sendNotification(
+                    student,
+                    "성적 수정 알림",
+                    content,
+                    NotificationType.GRADE
+            );
+        });
+
+        return gradeDtos;
     }
 
 
@@ -325,7 +366,12 @@ public class GradeService {
 
 
 
-
+    public List<GradeDto> findAllByStudentId(UUID studentId) {
+        List<Grade> grades = gradeRepository.findByScore_Student_StudentId(studentId);
+        return grades.stream()
+                .map(GradeDto::from)
+                .collect(Collectors.toList());
+    }
 
 
 

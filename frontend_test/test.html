@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>알림 테스트</title>
+</head>
+
+<body>
+  <div id="notifications"></div>
+
+  <script type="module">
+    import NotificationService from './src/services/NotificationService.js';
+
+    const studentId = 'eeeeeeee-1111-1111-1111-111111111111'; // 테스트용 학생 ID
+    const notificationService = new NotificationService(studentId);
+
+    notificationService.connect();
+
+    // 알림 수신 이벤트 리스너
+    window.addEventListener('notification', (event) => {
+      const notification = event.detail;
+      const notificationDiv = document.createElement('div');
+      notificationDiv.innerHTML = `
+                <div style="border: 1px solid #ccc; margin: 10px; padding: 10px;">
+                    <h3>${notification.title}</h3>
+                    <p>${notification.content}</p>
+                    <small>${notification.type}</small>
+                </div>
+            `;
+      document.getElementById('notifications').prepend(notificationDiv);
+    });
+
+    // 기존 알림 목록 로드
+    notificationService.getNotifications()
+      .then(notifications => {
+        notifications.forEach(notification => {
+          const event = new CustomEvent('notification', { detail: notification });
+          window.dispatchEvent(event);
+        });
+      });
+  </script>
+</body>
+
+</html>

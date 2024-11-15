@@ -1,7 +1,7 @@
 package com.sesac.backend.notification.controller;
 
 import com.sesac.backend.entity.Student;
-import com.sesac.backend.notification.domain.Notification;
+import com.sesac.backend.notification.NotificationDto;
 import com.sesac.backend.notification.service.NotificationService;
 import com.sesac.backend.student.StudentService;
 import lombok.RequiredArgsConstructor;
@@ -12,8 +12,9 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/notifications")
+@RequestMapping("/notifications")
 @RequiredArgsConstructor
+@CrossOrigin
 public class NotificationController {
     private final NotificationService notificationService;
     private final StudentService studentService;
@@ -25,7 +26,7 @@ public class NotificationController {
     }
 
     @GetMapping("/student/{studentId}")
-    public List<Notification> getStudentNotifications(@PathVariable UUID studentId) {
+    public List<NotificationDto> getStudentNotifications(@PathVariable UUID studentId) {
         Student student = studentService.findById(studentId);
         return notificationService.getNotificationsByStudentId(student);
     }

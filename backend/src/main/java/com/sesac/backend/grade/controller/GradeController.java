@@ -30,6 +30,14 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 public class GradeController {
     private final GradeService gradeService;
 
+    @Operation(summary = "학생별 성적 조회", description = "특정 학생의 모든 성적을 조회합니다.")
+    @ApiResponse(responseCode = "200", description = "조회 성공")
+    @GetMapping("/student/{studentId}")
+    public ResponseEntity<List<GradeDto>> getGradesByStudentId(
+            @Parameter(description = "학생 ID") @PathVariable UUID studentId) {
+        return ResponseEntity.ok(gradeService.findAllByStudentId(studentId));
+    }
+
     @Operation(summary = "단일 성적 조회", description = "특정 학생의 성적 정보를 조회합니다.")
     @ApiResponse(responseCode = "200", description = "조회 성공")
     @ApiResponse(responseCode = "404", description = "성적 정보를 찾을 수 없음")
