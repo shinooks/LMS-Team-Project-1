@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react'
 import './App.css'
 import axios from "axios";
-import SockJS from 'sockjs-client';
-import { Client } from '@stomp/stompjs';
 
 function App() {
 
@@ -11,11 +9,10 @@ function App() {
   // STOMP: Simple Text Oriented Messaging Protocol
   // 메시지 전송을 위한 간단한 텍스트 기반 프로토콜
   // WebSocket 위에서 동작하는 메시징 프로토콜
+    // 수강 강의 목록
   const [currentEnrollments, setCurrentEnrollments] = useState({})
   const [classes, setClasses] = useState([]);
-  // mySqlDB
-  // 수강 강의 목록
-  const [currentEnrollments, setCurrentEnrollments] = useState([]);
+
   // 관심강의 목록 상태 redisDb
   const [interestCourses, setinterestCourses] = useState([]);
   const [interestTimeTable, setInterestTimeTable] = useState(Array(9).fill().map(() => Array(5).fill(null)));
@@ -36,7 +33,7 @@ function App() {
       console.log("Attempting WebSocket connection...");
 
       const client = new Client({
-          webSocketFactory: () => new SockJS('http://localhost:8081/ws-enrollment'),
+          webSocketFactory: () => new WebSocket('ws://localhost:8081/ws-enrollment'),
           reconnectDelay: 5000,
           heartbeatIncoming: 4000,
           heartbeatOutgoing: 4000
@@ -56,7 +53,7 @@ function App() {
 
               if (result.success) {
                   Promise.all([
-                      requestData(),
+                      //requestData(),
                       getAllClasses()
                   ]);
               }
@@ -90,8 +87,6 @@ function App() {
       };
   }, [studentId, classes]);
 
-
-  }, []);
 
   // studentId를 변경하는 함수
   const changeStudentId = (newId) => {
@@ -138,7 +133,7 @@ function App() {
         }));
 
         await Promise.all([
-          requestData(),
+          //requestData(),
           getAllClasses()
         ]);
 

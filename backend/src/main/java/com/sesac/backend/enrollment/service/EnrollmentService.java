@@ -4,8 +4,7 @@ import com.sesac.backend.course.repository.CourseOpeningRepository;
 import com.sesac.backend.course.repository.CourseRepository;
 import com.sesac.backend.course.repository.CourseTimeRepository;
 import com.sesac.backend.enrollment.domain.EnrollmentProducer;
-import com.sesac.backend.enrollment.domain.InterestScheduleChecker;
-import com.sesac.backend.enrollment.domain.exceptionControl.TimeOverlapException;
+import com.sesac.backend.enrollment.domain.ScheduleChecker;
 import com.sesac.backend.enrollment.dto.EnrollmentMessageDto;
 import com.sesac.backend.enrollment.dto.EnrollmentResultDto;
 import com.sesac.backend.enrollment.dto.EnrollmentUpdateMessageDto;
@@ -36,7 +35,7 @@ public class EnrollmentService {
     private EnrollmentRepository enrollmentRepository;
 
     @Autowired
-    private InterestScheduleChecker scheduleChecker;
+    private ScheduleChecker scheduleChecker;
 
     @Autowired
     private CourseOpeningRepository courseOpeningRepository;
@@ -53,47 +52,6 @@ public class EnrollmentService {
     private final EnrollmentProducer enrollmentProducer;
     private final RedisTemplate<String, String> redisTemplate;
     private final SimpMessagingTemplate messagingTemplate;
-
-//    ////////////////////////////// save기능 set ////////////////////////////////////
-//    public void saveClassEnrollment(UUID studentId, UUID openingId) {
-//        Student student = studentRepository.findById(studentId).orElseThrow(()
-//                -> new EntityNotFoundException("학생을 찾을 수 없습니다"));
-//        CourseOpening courseOpening = courseOpeningRepository.findById(openingId).orElseThrow(()
-//                -> new EntityNotFoundException("강의를 찾을 수 없습니다"));
-//
-//        // 강의의 모든 CourseTime 가져옴
-//        List<CourseTime> openingCourseTimes = courseOpening.getCourseTimes();
-//
-//        // 중복 및 시간 겹침 검사
-//        List<Enrollment> conflictingEnrollments = new ArrayList<>();
-//
-//        for (CourseTime ct : openingCourseTimes) {
-//            List<Enrollment> enrollments = enrollmentRepository.findConflictingEnrollments(
-//                    student,
-//                    ct.getDayOfWeek(),
-//                    ct.getStartTime(),
-//                    ct.getEndTime()
-//            );
-//
-//            conflictingEnrollments.addAll(enrollments);
-//        }
-//
-//        //중복검사를 통과하지 못하는 강의가 있을 때 예외 발생
-//        if (!conflictingEnrollments.isEmpty()) {
-//            throw new TimeOverlapException("시간이 겹치는 강의가 이미 등록되어 있습니다." + courseOpening.getCourse().getCourseName());
-//        }
-//
-//        // 통과 시 강의 등록
-//        System.out.println("중복검사 통과");
-//
-//        Enrollment enrollment = new Enrollment();
-//
-//        enrollment.setStudent(student);
-//        enrollment.setCourseOpening(courseOpening);
-//        enrollment.setEnrollmentDate(LocalDateTime.now());
-//
-//        enrollmentRepository.save(enrollment);
-//    }
 
     public List<Map<String, Object>> getAllClasses() {
         List<CourseOpening> tmpList = courseOpeningRepository.findAll();
