@@ -16,15 +16,15 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .csrf((csrf) -> csrf.disable())
-                .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/**").permitAll()  // 모든 경로 허용으로 변경
-                        // .requestMatchers("/api/**").permitAll() // 이전 설정
-                        .anyRequest().authenticated()
-                )
-                .formLogin(form -> form.disable())
-                .httpBasic(basic -> basic.disable());
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .csrf((csrf) -> csrf.disable())
+            .authorizeHttpRequests(authorize -> authorize
+                .requestMatchers("/**").permitAll()  // 모든 경로 허용으로 변경
+                // .requestMatchers("/api/**").permitAll() // 이전 설정
+                .anyRequest().authenticated()
+            )
+            .formLogin(form -> form.disable())
+            .httpBasic(basic -> basic.disable());
 
         return http.build();
     }

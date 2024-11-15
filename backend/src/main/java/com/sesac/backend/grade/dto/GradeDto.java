@@ -3,6 +3,7 @@ package com.sesac.backend.grade.dto;
 import com.sesac.backend.entity.Grade;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 /**
@@ -26,6 +27,9 @@ public class GradeDto {
     private int finalScore;          // 기말고사 점수
     private int totalScore;          // 총점
 
+    private boolean visibility;
+    private LocalDateTime visibilityStartDate;
+    private LocalDateTime visibilityEndDate;
     /**
      * Grade 엔티티를 GradeDto로 변환하는 정적 팩토리 메서드
      * @param grade 변환할 Grade 엔티티
@@ -45,9 +49,17 @@ public class GradeDto {
         dto.midtermScore = grade.getMidtermScore(); // 중간고사 점수
         dto.finalScore = grade.getFinalScore(); // 기말고사 점수
         dto.totalScore = grade.getTotalScore(); // 총점
-
+        dto.visibility = grade.isVisibility();
+        dto.visibilityStartDate = grade.getVisibilityStartDate();
+        dto.visibilityEndDate = grade.getVisibilityEndDate();
         return dto;
+
     }
+
+
+
+
+
 
 
 

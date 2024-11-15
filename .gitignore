@@ -1,3 +1,6 @@
+*.yml
+**/src/main/resources/application.yml
+
 ##### backend #####
 **/.env
 **/HELP.md
