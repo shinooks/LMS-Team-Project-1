@@ -104,7 +104,7 @@ public class ScheduleChecker {
         return timeTable;
     }
 
-
+    //관심강의를 시간표에 배열화
     public InterestTimeTableDto[][] interestTimeTableMaker(List<InterestTimeTableDto> list) {
 
         InterestTimeTableDto[][] timeTable = new InterestTimeTableDto[9][5];
