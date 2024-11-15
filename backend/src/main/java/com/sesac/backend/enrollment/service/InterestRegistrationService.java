@@ -3,7 +3,7 @@ package com.sesac.backend.enrollment.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sesac.backend.course.repository.CourseOpeningRepository;
-import com.sesac.backend.enrollment.domain.InterestScheduleChecker;
+import com.sesac.backend.enrollment.domain.ScheduleChecker;
 import com.sesac.backend.enrollment.dto.InterestTimeTableDto;
 import com.sesac.backend.entity.CourseOpening;
 import com.sesac.backend.entity.CourseTime;
@@ -25,7 +25,7 @@ public class InterestRegistrationService {
     private ObjectMapper objectMapper;  // JSON 변환용
 
     @Autowired
-    private InterestScheduleChecker interestScheduleChecker;
+    private ScheduleChecker scheduleChecker;
 
     // 관심강의 등록
     public void saveStudentInterest(UUID studentId, UUID openingId) throws JsonProcessingException {
@@ -132,6 +132,6 @@ public class InterestRegistrationService {
             }
         }
 
-        return interestScheduleChecker.interestTimeTableMaker(interestsForTable);
+        return scheduleChecker.interestTimeTableMaker(interestsForTable);
     }
 }

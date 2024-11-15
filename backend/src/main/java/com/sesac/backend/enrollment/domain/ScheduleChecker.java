@@ -11,7 +11,7 @@ import java.time.LocalTime;
 import java.util.*;
 
 @Component
-public class InterestScheduleChecker {
+public class ScheduleChecker {
 
     @Autowired
     private CourseTimeRepository courseTimeRepository;
