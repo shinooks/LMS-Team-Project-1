@@ -22,7 +22,7 @@ public class CourseOpeningDto {
     private UUID courseId;  // Course 엔티티의 ID
 
     @NotBlank(message = "교수 정보는 필수입니다")
-    private String professorId;
+    private UUID professorId;
 
     @NotBlank(message = "학기는 필수입니다")
     private String semester;
