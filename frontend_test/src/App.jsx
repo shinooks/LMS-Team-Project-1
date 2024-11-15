@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import './App.css'
 import axios from "axios";
-import SockJS from 'sockjs-client';
 import { Client } from '@stomp/stompjs';
 
 function App() {
@@ -15,7 +14,7 @@ function App() {
   const [classes, setClasses] = useState([]);
   const [enrolledClasses, setEnrolledClasses] = useState([]);
   const [myTimeTable, setMyTimeTable] = useState(Array(9).fill().map(() => Array(5).fill(null)));
-  const [studentId, setStudentId] = useState("dcd7ef04-84f2-44d1-8dbf-48ba37da9230");
+  const [studentId, setStudentId] = useState("ee7fd146-9b2f-48e0-9e46-b266ff34b3fc");
   // 2번째 학생 : 02195b9b-6654-4037-9e78-f60f90f9356b
 
   useEffect(() => {
@@ -28,50 +27,56 @@ function App() {
     console.log("Attempting WebSocket connection...");
 
     const client = new Client({
-      webSocketFactory: () => new SockJS('http://localhost:8081/ws-enrollment'),
+      webSocketFactory: () => new WebSocket('ws://localhost:8081/ws-enrollment'),
       reconnectDelay: 5000,
       heartbeatIncoming: 4000,
-      heartbeatOutgoing: 4000
-    });
+      heartbeatOutgoing: 4000,
+      debug: function (str) {
+        console.log('STOMP Debug', str);
+      },
+      onConnect: () => {
+        console.log("WebSocket Connected Successfully!");
+        setStompClient(client);
 
-    client.onConnect = () => {
-      console.log("WebSocket Connected Successfully!");
+        // 1. 수강신청 결과 구독
+        client.subscribe(`/user/${studentId}/topic/enrollment-result`, message => {
+          const result = JSON.parse(message.body);
+          console.log("수강신청 결과: ", result);
+          console.log("success 값: ", result.success)
 
-      setStompClient(client);
+          alert(result.message);
 
-      // 1. 수강신청 결과 구독
-      client.subscribe(`/user/topic/enrollment-result`, message => {
-        const result = JSON.parse(message.body);
-        console.log("수강신청 결과: ", result);
-
-        alert(result.message);
-
-        if (result.success) {
-          Promise.all([
-            requestData(),
-            getAllClasses()
-          ]);
-        }
-
-      });
-
-      // 2. 강의별 상태 업데이트 구독
-      if (classes.length > 0) {
-        classes.forEach(course => {
-          client.subscribe(
-            `/topic/course-status/${course.openingId}`,
-            message => {
-              const update = JSON.parse(message.body);
-              console.log("강의 상태 업데이트: ", update);
-              setCurrentEnrollments(prev => ({
-                ...prev,
-                [update.openingId]: update.currentEnrollment
-              }));
-            }
-          );
+          if (result.success) {
+            Promise.all([
+              requestData(),
+              getAllClasses()
+            ]);
+          }
         });
+        // 2. 강의별 상태 업데이트 구독
+        if (classes.length > 0) {
+          classes.forEach(course => {
+            client.subscribe(
+              `/topic/course-status/${course.openingId}`,
+              message => {
+                const update = JSON.parse(message.body);
+                console.log("강의 상태 업데이트: ", update);
+                setCurrentEnrollments(prev => ({
+                  ...prev,
+                  [update.openingId]: update.currentEnrollment
+                }));
+              }
+            );
+          });
+        }
+      },
+      onStompError: (frame) => {
+        console.error('STOMP Error: ', frame);
+      },
+      onWebSocketError: (event) => {
+        console.error('WebSocket Error: ', event)
       }
-    };
+    });
 
     client.activate();
 
@@ -151,8 +156,8 @@ function App() {
 
       {/* studentId 선택 버튼 */}
       <div>
-        <button onClick={() => changeStudentId("dcd7ef04-84f2-44d1-8dbf-48ba37da9230")}>학생 ID: aaa</button>
-        <button onClick={() => changeStudentId("02195b9b-6654-4037-9e78-f60f90f9356b")}>학생 ID: bbb</button>
+        <button onClick={() => changeStudentId("ee7fd146-9b2f-48e0-9e46-b266ff34b3fc")}>학생 ID: aaa</button>
+        <button onClick={() => changeStudentId("27376cc4-be70-4098-bc1b-2955a8d29c9b")}>학생 ID: bbb</button>
       </div>
 
 

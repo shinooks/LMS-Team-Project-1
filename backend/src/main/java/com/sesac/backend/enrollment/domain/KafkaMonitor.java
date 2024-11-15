@@ -30,11 +30,14 @@ public class KafkaMonitor {
     @Value("${spring.kafka.monitor.lag-threshold}")
     private long lagThreshold;
 
+    @Value("${spring.kafka.monitor.group-id:enrollment-monitor-group-${random.uuid}}")
+    private String monitorGroupId;
+
     // 각 파티션의 Lag를 조회
     public Map<TopicPartition, Long> getLag() {
         Map<TopicPartition, Long> lags = new HashMap<>();
 
-        try (Consumer<String, String> consumer = consumerFactory.createConsumer()) {
+        try (Consumer<String, String> consumer = consumerFactory.createConsumer(monitorGroupId, null)) {
             // 토픽의 파티션 할당
             List<PartitionInfo> partitionInfos = consumer.partitionsFor(TOPIC_NAME);
             if (partitionInfos != null && !partitionInfos.isEmpty()) {
@@ -55,8 +58,13 @@ public class KafkaMonitor {
 
                     lags.put(partition, lag);
 
-                    log.debug("Partition: {}, Current Offset: {}, End Offset: {}, Lag: {}",
-                            partition.partition(), currentOffset, endOffset, lag);
+                    if (lag > 0) {
+                        log.info("Partition: {}, Current Offset: {}, End Offset: {}, Lag: {}",
+                                partition.partition(), currentOffset, endOffset, lag);
+                    } else {
+                        log.debug("Partition: {}, Current Offset: {}, End Offset: {}, Lag: {}",
+                                partition.partition(), currentOffset, endOffset, lag);
+                    }
                 }
             } else {
                 log.warn("토픽 {}에 대한 파티션 정보를 찾을 수 없습니다.", TOPIC_NAME);
@@ -73,6 +81,12 @@ public class KafkaMonitor {
     public void checkLag() {
         try {
             Map<TopicPartition, Long> lags = getLag();
+
+            // 빈 결과 체크
+            if (lags.isEmpty()) {
+                log.warn("Lag 정보를 가져올 수 없습니다.");
+                return;
+            }
 
             // 전체 Lag 합계 계산
             long totalLag = lags.values().stream()
