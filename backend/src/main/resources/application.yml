@@ -1,17 +1,4 @@
 spring:
-
-  # Swagger UI 설정 추가
-  springdoc:
-    api-docs:
-      enabled: true
-      path: /api-docs
-    swagger-ui:
-      path: /swagger-ui.html
-      enabled: true
-      operations-sorter: alpha
-      tags-sorter: alpha
-
-
   application:
     name: backend
     
@@ -46,6 +33,17 @@ spring:
       enabled: true
       force: true
 
+# Swagger UI 설정 추가
+springdoc:
+  api-docs:
+    enabled: true
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    operations-sorter: alpha
+    tags-sorter: alpha
+
 server:
   port: 8081
 #  servlet:
@@ -58,5 +56,4 @@ my_value:
 #  org:
 #    springframework:
 #      security: DEBUG
-
 

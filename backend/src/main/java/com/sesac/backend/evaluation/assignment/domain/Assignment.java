@@ -42,13 +42,10 @@ public class Assignment extends BaseEntity {
     private Student student;
     @Column(nullable = false)
     private String title;
-    @Lob
     @Column(nullable = false)
     private String description;
     private UUID scanId;
-    @Column(columnDefinition = "bytea")
-    private byte[] file;
-    private String fileName;
+    private String savedFileName;
     private String copyleaksResult;
     private LocalDateTime openAt;
     private LocalDateTime deadline;

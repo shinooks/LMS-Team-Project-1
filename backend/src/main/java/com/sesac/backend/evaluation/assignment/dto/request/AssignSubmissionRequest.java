@@ -1,19 +1,18 @@
-package com.sesac.backend.evaluation.assignment.dto;
+package com.sesac.backend.evaluation.assignment.dto.request;
 
-import jakarta.persistence.Lob;
 import java.util.UUID;
 import lombok.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @Getter
 @Setter
 @Builder
-@ToString
+@ToString(exclude = {"file"})
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class AssignSubmissionRequest {
+
     private UUID studentId;
     private UUID openingId;
-    @Lob
-    private byte[] file;
-    private String fileName;
+    private MultipartFile file;
 }

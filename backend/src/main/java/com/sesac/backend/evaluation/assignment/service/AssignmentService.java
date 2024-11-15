@@ -1,13 +1,16 @@
 package com.sesac.backend.evaluation.assignment.service;
 
+import com.sesac.backend.aws.dto.FileUploadResponse;
+import com.sesac.backend.aws.service.S3Service;
 import com.sesac.backend.course.repository.CourseOpeningRepository;
 import com.sesac.backend.entity.CourseOpening;
 import com.sesac.backend.entity.Student;
 import com.sesac.backend.evaluation.assignment.domain.Assignment;
-import com.sesac.backend.evaluation.assignment.dto.AssignCreationRequest;
-import com.sesac.backend.evaluation.assignment.dto.AssignResponse;
-import com.sesac.backend.evaluation.assignment.dto.AssignScoreRequest;
-import com.sesac.backend.evaluation.assignment.dto.AssignSubmissionRequest;
+import com.sesac.backend.evaluation.assignment.dto.request.AssignCreationRequest;
+import com.sesac.backend.evaluation.assignment.dto.response.AssignResponse;
+import com.sesac.backend.evaluation.assignment.dto.request.AssignScoreRequest;
+import com.sesac.backend.evaluation.assignment.dto.request.AssignSubmissionRequest;
+import com.sesac.backend.evaluation.assignment.dto.response.AssignSubmissionResponse;
 import com.sesac.backend.evaluation.assignment.repository.AssignmentRepository;
 import com.sesac.backend.evaluation.assignment.repository.StudentRepositoryDemo;
 import com.sesac.backend.evaluation.copyleaks.service.CopyleaksService;
@@ -32,17 +35,19 @@ public class AssignmentService {
     private final StudentRepositoryDemo studentRepositoryDemo;
     private final ScoreRepository scoreRepository;
     private final CopyleaksService copyleaksService;
+    private final S3Service s3Service;
 
     @Autowired
     public AssignmentService(AssignmentRepository assignmentRepository,
         CourseOpeningRepository courseOpeningRepository,
         StudentRepositoryDemo studentRepositoryDemo, ScoreRepository scoreRepository,
-        CopyleaksService copyleaksService) {
+        CopyleaksService copyleaksService, S3Service s3Service) {
         this.assignmentRepository = assignmentRepository;
         this.courseOpeningRepository = courseOpeningRepository;
         this.studentRepositoryDemo = studentRepositoryDemo;
         this.scoreRepository = scoreRepository;
         this.copyleaksService = copyleaksService;
+        this.s3Service = s3Service;
     }
 
     /**
@@ -61,31 +66,36 @@ public class AssignmentService {
      * @param request
      * @return
      */
-    public AssignSubmissionRequest submitAssignment(AssignSubmissionRequest request) {
+    public AssignSubmissionResponse submitAssignment(AssignSubmissionRequest request) {
+        
+        // 제출할 과제 찾기
         Student student = studentRepositoryDemo.findById(request.getStudentId())
             .orElseThrow(RuntimeException::new);
         CourseOpening courseOpening = courseOpeningRepository.findById(request.getOpeningId())
             .orElseThrow(RuntimeException::new);
-
-        Assignment saved = assignmentRepository.findByStudentAndCourseOpening(student,
+        
+        Assignment entity = assignmentRepository.findByStudentAndCourseOpening(student,
             courseOpening);
 
+        // 제출기한 유효성 검증
         LocalDateTime now = LocalDateTime.now();
-
-        if (now.isBefore(saved.getOpenAt()) || now.isAfter(saved.getDeadline())) {
+        if (now.isBefore(entity.getOpenAt()) || now.isAfter(entity.getDeadline())) {
             throw new RuntimeException("제출기한이 지났습니다.");
         }
 
-        saved.setFile(request.getFile());
-        saved.setFileName(request.getFileName());
-
+        // 표절검사
         try {
-            copyleaksService.checkPlagiarism(saved.getAssignId());
+            copyleaksService.checkPlagiarism(entity.getAssignId());
         } catch (IOException e) {
             log.error("Failed to Copyleaks");
         }
 
-        return convertToSubmissionRequest(saved);
+        // 파일 저장
+        FileUploadResponse response = s3Service.uploadFile(request.getFile());
+        entity.setSavedFileName(response.getSavedFileName());
+        Assignment saved = assignmentRepository.save(entity);
+
+        return new AssignSubmissionResponse(saved.getAssignId(), saved.getStudent().getStudentId(), saved.getCourseOpening().getOpeningId());
     }
 
     /**
@@ -120,11 +130,14 @@ public class AssignmentService {
      * @return
      */
     public AssignResponse findAssign(UUID openingId, UUID studentId) {
-        CourseOpening courseOpening = courseOpeningRepository.findById(openingId).orElseThrow(RuntimeException::new);
-        Student student = studentRepositoryDemo.findById(studentId).orElseThrow(RuntimeException::new);
+        CourseOpening courseOpening = courseOpeningRepository.findById(openingId)
+            .orElseThrow(RuntimeException::new);
+        Student student = studentRepositoryDemo.findById(studentId)
+            .orElseThrow(RuntimeException::new);
 
-        Assignment saved = assignmentRepository.findByStudentAndCourseOpening(student, courseOpening);
-        return new AssignResponse(saved.getTitle(), saved.getDescription());
+        Assignment saved = assignmentRepository.findByStudentAndCourseOpening(student,
+            courseOpening);
+        return new AssignResponse(saved.getAssignId(), saved.getTitle(), saved.getDescription());
     }
 
     /**
@@ -151,9 +164,9 @@ public class AssignmentService {
      * @param entity
      * @return
      */
-    private AssignSubmissionRequest convertToSubmissionRequest(Assignment entity) {
-        return new AssignSubmissionRequest(entity.getStudent().getStudentId(),
-            entity.getCourseOpening().getOpeningId(), entity.getFile(), entity.getFileName());
+    private AssignSubmissionResponse convertToSubmissionRequest(Assignment entity) {
+        return new AssignSubmissionResponse(entity.getAssignId(), entity.getStudent().getStudentId(),
+            entity.getCourseOpening().getOpeningId());
     }
 
     /**
