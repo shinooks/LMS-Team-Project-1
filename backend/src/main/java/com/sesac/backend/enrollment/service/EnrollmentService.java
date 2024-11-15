@@ -74,6 +74,7 @@ public class EnrollmentService {
             String courseName = course.getCourseName();
             Integer credit = course.getCredits();
 
+            String professorName = opening.getProfessor().getName();
             Integer maxStudents = opening.getMaxStudents();
             Integer currentStudents = opening.getCurrentStudents();
 
@@ -91,6 +92,7 @@ public class EnrollmentService {
             courseInfo.put("courseId", courseId);
             courseInfo.put("courseCode", courseCode);
             courseInfo.put("courseName", courseName);
+            courseInfo.put("professorName", professorName);
             courseInfo.put("credit", credit);
             courseInfo.put("day", day);
             courseInfo.put("startTime", startTime);
@@ -119,6 +121,7 @@ public class EnrollmentService {
             String courseName = c.getCourseOpening().getCourse().getCourseName();
             Integer credit = c.getCourseOpening().getCourse().getCredits();
 
+            String professorName = c.getCourseOpening().getProfessor().getName();
             Integer maxStudents = c.getCourseOpening().getMaxStudents();
             Integer currentStudents = c.getCourseOpening().getCurrentStudents();
 
@@ -136,6 +139,7 @@ public class EnrollmentService {
             enrolledCourseInfo.put("openingId", openingId);
             enrolledCourseInfo.put("courseCode", courseCode);
             enrolledCourseInfo.put("courseName", courseName);
+            enrolledCourseInfo.put("professorName", professorName);
             enrolledCourseInfo.put("credit", credit);
             enrolledCourseInfo.put("day", day);
             enrolledCourseInfo.put("startTime", startTime);

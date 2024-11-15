@@ -74,10 +74,10 @@ public class EnrollmentController {
     }
 
     @Operation(summary = "전체 강의 목록 불러오기")
-    @GetMapping("/allclasses")
+    @GetMapping("/allcourses")
     public Map allClasses() {
         Map map = new HashMap<>();
-        map.put("allClasses", enrollmentService.getAllClasses());
+        map.put("allcourses", enrollmentService.getAllClasses());
         return map;
     }
 

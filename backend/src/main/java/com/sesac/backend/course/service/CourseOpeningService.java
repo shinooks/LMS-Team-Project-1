@@ -5,8 +5,10 @@ import com.sesac.backend.course.dto.CourseTimeDto;
 import com.sesac.backend.course.dto.SyllabusDto;
 import com.sesac.backend.course.repository.CourseOpeningRepository;
 import com.sesac.backend.course.repository.CourseRepository;
+import com.sesac.backend.enrollment.repository.ProfessorRepositoryTmp;
 import com.sesac.backend.entity.Course;
 import com.sesac.backend.entity.CourseOpening;
+import com.sesac.backend.entity.Professor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,6 +26,7 @@ public class CourseOpeningService {
 
     private final CourseOpeningRepository courseOpeningRepository;
     private final CourseRepository courseRepository;
+    private final ProfessorRepositoryTmp professorRepositoryTmp;
 
     // 강의 개설 생성
     public CourseOpeningDto createCourseOpening(CourseOpeningDto courseOpeningDto) {
@@ -31,19 +34,22 @@ public class CourseOpeningService {
         Course course = courseRepository.findById(courseOpeningDto.getCourseId())
                 .orElseThrow(() -> new RuntimeException("강의를 찾을 수 없습니다."));
 
+        Professor professor = professorRepositoryTmp.findById(courseOpeningDto.getProfessorId())
+                .orElseThrow(() -> new RuntimeException("교수를 찾을 수 없습니다."));
+
         // 중복 개설 확인
-        if (courseOpeningRepository.existsByCourseAndYearAndSemesterAndProfessorId(
+        if (courseOpeningRepository.existsByCourseAndYearAndSemesterAndProfessor(
                 course,
                 courseOpeningDto.getYear(),
                 courseOpeningDto.getSemester(),
-                courseOpeningDto.getProfessorId())) {
+                professor)) {
             throw new RuntimeException("이미 동일한 학기에 개설된 강의입니다.");
         }
 
         // CourseOpening 엔티티 생성
         CourseOpening courseOpening = CourseOpening.builder()
                 .course(course)                           // 강의 정보
-                .professorId(courseOpeningDto.getProfessorId())  // 담당 교수
+                .professor(professor)  // 담당 교수
                 .semester(courseOpeningDto.getSemester())        // 학기
                 .year(courseOpeningDto.getYear())               // 연도
                 .maxStudents(courseOpeningDto.getMaxStudents()) // 최대 수강 인원
@@ -76,7 +82,10 @@ public class CourseOpeningService {
     // 특정 교수의 특정 학기 강의 목록 조회
     @Transactional(readOnly = true)
     public List<CourseOpeningDto> getProfessorCourses(String professorId, Integer year, String semester) {
-        return courseOpeningRepository.findByProfessorIdAndYearAndSemester(professorId, year, semester)
+        UUID professorId2 = UUID.fromString(professorId);
+
+        Professor professor = professorRepositoryTmp.findById(professorId2).orElse(null);
+        return courseOpeningRepository.findByProfessorAndYearAndSemester(professor, year, semester)
                 .stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
@@ -109,8 +118,11 @@ public class CourseOpeningService {
         Course course = courseRepository.findById(courseOpeningDto.getCourseId())
                 .orElseThrow(() -> new RuntimeException("강의를 찾을 수 없습니다."));
 
+        Professor professor = professorRepositoryTmp.findById(courseOpeningDto.getProfessorId())
+                .orElseThrow(() -> new RuntimeException("교수를 찾을 수 없습니다."));
+
         courseOpening.setCourse(course);
-        courseOpening.setProfessorId(courseOpeningDto.getProfessorId());
+        courseOpening.setProfessor(professor);
         courseOpening.setSemester(courseOpeningDto.getSemester());
         courseOpening.setYear(courseOpeningDto.getYear());
         courseOpening.setMaxStudents(courseOpeningDto.getMaxStudents());
@@ -133,7 +145,7 @@ public class CourseOpeningService {
         return CourseOpeningDto.builder()
                 .openingId(courseOpening.getOpeningId())         // 개설 ID
                 .courseId(courseOpening.getCourse().getCourseId()) // 강의 ID
-                .professorId(courseOpening.getProfessorId())     // 교수 ID
+                .professorId(courseOpening.getProfessor().getProfessorId())     // 교수 ID
                 .semester(courseOpening.getSemester())           // 학기
                 .year(courseOpening.getYear())                   // 연도
                 .maxStudents(courseOpening.getMaxStudents())     // 최대 수강 인원
