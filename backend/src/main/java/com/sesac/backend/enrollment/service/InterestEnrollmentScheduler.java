@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 
 @Service
 public class InterestEnrollmentScheduler {
+
     @Autowired InterestEnrollmentService interestEnrollmentService;
 
     private LocalDateTime interestStart; // 관심강의 등록 시작시간

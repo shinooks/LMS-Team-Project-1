@@ -14,7 +14,8 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 
 @Service
-public class InterestRegistrationService {
+public class InterestEnrollmentService {
+
     @Autowired
     private RedisTemplate<String, String> redisTemplate;
 
@@ -26,6 +27,26 @@ public class InterestRegistrationService {
 
     @Autowired
     private ScheduleChecker scheduleChecker;
+
+    // 기존 관심 과목 등록 데이터 초기화
+    public void initializeInterestEnrollment(){
+        // 모든 학생의 관심 과목 목록을 초기화 하기 위한 패턴
+        String pattern = "student:*:interest_course:*";
+
+        // Redis에서 해당 패턴에 맞는 모든 키 가져오기
+        Set<String> keys = redisTemplate.keys(pattern);
+
+        try {
+            if(keys != null && !keys.isEmpty()){
+                for(String key : keys){
+                    redisTemplate.delete(key); // 각 키 삭제
+                }
+            }
+            System.out.println("모든 학생의 관심 과목 정보가 초기화 되었습니다.");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     // 관심강의 등록
     public void saveStudentInterest(UUID studentId, UUID openingId) throws JsonProcessingException {
