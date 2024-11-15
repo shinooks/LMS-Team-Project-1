@@ -1,7 +1,7 @@
 package com.sesac.backend.enrollment.domain;
 
 import com.sesac.backend.course.repository.CourseTimeRepository;
-import com.sesac.backend.enrollment.dto.EnrollmentDto;
+import com.sesac.backend.enrollment.dto.InterestTimeTableDto;
 import com.sesac.backend.enrollment.dto.TimeTableCellDto;
 import com.sesac.backend.entity.CourseTime;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +11,7 @@ import java.time.LocalTime;
 import java.util.*;
 
 @Component
-public class ScheduleChecker {
+public class InterestScheduleChecker {
 
     @Autowired
     private CourseTimeRepository courseTimeRepository;
@@ -64,6 +64,53 @@ public class ScheduleChecker {
 
 
         for (TimeTableCellDto info : list) {
+
+            UUID openingId = info.getOpeningId();
+
+            List<CourseTime> tmpList = courseTimeRepository.findByCourseOpeningOpeningId(openingId);
+
+            LocalTime tmpStartTime = null;
+            LocalTime tmpEndTime = null;
+            String day = null;
+
+            for (CourseTime times : tmpList) {
+                tmpStartTime = times.getStartTime();
+                tmpEndTime = times.getEndTime();
+                day = times.getDayOfWeek().getDescription();
+            }
+
+            int startHour = 0;
+            int endHour = 0;
+            Integer dayIndex = 0;
+
+            if (tmpStartTime != null && tmpEndTime != null && day != null) {
+                startHour = tmpStartTime.getHour();
+                endHour = tmpEndTime.getHour();
+                dayIndex = days.get(day);
+            } else {
+                System.out.println("시간 혹은 요일 정보가 없습니다.");
+            }
+
+            Integer startPeriodIndex = periods.get(startHour);
+            int period = endHour - startHour;
+
+            for (int i = 0; i < period; i++) {
+                if (timeTable[startPeriodIndex][dayIndex] == null) {
+                    timeTable[startPeriodIndex][dayIndex] = info;
+                    startPeriodIndex++;
+                }
+            }
+        }
+        return timeTable;
+    }
+
+
+    public InterestTimeTableDto[][] interestTimeTableMaker(List<InterestTimeTableDto> list) {
+
+        InterestTimeTableDto[][] timeTable = new InterestTimeTableDto[9][5];
+
+
+        for (InterestTimeTableDto info : list) {
 
             UUID openingId = info.getOpeningId();
 

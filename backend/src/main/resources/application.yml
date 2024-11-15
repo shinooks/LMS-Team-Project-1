@@ -1,7 +1,7 @@
 spring:
   application:
     name: backend
-
+    
   output:
     ansi:
       enabled: always
@@ -27,6 +27,18 @@ spring:
     username: postgres
     password: popost
 
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 6379
+      password: redis
+
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+
   springdoc:
     swagger-ui:
       path: /swagger-ui.html
@@ -37,12 +49,7 @@ spring:
     default-consumes-media-type: application/json
     default-produces-media-type: application/json
 
-  servlet:
-    encoding:
-      charset: UTF-8
-      enabled: true
-      force: true
-
+#version: 3.9.0
   kafka:
     bootstrap-servers: 172.16.6.79:9092
     producer:
