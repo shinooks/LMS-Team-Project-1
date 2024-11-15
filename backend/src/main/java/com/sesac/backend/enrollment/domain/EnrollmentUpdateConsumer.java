@@ -17,7 +17,11 @@ public class EnrollmentUpdateConsumer {
     private final CourseOpeningRepository courseOpeningRepository;
     private final ObjectMapper objectMapper;
 
-    @KafkaListener(topics = "enrollment-updates", groupId = "enrollment-update-group")
+    @KafkaListener(
+            topics = "enrollment-updates",
+            groupId = "enrollment-update-group",
+            containerFactory = "kafkaListenerContainerFactory"
+    )
     public void processEnrollmentUpdate(String message) {
         try {
             // JSON 문자열을 DTO로 변환

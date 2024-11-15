@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -191,7 +192,10 @@ public class EnrollmentService {
             // 5. Redis 업데이트 (decrement 대신 명시적 설정)
             redisTemplate.opsForValue().set(redisKey, String.valueOf(newCount));
 
-            // 6. 시간표에서 삭제할 강의 처리
+            // 6. DB에서 수강신청 정보 삭제
+            enrollmentRepository.deleteById(enrollmentId);
+
+            // 7. 시간표에서 삭제할 강의 처리
             TimeTableCellDto[][] deleteTargetTable = getTimeTableById(studentId);
             if (deleteTargetTable != null) {
                 for (int i = 0; i < deleteTargetTable.length; i++) {
@@ -204,17 +208,17 @@ public class EnrollmentService {
                 }
             }
 
-            // 7. DB에서 수강신청 정보 삭제
-            enrollmentRepository.deleteById(enrollmentId);
+            // 8. WebSocket으로 업데이트 알림(모든 사용자에게)
+            notifyAllStudents(openingId, newCount, courseOpening.getMaxStudents());
 
-            // 8. WebSocket으로 업데이트 알림
+            //9. WebSocket으로 업데이트 알림(Kafka)
             enrollmentProducer.sendEnrollmentUpdate(new EnrollmentUpdateMessageDto(
                     openingId,
                     studentId,
                     newCount
             ));
 
-            // 9. 성공 메시지 전송
+            // 10. 성공 메시지 전송
             EnrollmentResultDto result = new EnrollmentResultDto(
                     openingId,
                     courseOpening.getCourse().getCourseCode(),
@@ -288,6 +292,7 @@ public class EnrollmentService {
             throw new RuntimeException("수강신청 요청 처리 중 오류가 발생했습니다.", e);
         }
     }
+
 
     @Transactional
     public void processEnrollment(UUID studentId, UUID openingId) {
@@ -378,10 +383,10 @@ public class EnrollmentService {
                     openingId,
                     courseInfo.getCourse().getCourseCode(),
                     courseInfo.getCourse().getCourseName(),
-                    "수강인원이 완료되었습니다",
+                    "수강신청이 완료되었습니다",
                     maxEnrollment,
                     currentEnrollment,
-                    false
+                    true
             );
             notifyStudent(studentId, successResult);
             notifyAllStudents(openingId, currentEnrollment, maxEnrollment);
@@ -406,6 +411,8 @@ public class EnrollmentService {
     }
 
 private void notifyStudent(UUID studentId, EnrollmentResultDto result) {
+    log.info("수강신청 결과 전송: student={}, success={}, message={}",
+            studentId, result.isSuccess(), result.getMessage());
     messagingTemplate.convertAndSendToUser(
             studentId.toString(),
             "/topic/enrollment-result",
@@ -420,7 +427,7 @@ private void notifyAllStudents(UUID openingId, int currentEnrollment, int maxEnr
         Map<String, Object> status = Map.of(
                 "openingId", openingId,
                 "courseCode", courseInfo.getCourse().getCourseCode(),
-                "courseCode", courseInfo.getCourse().getCourseName(),
+                "courseName", courseInfo.getCourse().getCourseName(),
                 "currentEnrollment", currentEnrollment,
                 "maxEnrollment", maxEnrollment
         );

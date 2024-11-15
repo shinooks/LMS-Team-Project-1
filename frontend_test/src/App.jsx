@@ -1,289 +1,163 @@
 import { useEffect, useState } from 'react'
 import './App.css'
 import axios from "axios";
+import { Client } from '@stomp/stompjs';
 
 function App() {
 
 
   const [stompClient, setStompClient] = useState(null);
-  // STOMP: Simple Text Oriented Messaging Protocol
+  // STOMP: Simple Text Oriented Messaging Protocol 
   // 메시지 전송을 위한 간단한 텍스트 기반 프로토콜
   // WebSocket 위에서 동작하는 메시징 프로토콜
-    // 수강 강의 목록
   const [currentEnrollments, setCurrentEnrollments] = useState({})
   const [classes, setClasses] = useState([]);
-
-  // 관심강의 목록 상태 redisDb
-  const [interestCourses, setinterestCourses] = useState([]);
-  const [interestTimeTable, setInterestTimeTable] = useState(Array(9).fill().map(() => Array(5).fill(null)));
-  const [studentId, setStudentId] = useState("dcd7ef04-84f2-44d1-8dbf-48ba37da9230");
+  const [enrolledClasses, setEnrolledClasses] = useState([]);
+  const [myTimeTable, setMyTimeTable] = useState(Array(9).fill().map(() => Array(5).fill(null)));
+  const [studentId, setStudentId] = useState("ee7fd146-9b2f-48e0-9e46-b266ff34b3fc");
   // 2번째 학생 : 02195b9b-6654-4037-9e78-f60f90f9356b
-    // 관심강의로 검색하시면 관심강의 등록에 대한 함수들을 찾으실 수 있습니다.
 
-  // 관심강의 목록의 상태
   useEffect(() => {
-    //requestData();
-    requestInterestData();
-    requestInterestTimeTable();
+    requestData();
+    getAllClasses();
   }, [studentId]);
 
-  // 전체강의 목록의 상태
+  // WebSocket 연결 설정
   useEffect(() => {
-    getAllClasses();
-      console.log("Attempting WebSocket connection...");
+    console.log("Attempting WebSocket connection...");
 
-      const client = new Client({
-          webSocketFactory: () => new WebSocket('ws://localhost:8081/ws-enrollment'),
-          reconnectDelay: 5000,
-          heartbeatIncoming: 4000,
-          heartbeatOutgoing: 4000
-      });
+    const client = new Client({
+      webSocketFactory: () => new WebSocket('ws://localhost:8081/ws-enrollment'),
+      reconnectDelay: 5000,
+      heartbeatIncoming: 4000,
+      heartbeatOutgoing: 4000,
+      debug: function (str) {
+        console.log('STOMP Debug', str);
+      },
+      onConnect: () => {
+        console.log("WebSocket Connected Successfully!");
+        setStompClient(client);
 
-      client.onConnect = () => {
-          console.log("WebSocket Connected Successfully!");
+        // 1. 수강신청 결과 구독
+        client.subscribe(`/user/${studentId}/topic/enrollment-result`, message => {
+          const result = JSON.parse(message.body);
+          console.log("수강신청 결과: ", result);
+          console.log("success 값: ", result.success)
 
-          setStompClient(client);
+          alert(result.message);
 
-          // 1. 수강신청 결과 구독
-          client.subscribe(`/user/topic/enrollment-result`, message => {
-              const result = JSON.parse(message.body);
-              console.log("수강신청 결과: ", result);
-
-              alert(result.message);
-
-              if (result.success) {
-                  Promise.all([
-                      //requestData(),
-                      getAllClasses()
-                  ]);
+          if (result.success) {
+            Promise.all([
+              requestData(),
+              getAllClasses()
+            ]);
+          }
+        });
+        // 2. 강의별 상태 업데이트 구독
+        if (classes.length > 0) {
+          classes.forEach(course => {
+            client.subscribe(
+              `/topic/course-status/${course.openingId}`,
+              message => {
+                const update = JSON.parse(message.body);
+                console.log("강의 상태 업데이트: ", update);
+                setCurrentEnrollments(prev => ({
+                  ...prev,
+                  [update.openingId]: update.currentEnrollment
+                }));
               }
-
+            );
           });
+        }
+      },
+      onStompError: (frame) => {
+        console.error('STOMP Error: ', frame);
+      },
+      onWebSocketError: (event) => {
+        console.error('WebSocket Error: ', event)
+      }
+    });
 
-          // 2. 강의별 상태 업데이트 구독
-          if (classes.length > 0) {
-              classes.forEach(course => {
-                  client.subscribe(
-                      `/topic/course-status/${course.openingId}`,
-                      message => {
-                          const update = JSON.parse(message.body);
-                          console.log("강의 상태 업데이트: ", update);
-                          setCurrentEnrollments(prev => ({
-                              ...prev,
-                              [update.openingId]: update.currentEnrollment
-                          }));
-                      }
-                  );
-              });
-          }
-      };
+    client.activate();
 
-      client.activate();
-
-      return () => {
-          if (client.active) {
-              client.deactivate();
-          }
-      };
+    return () => {
+      if (client.active) {
+        client.deactivate();
+      }
+    };
   }, [studentId, classes]);
 
+  const requestData = async () => {
+    try {
+      const res = await axios.get(`http://localhost:8081/myclasslist/${studentId}`);
+      if (res.status === 200) {
+        setEnrolledClasses(res.data.myClassList);
 
-  // studentId를 변경하는 함수
-  const changeStudentId = (newId) => {
-    setStudentId(newId); // 새로운 studentId로 업데이트
+        setMyTimeTable(res.data.myTimeTable.map(row =>
+          row.map(cell => cell ? {
+            classId: cell.courseCode,
+            className: cell.courseName
+          } : null)
+        ));
+      }
+    } catch (error) {
+      console.log("데이터 갱신 중 오류 발생:", error)
+    }
   }
 
-  // 전체 강의 목록 가져오는 함수
-  const getAllClasses = () => {
+  const getAllClasses = async () => {
     try {
-      axios.get(`http://localhost:8081/allclasses`).then(function (res) {
-        if (res.status === 200) {
-          setClasses(res.data.allClasses);
-        }
-      })
+      const res = await axios.get(`http://localhost:8081/allclasses`);
+      if (res.status === 200) {
+        setClasses(res.data.allClasses);
+      }
     } catch (error) {
-      console.error("Error fetching all classes:", error);
+      console.error("강의 목록 조회 실패:", error);
     }
   };
 
   // 관심강의 등록 함수
   const enroll = async (classes) => {
-
-    // const currentEnrollment = currentEnrollments[classes.openingId] || classes.currentStudents;
-
     try {
-      // 낙관적 업데이트: 먼저 UI 업데이트
-      // setCurrentEnrollments(prev => ({
-      //   ...prev,
-      //   [classes.openingId]: currentEnrollments[classes.openingId] || classes.currentStudents + 1
-      // }));
-
-      const res = await axios.post("http://localhost:8081/enrollment", {
+      await axios.post("http://localhost:8081/enrollment", {
         studentId: studentId,
         // 전체 강의 배열에 담겨져있는 courseCode를 백으로 보냄
         openingId: classes.openingId
       });
+      console.log("수강신청 요청 전송됨");
+      // 실제 성공/실패는 WebSocket으로 받을 예정이므로 여기서는 데이터 갱신하지 않음
 
-      if (res.status === 200) {
-        console.log("수강신청 성공");
-
-        setCurrentEnrollments(prev => ({
-          ...prev,
-          [classes.openingId]: currentEnrollments[classes.openingId] || classes.currentStudents + 1
-        }));
-
-        await Promise.all([
-          //requestData(),
-          getAllClasses()
-        ]);
-
-        // setTimeout(async () => {
-        //   // 지연 후 데이터 갱신(200ms)
-        //   await requestData();
-        //   getAllClasses();
-        // }, 200);
-      }
     } catch (error) {
-      // 실패 시 원래 값으로 복구
-      setCurrentEnrollments(prev => ({
-        ...prev,
-        [classes.openingId]: currentEnrollments[classes.openingId] || classes.currentStudents
-      }));
-
-      if (error.response) {
-        // 서버가 응답했지만 상태 코드가 2xx가 아닌 경우
-        if (error.response.status === 409) {
-          alert("시간이 겹치는 강의가 이미 등록되어 있습니다.");
-        } else if (error.response.status == 400) {
-          alert("이미 신청한 강의입니다.")
-        } else {
-          alert("오류 발생: " + error.response.data.message || "알 수 없는 오류가 발생했습니다"); // 다른 오류 메시지 처리
-        }
-      } else if (error.request) {
-        // 요청이 이루어졌지만 응답을 받지 못한 경우
-        alert("서버 응답이 없습니다.");
-      } else {
-        // 오류를 발생시킨 요청 설정 중에 문제가 발생한 경우
-        alert("오류: " + error.message);
-      }
-      console.error("수강신청 중 오류", error)
+      console.error("수강신청 요청 실패: ", error);
+      alert("수강시청 요청 중 오류가 발생했습니다")
     }
   };
 
-  //관심강의 관련 함수-------------------------------------------------------------------------------------------------
-  // 관심강의 목록에 강의 등록
-  const saveInterest = (classes) => {
-    axios.post("http://localhost:8081/saveStudentInterest", {
-      studentId: studentId,
-      openingId: classes.openingId
-    })
-        .then((res) => {
-          // 성공적으로 등록된 경우
-          if (res.status === 201) {
-            alert("관심강의 등록 성공");
-            requestInterestData();
-            requestInterestTimeTable();
-          }
-        })
-        .catch((error) => {
-          // 에러 발생 시 상태 코드 확인
-          if (error.response) {
-            // 서버가 응답을 반환했지만 상태 코드가 2xx가 아닌 경우
-            if (error.response.status === 409) {
-              alert("이미 관심강의에 등록된 강의입니다.");
-            } else {
-              alert("관심강의 등록 실패");
-            }
-          } else {
-            // 요청이 이루어지지 않았거나 다른 오류
-            alert("서버와 연결할 수 없습니다.");
-          }
-        });
+  // 관심강의 삭제 함수
+  const deleteClass = async (enrollmentId) => {
+    try {
+      await axios.delete(`http://localhost:8081/myclasslist/delete/${enrollmentId}`);
+      await Promise.all([requestData(), getAllClasses()]);
+
+    } catch (error) {
+      console.error("삭제 중 오류 발생:", error);
+      alert("삭제 중 오류가 발생했습니다.")
+    }
+  };
+
+  // studentId를 변경하는 함수
+  const changeStudentId = async (newId) => {
+    setStudentId(newId); // 새로운 studentId로 업데이트
   }
 
-  // redisDB에서 관심강의 목록을 가져오는 함수
-  const requestInterestData = () => {
-    axios.get(`http://localhost:8081/interestList/${studentId}`).then(function (res) {
-      if (res.status === 200){
-        setinterestCourses(res.data);
-      }
-    })
-  }
-
-  // 관심강의 데이터 시간표에 세팅하는 함수
-  const requestInterestTimeTable = () =>{
-    axios.get(`http://localhost:8081/interestTimeTable/${studentId}`)
-        .then(function (res) {
-          if(res.status === 200){
-            const formattedTimeTable = res.data.interestTimeTable.map(row => row.map(cell => {
-                  if (cell) {
-                    return {
-                      classId: cell.courseCode,
-                      className: cell.courseName
-                    };
-                  }
-                  return null;
-                })
-            );
-            setInterestTimeTable(formattedTimeTable);
-          }
-        })
-  }
-
-  // 관심강의 리스트에서 삭제
-  const deleteInterest = (interestCourses) => {
-    axios.delete(`http://localhost:8081/deleteStudentInterest/${studentId}/${interestCourses.openingId}`)
-        .then((res) => {
-          if (res.status === 200) {
-            alert("관심과목 삭제 성공")
-            requestInterestData();
-            requestInterestTimeTable(); // 시간표도 업데이트
-          }
-        })
-  }
-
-  // 관심강의 목록에서 수강신청
-  const enrollInInterest = (interestCourses) => {
-    axios.post("http://localhost:8081/enrollment", {
-      studentId: studentId,
-      // 전체 강의 배열에 담겨져있는 courseCode를 백으로 보냄
-      openingId: interestCourses.openingId
-    })
-        .then(function (res) {
-          if (res.status === 200) {
-            alert("수강신청 성공");
-            //requestData();
-          } else {
-            console.log("비정상응답");
-          }
-        })
-        .catch(function (error) {
-          // 오류가 발생했을 때
-          if (error.response) {
-            // 서버가 응답했지만 상태 코드가 2xx가 아닌 경우
-            if (error.response.status === 409) {
-              alert("시간이 겹치는 강의가 이미 등록되어 있습니다.");
-            } else {
-              alert("오류 발생: " + error.response.data.message); // 다른 오류 메시지 처리
-            }
-          } else if (error.request) {
-            // 요청이 이루어졌지만 응답을 받지 못한 경우
-            alert("서버 응답이 없습니다.");
-          } else {
-            // 오류를 발생시킨 요청 설정 중에 문제가 발생한 경우
-            alert("오류: " + error.message);
-          }
-        });
-  }
-//-------------------------------------------------------------------------------------------------------------
   return (
 
     <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
       {/* studentId 선택 버튼 */}
       <div>
-        <button onClick={() => changeStudentId("dcd7ef04-84f2-44d1-8dbf-48ba37da9230")}>학생 ID: aaa</button>
-        <button onClick={() => changeStudentId("02195b9b-6654-4037-9e78-f60f90f9356b")}>학생 ID: bbb</button>
+        <button onClick={() => changeStudentId("ee7fd146-9b2f-48e0-9e46-b266ff34b3fc")}>학생 ID: aaa</button>
+        <button onClick={() => changeStudentId("27376cc4-be70-4098-bc1b-2955a8d29c9b")}>학생 ID: bbb</button>
       </div>
 
 
@@ -292,25 +166,27 @@ function App() {
         {classes.length === 0 ? (
           <div>강의가 없습니다.</div>
         ) : (
-            // 강의코드 기준으로 정렬
-            [...classes].sort((a, b) => a.courseCode.localeCompare(b.courseCode)).map((classes, index) => (
-                <div key={classes.openingId} style={{ margin: '10px 0' }}> {/* key를 index에서 openingId로 변경 */}
-                강의코드: {classes.courseCode}&nbsp;&nbsp;&nbsp;
-                강의명: {classes.courseName}&nbsp;&nbsp;&nbsp;
-                학점: {classes.credit}&nbsp;&nbsp;&nbsp;
-                요일: {classes.day}&nbsp;&nbsp;&nbsp;
-                시작시간: {classes.startTime} ~
-                끝시간: {classes.endTime}&nbsp;&nbsp;&nbsp;
-                최대 수강인원: {classes.maxStudents}&nbsp;&nbsp;&nbsp;
-                현재 수강인원: {classes.currentStudents}&nbsp;&nbsp;&nbsp;
-                <button onClick={() => saveInterest(classes)}>관심강의 등록</button>
-                <button onClick={() => enroll(classes)}>신청</button>
-              </div>
+          // 강의코드 기준으로 정렬
+          [...classes].sort((a, b) => a.courseCode.localeCompare(b.courseCode)).map((classes, index) => (
+            <div key={classes.openingId} style={{ margin: '10px 0' }}> {/* key를 index에서 openingId로 변경 */}
+              강의코드: {classes.courseCode}&nbsp;&nbsp;&nbsp;
+              강의명: {classes.courseName}&nbsp;&nbsp;&nbsp;
+              학점: {classes.credit}&nbsp;&nbsp;&nbsp;
+              요일: {classes.day}&nbsp;&nbsp;&nbsp;
+              시작시간: {classes.startTime} ~
+              끝시간: {classes.endTime}&nbsp;&nbsp;&nbsp;
+              최대 수강인원: {classes.maxStudents}&nbsp;&nbsp;&nbsp;
+              현재 수강인원: {
+                currentEnrollments[classes.openingId] !== undefined
+                  ? currentEnrollments[classes.openingId]
+                  : classes.currentStudents}&nbsp;&nbsp;&nbsp;
+              <button onClick={() => enroll(classes)}>신청</button>
+            </div>
           ))
         )}
       </div>
 
-      <div style={{flex: 1, marginRight: '20px' }}>
+      <div style={{ flex: 1, marginRight: '20px' }}>
         <h2 style={{ borderBottom: '2px solid blue' }}>시간표</h2>
         <table style={{ width: "600px", textAlign: "center", borderCollapse: "collapse" }}>
           <thead>
@@ -330,13 +206,13 @@ function App() {
                     border: "1px solid black",
                     padding: "8px",
                     height: "50px",
-                    backgroundColor: interestTimeTable[row][col] ? "#e3f2fd" : "white",
+                    backgroundColor: myTimeTable[row][col] ? "#e3f2fd" : "white",
                     fontsize: "0.9em"
                   }}>
-                    {interestTimeTable[row][col] && (
+                    {myTimeTable[row][col] && (
                       <>
-                        <div>강의번호: {interestTimeTable[row][col].classId}</div>
-                        <div>{interestTimeTable[row][col].className}</div>
+                        <div>강의번호: {myTimeTable[row][col].classId}</div>
+                        <div>{myTimeTable[row][col].className}</div>
                       </>
                     )}
                   </td>
@@ -348,21 +224,21 @@ function App() {
       </div>
 
       <div style={{ flex: 1 }}>
-        <h2 style={{ borderBottom: '2px solid blue' }}>관심강의 목록</h2>
-        {interestCourses.length === 0 ? (
-          <div>관심등록한 강의가 없습니다.</div>
+        <h2 style={{ borderBottom: '2px solid blue' }}>신청 목록</h2>
+        {enrolledClasses.length === 0 ? (
+          <div>신청한 강의가 없습니다.</div>
         ) : (
-          interestCourses.map((interestCourses, index) => (
-              <div key={index} style={{margin: '10px 0'}}>
-                강의번호: {interestCourses.courseCode}&nbsp;&nbsp;&nbsp;
-                강의명: {interestCourses.courseName}&nbsp;&nbsp;&nbsp;
-                학점: {interestCourses.credits}&nbsp;&nbsp;&nbsp;
-                요일: {interestCourses.timeInfo.day}&nbsp;&nbsp;&nbsp;
-                시작시간: {interestCourses.timeInfo.startTime} ~
-                끝시간: {interestCourses.timeInfo.endTime}&nbsp;&nbsp;&nbsp;
-                <button onClick={() => deleteInterest(interestCourses)}>관심강의 삭제</button>
-                <button onClick={() => enrollInInterest(interestCourses)}>신청</button>
-              </div>
+          enrolledClasses.map((enrolledClass, index) => (
+            <div key={index} style={{ margin: '10px 0' }}>
+              강의번호: {enrolledClass.courseCode}&nbsp;&nbsp;&nbsp;
+              강의명: {enrolledClass.courseName}&nbsp;&nbsp;&nbsp;
+              학점: {enrolledClass.credit}&nbsp;&nbsp;&nbsp;
+              요일: {enrolledClass.day}&nbsp;&nbsp;&nbsp;
+              시작시간: {enrolledClass.startTime} ~
+              끝시간: {enrolledClass.endTime}&nbsp;&nbsp;&nbsp;
+              최대인원: {enrolledClass.maxStudents}&nbsp;&nbsp;&nbsp;
+              <button onClick={() => deleteClass(enrolledClass.enrollmentId)}>삭제</button>
+            </div>
           ))
         )}
       </div>

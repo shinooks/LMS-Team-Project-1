@@ -21,7 +21,11 @@ public class EnrollmentConsumer {
     private final EnrollmentService enrollmentService;
     private final SimpMessagingTemplate messagingTemplate;
 
-    @KafkaListener(topics = "enrollment-requests", groupId = "enrollment-group")
+    @KafkaListener(
+            topics = "enrollment-requests",
+            groupId = "enrollment-group",
+            containerFactory = "kafkaListenerContainerFactory"
+    )
     public void consumeEnrollmentRequest(String message) {
         try {
             EnrollmentMessageDto enrollmentMessageDto = objectMapper.readValue(message, EnrollmentMessageDto.class);
@@ -37,7 +41,11 @@ public class EnrollmentConsumer {
         }
     }
 
-    @KafkaListener(topics = "enrollment-updates", groupId = "enrollment-group")
+    @KafkaListener(
+            topics = "enrollment-updates",
+            groupId = "enrollment-group",
+            containerFactory = "kafkaListenerContainerFactory"
+    )
     public void consumeEnrollmentUpdate(String message) {
         try {
             EnrollmentUpdateMessageDto updateDto = objectMapper.readValue(message, EnrollmentUpdateMessageDto.class);

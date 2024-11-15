@@ -17,6 +17,7 @@ import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.listener.DefaultErrorHandler;
+import org.springframework.kafka.support.converter.BatchMessagingMessageConverter;
 import org.springframework.kafka.support.converter.StringJsonMessageConverter;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -56,8 +57,16 @@ public class KafkaConfig {
         ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory);
 
+        // 동시 처리 Consumer 수 설정
+        factory.setConcurrency(3);
+
+        // 배치 리스너 설정
+        factory.setBatchListener(true);
+        factory.getContainerProperties().setPollTimeout(1000);
+
         // Json 메시지 변환을 위한 컨버터 설정
-        StringJsonMessageConverter converter = new StringJsonMessageConverter();
+        BatchMessagingMessageConverter converter = new BatchMessagingMessageConverter(new StringJsonMessageConverter(objectMapper()));
+        factory.setBatchMessageConverter(converter);
         return factory;
     }
 
