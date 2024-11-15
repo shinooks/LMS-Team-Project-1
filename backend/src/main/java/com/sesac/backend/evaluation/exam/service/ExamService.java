@@ -1,9 +1,9 @@
 package com.sesac.backend.evaluation.exam.service;
 
 import com.sesac.backend.course.repository.CourseOpeningRepository;
-import com.sesac.backend.enrollment.domain.classEnrollment.CourseEnrollment;
-import com.sesac.backend.enrollment.repository.ClassesEnrollmentRepository;
+import com.sesac.backend.enrollment.repository.EnrollmentRepository;
 import com.sesac.backend.entity.CourseOpening;
+import com.sesac.backend.entity.Enrollment;
 import com.sesac.backend.entity.Student;
 import com.sesac.backend.evaluation.enums.Correctness;
 import com.sesac.backend.evaluation.enums.Type;
@@ -40,19 +40,19 @@ public class ExamService {
     private final ExamProblemRepository examProblemRepository;
     private final CourseOpeningRepository courseOpeningRepository;
     private final ScoreRepository scoreRepository;
-    private final ClassesEnrollmentRepository classesEnrollmentRepository;
+    private final EnrollmentRepository enrollmentRepository;
 
     @Autowired
     public ExamService(ExamRepository examRepository,
         ExamProblemRepository examProblemRepository,
         CourseOpeningRepository courseOpeningRepository,
         ScoreRepository scoreRepository,
-        ClassesEnrollmentRepository classesEnrollmentRepository) {
+        EnrollmentRepository enrollmentRepository) {
         this.examRepository = examRepository;
         this.examProblemRepository = examProblemRepository;
         this.courseOpeningRepository = courseOpeningRepository;
         this.scoreRepository = scoreRepository;
-        this.classesEnrollmentRepository = classesEnrollmentRepository;
+        this.enrollmentRepository = enrollmentRepository;
     }
 
     /**
@@ -62,9 +62,9 @@ public class ExamService {
      * @return FinalExamDto
      */
     public ExamCreationResponse createExam(ExamCreationRequest request) {
-        classesEnrollmentRepository
+        enrollmentRepository
             .findAllByCourseOpeningOpeningId(request.getOpeningId()).stream()
-            .map(CourseEnrollment::getStudent)
+            .map(Enrollment::getStudent)
             .forEach(student -> examRepository.save(convertToEntity(request, student)));
 
         return new ExamCreationResponse(request.getOpeningId(), request.getType(),

@@ -18,6 +18,8 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, UUID> {
 
     List<Enrollment> findByStudent_StudentId(UUID studentId);
 
+    List<Enrollment> findAllByCourseOpeningOpeningId(UUID openingId);
+
     //@Query("SELECT co FROM CourseOpening co JOIN co.courseTimes cct JOIN CourseTime ct ON ct.")
 
     // : 기호는 JPQL (Java Persistence Query Language) 또는 JPA (Java Persistence API)에서 Named Parameters를 나타내는 데 사용됩니다.
