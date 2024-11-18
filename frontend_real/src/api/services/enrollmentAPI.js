@@ -1,3 +1,5 @@
+import axios from "axios";
+
 export const enrollmentAPI = {
     // 2024/11/16 Gnuke
     // 다른 분들이 getAllCourses를 어떻게 쓰실 지
