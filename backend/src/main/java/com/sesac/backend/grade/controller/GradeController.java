@@ -44,8 +44,9 @@ public class GradeController {
     @GetMapping("/course")
     public ResponseEntity<List<GradeDto>> getAllGradesByCourseAndSemester(
             @Parameter(description = "강의명") @RequestParam String courseName,
-            @Parameter(description = "학기 (예: Fall, Spring)") @RequestParam String semester) {
-        return ResponseEntity.ok(gradeService.findAllByCourseCourseNameAndCourseOpeningSemester(courseName, semester));
+            @Parameter(description = "학기 (예: Fall, Spring)") @RequestParam String semester ,
+            @Parameter(description = "년도") @RequestParam int year) {
+        return ResponseEntity.ok(gradeService.findAllByCourseCourseNameAndCourseOpeningSemesterAndCourseOpeningYear(courseName, semester, year));
     }
 
     @Operation(summary = "성적 일괄 수정", description = "여러 학생의 성적을 한 번에 수정합니다.")

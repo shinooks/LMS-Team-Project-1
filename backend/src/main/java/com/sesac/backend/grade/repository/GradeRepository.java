@@ -14,7 +14,7 @@ import java.util.UUID;
 public interface GradeRepository extends JpaRepository<Grade, UUID> {
 //    List<Grade> findAllByCourseCourseNameAndCourseOpeningSemester(String courseName, String semester);
 
-    List<Grade> findAllByCourseOpeningSemesterAndCourseOpeningCourseCourseName(String semester, String courseName);
+    List<Grade> findAllByCourseOpeningSemesterAndCourseOpeningCourseCourseNameAndCourseOpeningYear(String semester, String courseName , int year);
 
     // Score ID로 Grade 목록 조회
     List<Grade> findByScore_ScoreId(UUID scoreId);

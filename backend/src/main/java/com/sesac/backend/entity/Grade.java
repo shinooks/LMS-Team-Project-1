@@ -43,6 +43,8 @@ public class Grade {
     private LocalDateTime visibilityEndDate;    // 공개 종료일
 
 
+
+
     public int getAssignScore() {
         return score.getAssignScore();
     }
@@ -76,6 +78,10 @@ public class Grade {
     // CourseOpening 엔티티에서 학기 정보를 조회하는 편의 메서드
     public String getSemester() {
         return courseOpening.getSemester();
+    }
+
+    public Integer getYear() {
+        return courseOpening.getYear();
     }
 
     // Course 엔티티에서 과목 정보를 조회하는 편의 메서드들
