@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD
   "name": "lms-project",
   "version": "0.1.0",
   "private": true,
@@ -51,4 +52,15 @@
       "public"
     ]
   }
+=======
+  "name": "sesac_lms_project",
+  "version": "1.0.0",
+  "description": "- [x] pull\r - [x] push",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+>>>>>>> 93fa5df2ec29e4b380ff9a49cb6b7bb4807ab85d
 }
