@@ -22,8 +22,9 @@ public class CourseOpening extends BaseEntity {
     @JoinColumn(name = "courseId", nullable = false)
     private Course course;   // 강의 정보 (Course 엔티티 참조)
 
-    @Column(nullable = false)
-    private String professorId;  // 교수ID (강의 담당 교수)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "professorId", nullable = false)
+    private Professor professor;  // 교수ID (강의 담당 교수)
 
     @Column(nullable = false)
     private String semester;     // 학기 (예: "1", "2", "계절")
@@ -50,13 +51,13 @@ public class CourseOpening extends BaseEntity {
     // Builder 패턴을 사용하는 생성자
     @Builder
     public CourseOpening(Course course,         // 강의 정보
-                         String professorId,      // 교수 ID
+                         Professor professor,      // 교수 ID
                          String semester,         // 학기
                          Integer year,            // 연도
                          Integer maxStudents,     // 최대수강인원
                          CourseStatus status) {   // 강의 상태
         this.course = course;
-        this.professorId = professorId;
+        this.professor = professor;
         this.semester = semester;
         this.year = year;
         this.maxStudents = maxStudents;
