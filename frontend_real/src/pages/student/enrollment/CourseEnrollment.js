@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState} from 'react';
 import CourseSearch from './components/CourseSearch';
 import CartList from './components/CartList';
 import EnrollmentHistory from './components/EnrollmentHistory';
 import TimeTablePreview from './components/TimeTablePreview';
 import EnrollmentStatus from './components/EnrollmentStatus';
 // 2024/11/16 import by gnuke ------------------------------------------------
-import { enrollmentAPI, courseAPI } from '../../../api/services';
 import useWebSocket from './useWebSocket'; // kafka 통신을 위한 커스텀 훅 import
 import useFetchInitialData from './useFetchInitialData'; // 학생 상태 조회 등을 관리할 훅 import
 import useFetchCourses from "./useFetchCourses"; //courses 정보에 변화가 있을 때마다 최신화 돼서 UI에 반영되도록 할 UseEffect 관리 훅 import
