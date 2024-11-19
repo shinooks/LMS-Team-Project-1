@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import {useCallback, useState} from 'react';
 import { enrollmentAPI } from '../../../api/services';
 
 // 2024/11/16 gnuke
@@ -7,27 +7,37 @@ const UseEnrollmentService = (initialEnrolledCourses) => {
     const [cartItems, setCartItems] = useState([]);
     const [enrolledCourses, setEnrolledCourses] = useState(initialEnrolledCourses);
 
-    // 장바구니 추가
-    const handleAddToCart = (course) => {
-        if (cartItems.find(item => item.id === course.id)) {
-            alert('이미 장바구니에 있는 강의입니다.');
-            return;
+    const getAllCourses = useCallback(async () => {
+        try {
+            const result = await enrollmentAPI.getAllCourses();
+            return result;
+        } catch(error) {
+            console.log("강의 정보 가져오기 실패 : ", error);
+            throw error;  // 에러 전파
         }
+    }, []);
 
-        // 시간표 중복 체크
-        const hasConflict = checkTimeConflict(course);
-        if (hasConflict) {
-            alert('시간표가 중복되는 강의가 있습니다.');
-            return;
+    const getEnrollment = async (studentId) => {
+        try{
+            const result = await enrollmentAPI.getStudentEnrollments(studentId);
+            //console.log("API 학생 등록 정보 : " + result);
+            return result;
+        }catch(error){
+            console.log("등록 강의 정보 가져오기 실패 : ", error);
+            throw error;
         }
-
-        setCartItems(prev => [...prev, course]);
     };
 
-    // 장바구니에서 제거
-    const handleRemoveFromCart = (courseId) => {
-        setCartItems(prev => prev.filter(item => item.id !== courseId));
-    };
+    // 장바구니 목록
+    const getInterestList = async (studentId) => {
+        try{
+            const result = await enrollmentAPI.getInterestList(studentId);
+            return result;
+        }catch(error){
+            console.log("장바구니 목록 가져오기 실패 : ", error);
+            throw error;
+        }
+    }
 
     // 수강신청 처리 함수
     const handleEnrollCourse = async (studentId, courses) => {
@@ -83,10 +93,11 @@ const UseEnrollmentService = (initialEnrolledCourses) => {
     return {
         cartItems,
         enrolledCourses,
-        handleAddToCart,
-        handleRemoveFromCart,
         handleEnrollCourse,
         setEnrolledCourses, // 필요시 상태 업데이트를 위해 반환
+        getAllCourses,
+        getEnrollment,
+        getInterestList
     };
 };
 

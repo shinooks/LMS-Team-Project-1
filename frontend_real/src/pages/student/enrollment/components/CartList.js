@@ -1,33 +1,24 @@
-import React from 'react';
-import { enrollmentAPI } from '../../../../api/services';
+import React, {useEffect, useState} from 'react';
+import useEnrollmentService from "../useEnrollmentService";
 
-const CartList = ({ cartItems, onRemoveFromCart, onEnrollCourse }) => {
-  const handleEnrollment = async () => {
-    try {
-      // 각 강의에 대해 수강신청 API 호출
-      const enrollmentPromises = cartItems.map(course =>
-        enrollmentAPI.enrollCourse(course.id)
-      );
 
-      const results = await Promise.all(enrollmentPromises);
+const CartList = ({ studentId }) => {
+  const [interestList, setInterestList] = useState([]);
+  const {
+    getInterestList,
+  } = useEnrollmentService();
 
-      // 모든 수강신청이 성공했는지 확인
-      const allSuccessful = results.every(result => result.success);
-
-      if (allSuccessful) {
-        onEnrollCourse(cartItems);
-        alert('수강신청이 완료되었습니다.');
-      } else {
-        alert('일부 과목의 수강신청이 실패했습니다.');
+  // 관심강의 목록의 최신상태 가져오기
+  useEffect(() => {
+    const getInterestList = async () => {
+      try{
+        const result = await getInterestList();
+        setInterestList(result);
+      }catch(error){
+        console.error("장바구니 목록을 가져오는 중 오류 발생 : ", error);
       }
-    } catch (error) {
-      console.error('Error during enrollment:', error);
-      alert('수강신청 중 오류가 발생했습니다.');
     }
-  };
-
-  // 총 학점 계산
-  const totalCredits = cartItems.reduce((sum, course) => sum + course.credits, 0);
+  })
 
   return (
     <div className="space-y-6">

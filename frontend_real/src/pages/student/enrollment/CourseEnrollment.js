@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import CourseSearch from './components/CourseSearch';
 import CartList from './components/CartList';
 import EnrollmentHistory from './components/EnrollmentHistory';
@@ -13,20 +13,36 @@ import useEnrollmentService from "./useEnrollmentService"; // EnrollmentService�
 const CourseEnrollment = () => {
   // 2024/11/16 Gnuke
   // data fetching이 되면 enrolledCourses에 등록된 강의 목록이 저장됨
-  const { enrolledCourses, loading: loadingInitial, error: errorInitial } = useFetchInitialData();
-  const { courses, loading: loadingCourses, error: errorCourses } = useFetchCourses();
+  const { loading: loadingInitial, error: errorInitial } = useFetchInitialData();
+  const { loading: loadingCourses, error: errorCourses } = useFetchCourses();
   const {
     cartItems,
     handleAddToCart,
-    handleRemoveFromCart,
-    handleEnrollCourse,
-  } = useEnrollmentService(enrolledCourses); // 훅 사용
+    getAllCourses,
+  } = useEnrollmentService(); // 훅 사용
 
   const [activeTab, setActiveTab] = useState('search');
+  //const [studentEnrollments, setStudentEnrollments] = useState([]);
+  const [courses, setCourses] = useState([]);
 
-  const studentId = 'eeeeeeee-1111-1111-1111-111111111111'
+  const studentId = 'eeeeeeee-1111-1111-1111-111111111111';
 
-  const currentEnrollments = useWebSocket(studentId, courses)
+  const currentEnrollments = useWebSocket(studentId, courses);
+
+  // 모든 강의의 상태를 새로 가져오는 함수
+  useEffect(() => {
+    const getAllCoursesInComponent = async () => {
+      try{
+        const result = await getAllCourses();
+        setCourses(result);
+      }catch (error){
+        console.error("강의 정보를 가져오는 중 오류 발생: ", error);
+      }
+    };
+
+    getAllCoursesInComponent();
+  }, []);
+
 
   // 로딩 및 오류 처리
   if (loadingInitial || loadingCourses) {
@@ -40,7 +56,8 @@ const CourseEnrollment = () => {
   return (
     <div className="space-y-6 p-6">
       {/* 수강신청 현황 */}
-      <EnrollmentStatus enrolledCourses={enrolledCourses} />
+      {/*<EnrollmentStatus enrolledCourses={enrolledCourses} />*/}
+      <div>enrollmentStatus</div>
 
       {/* 탭 메뉴 */}
       <div className="bg-white rounded-lg shadow">
@@ -90,7 +107,7 @@ const CourseEnrollment = () => {
           {activeTab === 'search' && (
             <CourseSearch
               onAddToCart={handleAddToCart}
-              enrolledCourses={enrolledCourses}
+              //enrolledCourses={enrolledCourses}
               cartItems={cartItems}
               courses={courses}
               studentId={studentId}
@@ -100,19 +117,20 @@ const CourseEnrollment = () => {
           )}
           {activeTab === 'cart' && (
             <CartList
-              cartItems={cartItems}
-              onRemoveFromCart={handleRemoveFromCart}
-              onEnrollCourse={handleEnrollCourse}
+                studentId={studentId}
             />
             // 장바구니 컴포넌트
           )}
           {activeTab === 'history' && (
-            <EnrollmentHistory />
+            <EnrollmentHistory
+              studentId={studentId}
+            />
             //신청 내역 컴포넌트
           )}
           {activeTab === 'timetable' && (
-            <TimeTablePreview courses={[...enrolledCourses, ...cartItems]} />
+            // <TimeTablePreview courses={[...enrolledCourses, ...cartItems]} />
             // 시간표 컴포넌트
+              <div>시간표</div>
           )}
         </div>
       </div>
