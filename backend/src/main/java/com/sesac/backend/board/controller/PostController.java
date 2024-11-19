@@ -1,10 +1,12 @@
 package com.sesac.backend.board.controller;
+import com.sesac.backend.board.constant.BoardConstants;
 import com.sesac.backend.board.constant.BoardType;
 import com.sesac.backend.board.dto.request.PostRequestDTO;
 import com.sesac.backend.board.dto.request.PostSearchRequestDto;
 import com.sesac.backend.board.dto.response.PostResponseDTO;
 import com.sesac.backend.board.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -24,41 +26,51 @@ import java.util.Map;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/boards/{boardId}/posts")
+@RequestMapping(BoardConstants.Post.API_POST_PATH)
 @RequiredArgsConstructor
 @Slf4j
-@Tag(name = "Post", description = "게시글 관리 API")
+@Tag(name = BoardConstants.Post.SWAGGER_TAG_NAME,
+        description = BoardConstants.Post.SWAGGER_TAG_DESCRIPTION)
 public class PostController {
     private final PostService postService;
 
     // 게시글 등록
-    @Operation(summary = "게시글 작성", description = "특정 게시판에 새로운 게시글을 작성합니다.")
+    @Operation(
+            summary = BoardConstants.Post.API_OPERATION_CREATE_SUMMARY,
+            description = BoardConstants.Post.API_OPERATION_CREATE_DESCRIPTION
+    )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "게시글이 성공적으로 작성되었습니다."),
-            @ApiResponse(responseCode = "400", description = "잘못된 요청 데이터"),
-            @ApiResponse(responseCode = "500", description = "내부 서버 오류")
+            @ApiResponse(responseCode = "200", description = BoardConstants.Post.SUCCESS_CREATE),
+            @ApiResponse(responseCode = "400", description = BoardConstants.Common.ERROR_INVALID_REQUEST),
+            @ApiResponse(responseCode = "500", description = BoardConstants.Common.ERROR_INTERNAL_SERVER)
     })
     @PostMapping
     public ResponseEntity<?> createPost(
+            @Parameter(description = BoardConstants.Post.SWAGGER_PARAM_BOARD_ID)
             @PathVariable UUID boardId,
             @RequestBody @Valid PostRequestDTO requestDTO,
-            @RequestHeader("X-USER-ID") UUID userId) {
+            @Parameter(description = BoardConstants.Common.SWAGGER_PARAM_USER_ID)
+            @RequestHeader(BoardConstants.Common.HEADER_USER_ID) UUID userId) {
         try {
             requestDTO.setBoardId(boardId);
-            log.info("Creating post for board {}: {}, userId: {}", boardId, requestDTO, userId);
+            log.info(BoardConstants.Post.LOG_CREATE, boardId, requestDTO, userId);
             PostResponseDTO response = postService.createPost(requestDTO, userId);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            log.error("Error creating post", e);
+            log.error(BoardConstants.Post.LOG_ERROR_CREATE, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("message", e.getMessage()));
         }
     }
 
     // 게시글 목록 조회 (페이징 + 검색)
-    @Operation(summary = "게시글 목록 조회", description = "게시글 목록을 페이징하여 조회하며, 검색 조건을 적용할 수 있습니다.")
+    @Operation(
+            summary = BoardConstants.Post.API_OPERATION_SEARCH_SUMMARY,
+            description = BoardConstants.Post.API_OPERATION_SEARCH_DESCRIPTION
+    )
     @GetMapping
     public ResponseEntity<?> getPosts(
+            @Parameter(description = BoardConstants.Post.SWAGGER_PARAM_BOARD_ID)
             @PathVariable UUID boardId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -70,6 +82,7 @@ public class PostController {
             );
             Pageable pageable = PageRequest.of(page, size, sort);
 
+            log.info(BoardConstants.Post.LOG_SEARCH, searchDto);
             Page<PostResponseDTO> response = postService.searchPosts(
                     boardId,
                     searchDto,
@@ -77,42 +90,54 @@ public class PostController {
             );
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            log.error("Error fetching posts", e);
+            log.error(BoardConstants.Post.LOG_ERROR_SEARCH, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("message", e.getMessage()));
         }
     }
 
     // 게시글 상세 조회
-    @Operation(summary = "게시글 상세 조회", description = "특정 게시글을 상세히 조회합니다.")
+    @Operation(
+            summary = BoardConstants.Post.API_OPERATION_GET_SUMMARY,
+            description = BoardConstants.Post.API_OPERATION_GET_DESCRIPTION
+    )
     @GetMapping("/{postId}")
     public ResponseEntity<?> getPost(
+            @Parameter(description = BoardConstants.Post.SWAGGER_PARAM_BOARD_ID)
             @PathVariable UUID boardId,
+            @Parameter(description = BoardConstants.Post.SWAGGER_PARAM_POST_ID)
             @PathVariable UUID postId) {
         try {
-            log.info("Fetching post {} from board {}", postId, boardId);
+            log.info(BoardConstants.Post.LOG_GET, postId, boardId);
             PostResponseDTO response = postService.getPost(postId);
             return ResponseEntity.ok(response);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("message", e.getMessage()));
         } catch (Exception e) {
-            log.error("Error fetching post", e);
+            log.error(BoardConstants.Post.LOG_ERROR_GET, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("message", e.getMessage()));
         }
     }
 
     // 게시글 수정
-    @Operation(summary = "게시글 수정", description = "특정 게시글을 수정합니다.")
+    @Operation(
+            summary = BoardConstants.Post.API_OPERATION_UPDATE_SUMMARY,
+            description = BoardConstants.Post.API_OPERATION_UPDATE_DESCRIPTION
+    )
     @PutMapping("/{postId}")
     public ResponseEntity<?> updatePost(
+            @Parameter(description = BoardConstants.Post.SWAGGER_PARAM_BOARD_ID)
             @PathVariable UUID boardId,
+            @Parameter(description = BoardConstants.Post.SWAGGER_PARAM_POST_ID)
             @PathVariable UUID postId,
             @RequestBody @Valid PostRequestDTO requestDTO,
-            @RequestHeader("X-USER-ID") UUID userId) {
+            @Parameter(description = BoardConstants.Common.SWAGGER_PARAM_USER_ID)
+            @RequestHeader(BoardConstants.Common.HEADER_USER_ID) UUID userId) {
         try {
             requestDTO.setBoardId(boardId);
+            log.info(BoardConstants.Post.LOG_UPDATE, postId, requestDTO);
             PostResponseDTO response = postService.updatePost(postId, requestDTO, userId);
             return ResponseEntity.ok(response);
         } catch (IllegalStateException e) {
@@ -122,22 +147,29 @@ public class PostController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("message", e.getMessage()));
         } catch (Exception e) {
-            log.error("Error updating post", e);
+            log.error(BoardConstants.Post.LOG_ERROR_UPDATE, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("message", e.getMessage()));
         }
     }
 
     // 게시글 삭제
-    @Operation(summary = "게시글 삭제", description = "특정 게시글을 삭제합니다.")
+    @Operation(
+            summary = BoardConstants.Post.API_OPERATION_DELETE_SUMMARY,
+            description = BoardConstants.Post.API_OPERATION_DELETE_DESCRIPTION
+    )
     @DeleteMapping("/{postId}")
     public ResponseEntity<?> deletePost(
+            @Parameter(description = BoardConstants.Post.SWAGGER_PARAM_BOARD_ID)
             @PathVariable UUID boardId,
+            @Parameter(description = BoardConstants.Post.SWAGGER_PARAM_POST_ID)
             @PathVariable UUID postId,
-            @RequestHeader("X-USER-ID") UUID userId) {
+            @Parameter(description = BoardConstants.Common.SWAGGER_PARAM_USER_ID)
+            @RequestHeader(BoardConstants.Common.HEADER_USER_ID) UUID userId) {
         try {
+            log.info(BoardConstants.Post.LOG_DELETE, postId);
             postService.deletePost(postId, userId);
-            return ResponseEntity.ok(Map.of("message", "게시글이 성공적으로 삭제되었습니다."));
+            return ResponseEntity.ok(Map.of("message", BoardConstants.Post.SUCCESS_DELETE));
         } catch (IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(Map.of("message", e.getMessage()));
@@ -145,7 +177,7 @@ public class PostController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("message", e.getMessage()));
         } catch (Exception e) {
-            log.error("Error deleting post", e);
+            log.error(BoardConstants.Post.LOG_ERROR_DELETE, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("message", e.getMessage()));
         }

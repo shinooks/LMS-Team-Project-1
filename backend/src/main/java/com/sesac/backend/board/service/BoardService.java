@@ -1,5 +1,6 @@
 package com.sesac.backend.board.service;
 
+import com.sesac.backend.board.constant.BoardConstants;
 import com.sesac.backend.board.constant.UserType;
 import com.sesac.backend.board.dto.request.BoardRequestDTO;
 import com.sesac.backend.board.dto.response.BoardResponseDTO;
@@ -17,9 +18,10 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)  // 기본적으로 읽기 전용으로 설정
+@Transactional(readOnly = true)
 public class BoardService {
 
     private final BoardRepository boardRepository;
@@ -30,16 +32,16 @@ public class BoardService {
     @Transactional
     public BoardResponseDTO createBoard(BoardRequestDTO requestDTO, UUID userId) {
         UserAuthentication user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new EntityNotFoundException(BoardConstants.Common.ERROR_USER_NOT_FOUND));
 
         // 교직원 권한 체크
         if (user.getUserType() != UserType.STAFF) {
-            throw new IllegalStateException("게시판 생성 권한이 없습니다. 교직원만 게시판을 생성할 수 있습니다.");
+            throw new IllegalStateException(BoardConstants.Board.ERROR_NO_PERMISSION_CREATE);
         }
 
         // 게시판 이름 중복 검사
         if (boardRepository.existsByBoardName(requestDTO.getBoardName())) {
-            throw new IllegalStateException("이미 존재하는 게시판 이름입니다.");
+            throw new IllegalStateException(BoardConstants.Board.ERROR_DUPLICATE_NAME);
         }
 
         Board board = Board.builder()
@@ -61,15 +63,15 @@ public class BoardService {
     @Transactional
     public BoardResponseDTO updateBoard(UUID boardId, BoardRequestDTO requestDTO, UUID userId) {
         UserAuthentication user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new EntityNotFoundException(BoardConstants.Common.ERROR_USER_NOT_FOUND));
 
         // 교직원 권한 체크
         if (user.getUserType() != UserType.STAFF) {
-            throw new IllegalStateException("게시판 수정 권한이 없습니다. 교직원만 게시판을 수정할 수 있습니다.");
+            throw new IllegalStateException(BoardConstants.Board.ERROR_NO_PERMISSION_UPDATE);
         }
 
         Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new EntityNotFoundException("게시판을 찾을 수 없습니다."));
+                .orElseThrow(() -> new EntityNotFoundException(BoardConstants.Board.ERROR_NOT_FOUND));
 
         board.setBoardName(requestDTO.getBoardName());
         board.setBoardType(requestDTO.getBoardType());
@@ -85,36 +87,31 @@ public class BoardService {
 
     // 게시판 삭제
     @Transactional
-    public void deleteBoard(UUID boardId, UUID userId) {  // userId 파라미터 추가
+    public void deleteBoard(UUID boardId, UUID userId) {
         UserAuthentication user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new EntityNotFoundException(BoardConstants.Common.ERROR_USER_NOT_FOUND));
 
         // 교직원 권한 체크
         if (user.getUserType() != UserType.STAFF) {
-            throw new IllegalStateException("게시판 삭제 권한이 없습니다. 교직원만 게시판을 삭제할 수 있습니다.");
+            throw new IllegalStateException(BoardConstants.Board.ERROR_NO_PERMISSION_DELETE);
         }
 
         Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new EntityNotFoundException("게시판을 찾을 수 없습니다."));
+                .orElseThrow(() -> new EntityNotFoundException(BoardConstants.Board.ERROR_NOT_FOUND));
 
         // 게시판 삭제 권한 확인
         if (!board.isAllowDelete()) {
-            throw new IllegalStateException("삭제가 허용되지 않은 게시판입니다.");
+            throw new IllegalStateException(BoardConstants.Board.ERROR_DELETE_NOT_ALLOWED);
         }
 
-        // 게시글 수 확인
-        long postCount = postRepository.countByBoard(board);
-        if (postCount > 0) {
-            throw new IllegalStateException("게시글이 존재하는 게시판은 삭제할 수 없습니다.");
-        }
-
+        // 게시판과 관련된 모든 게시글이 함께 삭제됨 (cascade)
         boardRepository.delete(board);
     }
 
     // 게시판 조회
     public BoardResponseDTO getBoard(UUID boardId) {
         Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new EntityNotFoundException("게시판을 찾을 수 없습니다."));
+                .orElseThrow(() -> new EntityNotFoundException(BoardConstants.Board.ERROR_NOT_FOUND));
         return convertToResponseDTO(board);
     }
 

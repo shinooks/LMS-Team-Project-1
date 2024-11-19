@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+
 @Entity
 @Data
 @NoArgsConstructor
@@ -42,6 +43,6 @@ public class Board extends BaseEntity {
     private boolean allowDelete; // 삭제허용
 
     @Builder.Default
-    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "board", cascade = CascadeType.REMOVE) // 게시판 삭제시 연관된 게시글도 함께 삭제
     private List<Post> posts = new ArrayList<>();
 }

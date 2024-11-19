@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import jakarta.persistence.Id;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 
@@ -23,4 +24,7 @@ public class PostFile extends BaseFile {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;    // 게시글ID
+
+    private boolean isDeleted;         // 삭제 여부
+    private LocalDateTime deletedAt;   // 삭제 일시
 }

@@ -1,5 +1,6 @@
 package com.sesac.backend.board.controller;
 
+import com.sesac.backend.board.constant.BoardConstants;
 import com.sesac.backend.board.dto.request.CommentRequestDTO;
 import com.sesac.backend.board.dto.response.CommentResponseDTO;
 import com.sesac.backend.board.service.CommentService;
@@ -19,36 +20,37 @@ import java.util.Map;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/boards/{boardId}/posts/{postId}/comments")
+@RequestMapping(BoardConstants.Comment.API_COMMENT_PATH)
 @RequiredArgsConstructor
 @Slf4j
-@Tag(name = "Comment", description = "댓글 관리 API")
+@Tag(name = BoardConstants.Comment.SWAGGER_TAG_NAME,
+        description = BoardConstants.Comment.SWAGGER_TAG_DESCRIPTION)
 public class CommentController {
 
     private final CommentService commentService;
 
     // 댓글 작성
     @Operation(
-        summary = "댓글 작성",
-        description = "특정 게시글에 대한 새로운 댓글을 작성합니다."
+            summary = "댓글 작성",
+            description = BoardConstants.Comment.API_OPERATION_CREATE
     )
-    @ApiResponse(responseCode = "200", description = "댓글이 성공적으로 작성되었습니다.")
-    @ApiResponse(responseCode = "400", description = "잘못된 요청 데이터")
-    @ApiResponse(responseCode = "500", description = "내부 서버 오류")
+    @ApiResponse(responseCode = "200", description = BoardConstants.Comment.SUCCESS_CREATE)
+    @ApiResponse(responseCode = "400", description = BoardConstants.Common.ERROR_INVALID_REQUEST)
+    @ApiResponse(responseCode = "500", description = BoardConstants.Common.ERROR_INTERNAL_SERVER)
     @PostMapping
     public ResponseEntity<?> createComment(
             @PathVariable UUID boardId,
             @PathVariable UUID postId,
             @RequestBody @Valid CommentRequestDTO requestDTO,
-            @Parameter(description = "사용자 ID", required = true)
-            @RequestHeader("X-USER-ID") UUID userId)  {
+            @Parameter(description = BoardConstants.Common.SWAGGER_PARAM_USER_ID, required = true)
+            @RequestHeader(BoardConstants.Common.HEADER_USER_ID) UUID userId)  {
         try {
-            log.info("Creating comment for post {}: {}", postId, requestDTO);
-            requestDTO.setPostId(postId); // URL의 postId를 DTO에 설정
+            log.info(BoardConstants.Comment.LOG_CREATE, postId, requestDTO);
+            requestDTO.setPostId(postId);
             CommentResponseDTO response = commentService.createComment(requestDTO, userId);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            log.error("Error creating comment", e);
+            log.error(BoardConstants.Comment.LOG_ERROR_CREATE, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("message", e.getMessage(), "error", e.getClass().getSimpleName()));
         }
@@ -56,25 +58,25 @@ public class CommentController {
 
     // 댓글 수정
     @Operation(
-        summary = "댓글 수정",
-        description = "특정 ID를 가진 댓글을 수정합니다."
+            summary = "댓글 수정",
+            description = BoardConstants.Comment.API_OPERATION_UPDATE
     )
-    @ApiResponse(responseCode = "200", description = "댓글이 성공적으로 수정되었습니다.")
-    @ApiResponse(responseCode = "400", description = "잘못된 요청 데이터")
-    @ApiResponse(responseCode = "404", description = "댓글을 찾을 수 없습니다.")
-    @ApiResponse(responseCode = "500", description = "내부 서버 오류")
+    @ApiResponse(responseCode = "200", description = BoardConstants.Comment.SUCCESS_UPDATE)
+    @ApiResponse(responseCode = "400", description = BoardConstants.Common.ERROR_INVALID_REQUEST)
+    @ApiResponse(responseCode = "404", description = BoardConstants.Comment.ERROR_NOT_FOUND)
+    @ApiResponse(responseCode = "500", description = BoardConstants.Common.ERROR_INTERNAL_SERVER)
     @PutMapping("/{commentId}")
     public ResponseEntity<?> updateComment(
             @PathVariable UUID commentId,
             @RequestBody @Valid CommentRequestDTO requestDTO,
-            @Parameter(description = "사용자 ID", required = true)
-            @RequestHeader("X-USER-ID") UUID userId) {
+            @Parameter(description = BoardConstants.Common.SWAGGER_PARAM_USER_ID, required = true)
+            @RequestHeader(BoardConstants.Common.HEADER_USER_ID) UUID userId) {
         try {
-            log.info("Updating comment {}: {}", commentId, requestDTO);
+            log.info(BoardConstants.Comment.LOG_UPDATE, commentId, requestDTO);
             CommentResponseDTO response = commentService.updateComment(commentId, requestDTO, userId);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            log.error("Error updating comment", e);
+            log.error(BoardConstants.Comment.LOG_ERROR_UPDATE, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("message", e.getMessage(), "error", e.getClass().getSimpleName()));
         }
@@ -82,21 +84,21 @@ public class CommentController {
 
     // 댓글 삭제
     @Operation(
-        summary = "댓글 삭제",
-        description = "특정 ID를 가진 댓글을 삭제합니다."
+            summary = "댓글 삭제",
+            description = BoardConstants.Comment.API_OPERATION_DELETE
     )
-    @ApiResponse(responseCode = "200", description = "댓글이 성공적으로 삭제되었습니다.")
-    @ApiResponse(responseCode = "403", description = "권한이 없어서 삭제할 수 없습니다.")
-    @ApiResponse(responseCode = "500", description = "내부 서버 오류")
+    @ApiResponse(responseCode = "200", description = BoardConstants.Comment.SUCCESS_DELETE)
+    @ApiResponse(responseCode = "403", description = BoardConstants.Comment.ERROR_NO_PERMISSION)
+    @ApiResponse(responseCode = "500", description = BoardConstants.Common.ERROR_INTERNAL_SERVER)
     @DeleteMapping("/{commentId}")
     public ResponseEntity<?> deleteComment(
             @PathVariable UUID commentId) {
         try {
-            log.info("Deleting comment: {}", commentId);
+            log.info(BoardConstants.Comment.LOG_DELETE, commentId);
             commentService.deleteComment(commentId);
-            return ResponseEntity.ok(Map.of("message", "댓글이 성공적으로 삭제되었습니다."));
+            return ResponseEntity.ok(Map.of("message", BoardConstants.Comment.SUCCESS_DELETE));
         } catch (Exception e) {
-            log.error("Error deleting comment", e);
+            log.error(BoardConstants.Comment.LOG_ERROR_DELETE, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("message", e.getMessage(), "error", e.getClass().getSimpleName()));
         }
@@ -104,20 +106,20 @@ public class CommentController {
 
     // 게시글의 댓글 목록 조회
     @Operation(
-        summary = "게시글의 댓글 목록 조회",
-        description = "특정 게시글에 대한 모든 댓글을 조회합니다."
+            summary = "게시글의 댓글 목록 조회",
+            description = BoardConstants.Comment.API_OPERATION_LIST
     )
-    @ApiResponse(responseCode = "200", description = "댓글 목록을 성공적으로 조회했습니다.")
-    @ApiResponse(responseCode = "500", description = "내부 서버 오류")
+    @ApiResponse(responseCode = "200", description = BoardConstants.Comment.SUCCESS_LIST)
+    @ApiResponse(responseCode = "500", description = BoardConstants.Common.ERROR_INTERNAL_SERVER)
     @GetMapping
     public ResponseEntity<?> getCommentsByPost(
             @PathVariable UUID postId) {
         try {
-            log.info("Fetching comments for post: {}", postId);
+            log.info(BoardConstants.Comment.LOG_FETCH, postId);
             List<CommentResponseDTO> comments = commentService.getCommentsByPost(postId);
             return ResponseEntity.ok(comments);
         } catch (Exception e) {
-            log.error("Error fetching comments", e);
+            log.error(BoardConstants.Comment.LOG_ERROR_FETCH, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("message", e.getMessage(), "error", e.getClass().getSimpleName()));
         }
