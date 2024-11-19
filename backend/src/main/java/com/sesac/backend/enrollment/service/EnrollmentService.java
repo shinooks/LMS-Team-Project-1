@@ -270,7 +270,9 @@ public class EnrollmentService {
                         info.getOpeningId(),
                         info.getCurrentStudents());
             }
-            log.info("수강신청 카운트 초기화 완료: {} 개 강의", infos.size());
+            log.info("수강신청 카운트 초기화 완료: {} 개 강의, 현재 수강 학생 수: {}",
+                    infos.size(),
+                    infos.stream().mapToInt(CourseOpening::getCurrentStudents).sum()); // 전체 수강 학생 수 합산
 
         } catch (Exception e) {
             log.error("수강신청 카운트 초기화 실패: {}", e.getMessage());

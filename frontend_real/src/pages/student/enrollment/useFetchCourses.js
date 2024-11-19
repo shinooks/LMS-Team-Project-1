@@ -13,8 +13,9 @@ const useFetchCourses = () => {
         const fetchCourses = async () => {
             setLoading(true);
             try {
-                const allCourses = await enrollmentAPI.getAllCourses(); // API 호출로 모든 강의 데이터 가져오기
-                setCourses(allCourses); // 상태 업데이트
+                const res = await enrollmentAPI.getAllCourses(); // API 호출로 모든 강의 데이터 가져오기
+                console.log(res)
+                setCourses(res); // 상태 업데이트
             } catch (err) {
                 setError('강의 목록을 가져오는 중 오류가 발생했습니다.');
                 console.error('Error fetching courses:', err);

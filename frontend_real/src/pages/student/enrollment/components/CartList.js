@@ -5,15 +5,15 @@ const CartList = ({ cartItems, onRemoveFromCart, onEnrollCourse }) => {
   const handleEnrollment = async () => {
     try {
       // 각 강의에 대해 수강신청 API 호출
-      const enrollmentPromises = cartItems.map(course => 
+      const enrollmentPromises = cartItems.map(course =>
         enrollmentAPI.enrollCourse(course.id)
       );
-      
+
       const results = await Promise.all(enrollmentPromises);
-      
+
       // 모든 수강신청이 성공했는지 확인
       const allSuccessful = results.every(result => result.success);
-      
+
       if (allSuccessful) {
         onEnrollCourse(cartItems);
         alert('수강신청이 완료되었습니다.');
@@ -80,7 +80,7 @@ const CartList = ({ cartItems, onRemoveFromCart, onEnrollCourse }) => {
                     {course.enrolled}/{course.capacity}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {course.schedule.map(s => 
+                    {course.schedule.map(s =>
                       `${s.day} ${s.startTime}-${s.endTime}`
                     ).join(', ')}
                   </td>
