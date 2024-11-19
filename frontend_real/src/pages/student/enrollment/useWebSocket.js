@@ -1,9 +1,11 @@
 // useWebSocket.js
 import { useEffect, useState } from 'react';
 import { Client } from '@stomp/stompjs';
+import { enrollmentAPI } from '../../../api/services';
 
-const useWebSocket = (studentId, classes, onEnrollmentResult, onCourseStatusUpdate) => {
+const useWebSocket = (studentId, courses, onEnrollmentResult, onCourseStatusUpdate) => {
     const [stompClient, setStompClient] = useState(null);
+    const [currentEnrollments, setCurrentEnrollments] = useState({})
 
     useEffect(() => {
         const client = new Client({
@@ -24,18 +26,24 @@ const useWebSocket = (studentId, classes, onEnrollmentResult, onCourseStatusUpda
                     console.log("수강신청 결과: ", result);
                     alert(result.message);
 
-                    if (result.success) {
-                        onEnrollmentResult();
+                    if (result.sucess) {
+                        Promise.all([
+                            enrollmentAPI.getAllCourses()
+                        ])
+
                     }
                 });
 
                 // 강의별 상태 업데이트 구독
-                if (classes.length > 0) {
-                    classes.forEach(course => {
+                if (courses.length > 0) {
+                    courses.forEach(course => {
                         client.subscribe(`/topic/course-status/${course.openingId}`, message => {
                             const update = JSON.parse(message.body);
                             console.log("강의 상태 업데이트: ", update);
-                            onCourseStatusUpdate(update);
+                            setCurrentEnrollments(prev => ({
+                                ...prev,
+                                [update.openingId]: update.currentEnrollment
+                            }))
                         });
                     });
                 }
@@ -55,9 +63,9 @@ const useWebSocket = (studentId, classes, onEnrollmentResult, onCourseStatusUpda
                 client.deactivate();
             }
         };
-    }, [studentId, classes]);
+    }, [studentId, courses]);
 
-    return stompClient;
+    return currentEnrollments;
 };
 
 export default useWebSocket;

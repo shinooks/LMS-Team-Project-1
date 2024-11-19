@@ -77,7 +77,7 @@ public class EnrollmentController {
     @GetMapping("/allcourses")
     public Map allClasses() {
         Map map = new HashMap<>();
-        map.put("allcourses", enrollmentService.getAllClasses());
+        map.put("allCourses", enrollmentService.getAllClasses());
         return map;
     }
 

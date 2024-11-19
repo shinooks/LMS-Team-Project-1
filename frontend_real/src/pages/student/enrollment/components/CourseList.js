@@ -3,8 +3,8 @@ import CourseItem from './CourseItem';
 
 const CourseList = ({ courses, onAddToCart, enrolledCourses, cartItems, studentId, currentEnrollments }) => {
 
-  const coursesToArray = courses.allcourses;
-  console.log(coursesToArray);
+  // const coursesToArray = courses.allcourses;
+  // console.log(coursesToArray);
 
   if (courses.length === 0) {
     return (
@@ -43,13 +43,15 @@ const CourseList = ({ courses, onAddToCart, enrolledCourses, cartItems, studentI
             </th>
             <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
               수강신청
+            </th><th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+              장바구니
             </th>
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
-          {coursesToArray.map(course => (
+          {courses.map(course => (
             <CourseItem
-              key={course.id} 
+              key={course.openingId}
               course={course}
               studentId={studentId}
               currentEnrollments={currentEnrollments}

@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/lms-project.iml" filepath="$PROJECT_DIR$/.idea/lms-project.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/sesac_lms_project.iml" filepath="$PROJECT_DIR$/.idea/sesac_lms_project.iml" />
     </modules>
   </component>
 </project>

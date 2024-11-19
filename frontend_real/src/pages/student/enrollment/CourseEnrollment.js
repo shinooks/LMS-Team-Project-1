@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import CourseSearch from './components/CourseSearch';
 import CartList from './components/CartList';
 import EnrollmentHistory from './components/EnrollmentHistory';
@@ -48,41 +48,37 @@ const CourseEnrollment = () => {
           <nav className="-mb-px flex">
             <button
               onClick={() => setActiveTab('search')}
-              className={`${
-                activeTab === 'search'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              } w-1/4 py-4 px-1 text-center border-b-2 font-medium`}
+              className={`${activeTab === 'search'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                } w-1/4 py-4 px-1 text-center border-b-2 font-medium`}
             >
               강의 검색
             </button>
             <button
               onClick={() => setActiveTab('cart')}
-              className={`${
-                activeTab === 'cart'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              } w-1/4 py-4 px-1 text-center border-b-2 font-medium`}
+              className={`${activeTab === 'cart'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                } w-1/4 py-4 px-1 text-center border-b-2 font-medium`}
             >
               장바구니 ({cartItems.length})
             </button>
             <button
               onClick={() => setActiveTab('history')}
-              className={`${
-                activeTab === 'history'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              } w-1/4 py-4 px-1 text-center border-b-2 font-medium`}
+              className={`${activeTab === 'history'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                } w-1/4 py-4 px-1 text-center border-b-2 font-medium`}
             >
               신청 내역
             </button>
             <button
               onClick={() => setActiveTab('timetable')}
-              className={`${
-                activeTab === 'timetable'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              } w-1/4 py-4 px-1 text-center border-b-2 font-medium`}
+              className={`${activeTab === 'timetable'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                } w-1/4 py-4 px-1 text-center border-b-2 font-medium`}
             >
               시간표
             </button>
@@ -92,7 +88,7 @@ const CourseEnrollment = () => {
         {/* 탭 컨텐츠 */}
         <div className="p-6">
           {activeTab === 'search' && (
-            <CourseSearch 
+            <CourseSearch
               onAddToCart={handleAddToCart}
               enrolledCourses={enrolledCourses}
               cartItems={cartItems}
@@ -100,23 +96,23 @@ const CourseEnrollment = () => {
               studentId={studentId}
               currentEnrollments={currentEnrollments}
             />
-              // 강의 검색 컴포넌트
+            // 강의 검색 컴포넌트
           )}
           {activeTab === 'cart' && (
-            <CartList 
-              cartItems={cartItems} 
+            <CartList
+              cartItems={cartItems}
               onRemoveFromCart={handleRemoveFromCart}
               onEnrollCourse={handleEnrollCourse}
             />
-              // 장바구니 컴포넌트
+            // 장바구니 컴포넌트
           )}
           {activeTab === 'history' && (
             <EnrollmentHistory />
-              //신청 내역 컴포넌트
+            //신청 내역 컴포넌트
           )}
           {activeTab === 'timetable' && (
             <TimeTablePreview courses={[...enrolledCourses, ...cartItems]} />
-              // 시간표 컴포넌트
+            // 시간표 컴포넌트
           )}
         </div>
       </div>
