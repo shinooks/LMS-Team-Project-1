@@ -81,6 +81,11 @@ public class Grade {
         return courseOpening.getSemester();
     }
 
+    // CourseOpening 엔티티에서 교수 ID를 조회하는 편의 메서드
+    public String getProfessorId() {
+        return courseOpening.getProfessorId();
+    }
+    // CourseOpening 엔티티에서 연도 정보를 조회하는 편의 메서드
     public Integer getYear() {
         return courseOpening.getYear();
     }

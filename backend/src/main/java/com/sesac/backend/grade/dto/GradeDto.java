@@ -26,6 +26,7 @@ public class GradeDto {
     private String studentName;      // 학생 이름
     private String semester;         // 학기 정보
     private int year;                // 년도
+    private String professorId;    // 교수 ID
     private int assignmentScore;     // 과제 점수
     private int midtermScore;        // 중간고사 점수
     private int finalScore;          // 기말고사 점수
@@ -58,6 +59,7 @@ public class GradeDto {
         dto.visibilityEndDate = grade.getVisibilityEndDate();
         dto.year = grade.getYear();
         dto.courseId = grade.getCourseId(); // 추가
+        dto.professorId = grade.getProfessorId(); // 추가
         return dto;
 
     }

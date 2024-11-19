@@ -31,4 +31,6 @@ public interface CourseOpeningRepository extends JpaRepository<CourseOpening, UU
 
     // 특정 상태의 강의 목록 조회
     List<CourseOpening> findByStatus(CourseStatus status);
+
+    List<CourseOpening> findAllBySemesterAndProfessorIdAndYearAndCourseCourseId(String semester, String professorId, int year, UUID courseId);
 }
