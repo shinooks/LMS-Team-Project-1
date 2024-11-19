@@ -48,21 +48,37 @@ export const enrollmentAPI = {
 
   // 수강 취소
   deleteCourse: async (enrollmentId) => {
-
+    console.log("취소할 강의 Id : " + enrollmentId);
+    try {
+      const res = await axios.delete(`http://localhost:8081/myclasslist/delete/${enrollmentId}`);
+      if (res.status === 200) {
+        console.log("삭제 성공");
+      } else {
+        console.log("예상치 못한 응답 상태: " + res.status);
+      }
+    } catch (error) {
+      console.log("접속 실패: ", error);
+    }
   },
 
   // 학생의 수강 목록 조회
   getStudentEnrollments: async (studentId) => {
-    const response = await fetch(`/api/students/${studentId}/enrollments`);
-    if (!response.ok) throw new Error('Failed to fetch student enrollments');
-    return response.json();
+    try{
+        const res = await axios.get(`http://localhost:8081/myclasslist/${studentId}`);
+        if(res.status === 200){
+          console.log("연결 성공");
+          // 일단 myClassList만 반환
+          return res.data.myClassList;
+        }
+    }catch (error){
+      console.log("연결 실패");
+    }
   },
 
-  // 수강신청 가능 여부 확인
-  checkEnrollmentEligibility: async (studentId, courseId) => {
-    const response = await fetch(`/api/enrollments/check?studentId=${studentId}&courseId=${courseId}`);
-    if (!response.ok) throw new Error('Failed to check enrollment eligibility');
-    return response.json();
+  // 장바구니 목록 가져오기
+  getInterestList: async (studentId) => {
+    const result = await axios.get(`http://localhost:8081/interestList/${studentId}`);
+    return result;
   },
 
   // 선수과목 확인

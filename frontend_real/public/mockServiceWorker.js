@@ -97,11 +97,6 @@ self.addEventListener('message', async function (event) {
 self.addEventListener('fetch', function (event) {
   const { request } = event
 
-  // WebSocket 관련 요청은 무시
-  if (request.url.includes('/ws-enrollment')) {
-    return; // WebSocket 요청은 MSW에서 처리하지 않음
-  }
-
   // Bypass navigation requests.
   if (request.mode === 'navigate') {
     return
@@ -120,12 +115,6 @@ self.addEventListener('fetch', function (event) {
     return
   }
 
-  // 처리할 수 있는 요청인지 확인
-  if (!request || !request.url) {
-    console.error('Request is undefined or has no URL.');
-    return; // 유효하지 않은 요청은 처리하지 않음
-  }
-
   // Generate unique request ID.
   const requestId = crypto.randomUUID()
   event.respondWith(handleRequest(event, requestId))
@@ -139,7 +128,7 @@ async function handleRequest(event, requestId) {
   // Ensure MSW is active and ready to handle the message, otherwise
   // this message will pend indefinitely.
   if (client && activeClientIds.has(client.id)) {
-    ; (async function () {
+    ;(async function () {
       const responseClone = response.clone()
 
       sendToClient(
@@ -217,7 +206,6 @@ async function getResponse(event, client, requestId) {
 
   // Bypass mocking when the client is not active.
   if (!client) {
-    console.error('Client is undefined.')
     return passthrough()
   }
 

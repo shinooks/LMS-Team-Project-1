@@ -3,10 +3,10 @@ import CourseItem from './CourseItem';
 
 const CourseList = ({ courses, onAddToCart, enrolledCourses, cartItems, studentId, currentEnrollments }) => {
 
-  // const coursesToArray = courses.allcourses;
-  // console.log(coursesToArray);
+  // Object
+  const coursesArray = Object.values(courses);
 
-  if (courses.length === 0) {
+  if (coursesArray.length === 0) {
     return (
       <div className="text-center py-4 text-gray-500">
         검색 결과가 없습니다.
@@ -15,8 +15,8 @@ const CourseList = ({ courses, onAddToCart, enrolledCourses, cartItems, studentI
   }
 
   // 수강중인 강의와 장바구니에 담긴 강의 ID 목록
-  const enrolledCourseIds = enrolledCourses.map(course => course.id);
-  const cartItemIds = cartItems.map(course => course.id);
+  // const enrolledCourseIds = enrolledCourses.map(course => course.id);
+  // const cartItemIds = cartItems.map(course => course.id);
 
   return (
     <div className="overflow-x-auto">
@@ -49,15 +49,15 @@ const CourseList = ({ courses, onAddToCart, enrolledCourses, cartItems, studentI
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
-          {courses.map(course => (
+          {coursesArray.map(course => (
             <CourseItem
               key={course.openingId}
               course={course}
               studentId={studentId}
               currentEnrollments={currentEnrollments}
               onAddToCart={onAddToCart}
-              isEnrolled={enrolledCourseIds.includes(course.id)}
-              isInCart={cartItemIds.includes(course.id)}
+              // isEnrolled={enrolledCourseIds.includes(course.id)}
+              // isInCart={cartItemIds.includes(course.id)}
             />
           ))}
         </tbody>
