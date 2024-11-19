@@ -83,9 +83,9 @@ tasks.named('test') {
 }
 
 sonar {
-  properties {
-    property "sonar.projectKey", "SesacMegazoneLMS_Sesac_LMS"
-    property "sonar.organization", "sesacmegazonelms"
-    property "sonar.host.url", "https://sonarcloud.io"
-  }
+    properties {
+        property "sonar.projectKey", "SesacMegazoneLMS_Sesac_LMS"
+        property "sonar.organization", "sesacmegazonelms"
+        property "sonar.host.url", "https://sonarcloud.io"
+    }
 }

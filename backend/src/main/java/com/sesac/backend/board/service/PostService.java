@@ -56,7 +56,7 @@ public class PostService {
                 .author(author)
                 .title(requestDTO.getTitle())
                 .content(requestDTO.getContent())
-                .isAnonymous(requestDTO.isAnonymous())
+                .anonymous(requestDTO.isAnonymous())
                 .viewCount(0)
                 .build();
 
@@ -172,7 +172,7 @@ public class PostService {
                 .title(post.getTitle())
                 .content(post.getContent())
                 .authorName(post.isAnonymous() ? "익명" : post.getAuthor().getName())
-                .isAnonymous(post.isAnonymous())
+                .anonymous(post.isAnonymous())
                 .viewCount(post.getViewCount())
                 .likeCount(post.getLikes().size())
                 .likes(post.getLikes().stream()

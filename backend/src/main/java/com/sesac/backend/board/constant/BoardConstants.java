@@ -178,8 +178,8 @@ public class BoardConstants {
         public static final String CACHE_FILE_LIST = "file:list";
 
         // 스케줄러
-        public static final String SCHEDULER_DELETE_CRON = "0 */30 * * * *";
-        public static final int DELETE_AFTER_MINUTES = 30 ;
+        public static final String SCHEDULER_DELETE_CRON = "0 * * * * *";
+        public static final int DELETE_AFTER_MINUTES = 1 ;
 
         // 허용된 파일 타입
         public static final String[] ALLOWED_FILE_TYPES = {
