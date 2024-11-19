@@ -22,22 +22,21 @@ export const enrollmentAPI = {
 
     // 수강신청 실행 API
     // 2024/11/16 gnuke
-    enrollCourse: async (studentId, courses) => {
+    enrollCourse: async (studentId, course) => {
       try{
           // 각 강의에 대해 수강신청 요청 보내기
           // 이렇게 courses를 배열화 하면 여러 강의에 대한 수강신청을
           // 한 번에 실행할 수 있는 기능을 구현할 수도 있을 거 같습니다.
-          const enrollList = courses.map(course =>
-              axios.post('http://localhost:8081/enrollment', {
+              await axios.post('http://localhost:8081/enrollment', {
                   studentId: studentId,
                   openingId: course.openingId
-              })
-          );
+              });
+          console.log("수강신청 요청 전송됨");
           // 모든 수강신청 요청이 완료될 때까지 기다림
-          await Promise.all(enrollList);
+          // await Promise.all(enrollList);
       }catch (error){
           console.error("수강신청 요청 실패 : ", error);
-          throw error;
+          alert("수강시청 요청 중 오류가 발생했습니다")
       }
     },
     
