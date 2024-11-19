@@ -33,6 +33,7 @@ public class Grade {
     private CourseOpening courseOpening; // CourseOpening 엔티티 참조
 
 
+    @Getter
     @Column(nullable = false)
     private boolean visibility = false;  // 성적 공개 여부
 
@@ -87,6 +88,11 @@ public class Grade {
     // Course 엔티티에서 과목 정보를 조회하는 편의 메서드들
     public String getCourseName() {
         return courseOpening.getCourse().getCourseName();
+    }
+
+    // Course 엔티티에서 과목 정보를 조회하는 편의 메서드들
+    public UUID getCourseId() {
+        return courseOpening.getCourse().getCourseId();
     }
 
     public String getCourseCode() {

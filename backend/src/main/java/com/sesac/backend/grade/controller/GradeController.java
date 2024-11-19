@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.UUID;  // 이 import 추가
 
 
+import com.sesac.backend.evaluation.score.dto.ScoreDto;
 import com.sesac.backend.grade.dto.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +31,13 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 public class GradeController {
     private final GradeService gradeService;
 
+
+    @GetMapping("")
+    public ResponseEntity<List<GradeDto>> getAll() {
+        return ResponseEntity.ok(gradeService.findAll());
+    }
+
+
     @Operation(summary = "단일 성적 조회", description = "특정 학생의 성적 정보를 조회합니다.")
     @ApiResponse(responseCode = "200", description = "조회 성공")
     @ApiResponse(responseCode = "404", description = "성적 정보를 찾을 수 없음")
@@ -43,10 +51,10 @@ public class GradeController {
     @ApiResponse(responseCode = "200", description = "조회 성공")
     @GetMapping("/course")
     public ResponseEntity<List<GradeDto>> getAllGradesByCourseAndSemester(
-            @Parameter(description = "강의명") @RequestParam String courseName,
-            @Parameter(description = "학기 (예: Fall, Spring)") @RequestParam String semester ,
+            @Parameter(description = "강의ID") @RequestParam UUID courseId,
+            @Parameter(description = "학기 (예:1, 2)") @RequestParam String semester ,
             @Parameter(description = "년도") @RequestParam int year) {
-        return ResponseEntity.ok(gradeService.findAllByCourseCourseNameAndCourseOpeningSemesterAndCourseOpeningYear(courseName, semester, year));
+        return ResponseEntity.ok(gradeService.findAllByCourseCourseIdAndCourseOpeningSemesterAndCourseOpeningYear(courseId, semester, year));
     }
 
     @Operation(summary = "성적 일괄 수정", description = "여러 학생의 성적을 한 번에 수정합니다.")

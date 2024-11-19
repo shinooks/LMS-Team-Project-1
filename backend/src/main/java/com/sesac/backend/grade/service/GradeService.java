@@ -1,5 +1,7 @@
 package com.sesac.backend.grade.service;
 
+import com.sesac.backend.course.dto.CourseDto;
+import com.sesac.backend.course.dto.CourseOpeningDto;
 import com.sesac.backend.course.repository.CourseOpeningRepository;
 import com.sesac.backend.course.repository.CourseRepository;
 import com.sesac.backend.entity.Course;
@@ -31,6 +33,29 @@ public class GradeService {
     private final CourseOpeningRepository courseOpeningRepository;
 
 
+    public List<GradeDto> findAll() {
+        return gradeRepository.findAll().stream().map(this::convertToDto).toList();
+    }
+
+
+    private GradeDto convertToDto(Grade entity) {
+        return GradeDto.builder()
+                .gradeId(entity.getGradeId())
+                .assignmentScore(entity.getAssignScore())
+                .midtermScore(entity.getMidtermScore())
+                .finalScore(entity.getFinalScore())
+                .totalScore(entity.getTotalScore())
+                .studentNumber(entity.getStudentNumber())
+                .studentName(entity.getStudentName())
+                .visibility(entity.isVisibility())
+                .visibilityStartDate(entity.getVisibilityStartDate())
+                .visibilityEndDate(entity.getVisibilityEndDate())
+                .build();
+    }
+
+
+
+
     /**
      * Grade 생성 - 다른 서비스에서 호출하여 사용
      */
@@ -55,9 +80,9 @@ public class GradeService {
 
 
     // 전체 조회
-    public List<GradeDto> findAllByCourseCourseNameAndCourseOpeningSemesterAndCourseOpeningYear(String courseName, String semester , int year) {
-        // 1차 필터링: 선택한 강의명, 학기에 해당하는 과목 조회 -> 선택한 강의명, 학기에 해당되는 강의 리스트가 나옴
-        List<Grade> grades = gradeRepository.findAllByCourseOpeningSemesterAndCourseOpeningCourseCourseNameAndCourseOpeningYear(semester, courseName, year);
+    public List<GradeDto> findAllByCourseCourseIdAndCourseOpeningSemesterAndCourseOpeningYear(UUID courseId, String semester , int year) {
+        // 1차 필터링: 선택한 강의id, 학기에 해당하는 과목 조회 -> 선택한 강의명, 학기에 해당되는 강의 리스트가 나옴
+        List<Grade> grades = gradeRepository.findAllByCourseOpeningSemesterAndCourseOpeningCourseCourseIdAndCourseOpeningYear(semester, courseId, year);
         // 2차 필터링: 각 과목에 해당하는 성적 조회 -> 각 과목에 해당되는 성적 리스트가 나옴
         // Comparator 사용 해서 정렬
         Collections.sort(grades, Comparator.comparing(
