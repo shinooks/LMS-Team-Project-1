@@ -1,7 +1,11 @@
 import React from 'react';
 import CourseItem from './CourseItem';
 
-const CourseList = ({ courses, onAddToCart, enrolledCourses, cartItems }) => {
+const CourseList = ({ courses, onAddToCart, enrolledCourses, cartItems, studentId, currentEnrollments }) => {
+
+  const coursesToArray = courses.allcourses;
+  console.log(coursesToArray);
+
   if (courses.length === 0) {
     return (
       <div className="text-center py-4 text-gray-500">
@@ -43,10 +47,12 @@ const CourseList = ({ courses, onAddToCart, enrolledCourses, cartItems }) => {
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
-          {courses.map(course => (
-            <CourseItem 
+          {coursesToArray.map(course => (
+            <CourseItem
               key={course.id} 
-              course={course} 
+              course={course}
+              studentId={studentId}
+              currentEnrollments={currentEnrollments}
               onAddToCart={onAddToCart}
               isEnrolled={enrolledCourseIds.includes(course.id)}
               isInCart={cartItemIds.includes(course.id)}

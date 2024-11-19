@@ -28,7 +28,7 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, UUID> {
     @Query("SELECT e FROM Enrollment e JOIN e.courseOpening co JOIN CourseTime ct ON ct.courseOpening = co " +
             "WHERE e.student = :student " +
             "AND ct.dayOfWeek = :day " +
-            "AND (ct.startTime < :endTime AND ct.endTime > :startTime)")
+            "AND NOT (ct.startTime >= :endTime OR ct.endTime <= :startTime)")
     // query의 조건문을 이용해 겹치는 시간에 대한 테스트도 할 수 있게 됨
     List<Enrollment> findConflictingEnrollments(@Param("student") Student student,
                                                 @Param("day") DayOfWeek day,

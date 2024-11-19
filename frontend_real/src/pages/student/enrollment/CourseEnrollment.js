@@ -24,14 +24,9 @@ const CourseEnrollment = () => {
 
   const [activeTab, setActiveTab] = useState('search');
 
-  // WebSocket 연결 및 상태 업데이트 처리
-  useWebSocket(studentId, enrolledCourses, fetchInitialData, (update) => {
-    // 강의 상태 업데이트 처리 로직
-    setCurrentEnrollments(prev => ({
-      ...prev,
-      [update.openingId]: update.currentEnrollment
-    }));
-  });
+  const studentId = 'eeeeeeee-1111-1111-1111-111111111111'
+
+  const currentEnrollments = useWebSocket(studentId, courses)
 
   // 로딩 및 오류 처리
   if (loadingInitial || loadingCourses) {
@@ -101,6 +96,9 @@ const CourseEnrollment = () => {
               onAddToCart={handleAddToCart}
               enrolledCourses={enrolledCourses}
               cartItems={cartItems}
+              courses={courses}
+              studentId={studentId}
+              currentEnrollments={currentEnrollments}
             />
               // 강의 검색 컴포넌트
           )}
