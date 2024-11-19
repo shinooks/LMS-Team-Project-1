@@ -7,7 +7,12 @@ const CourseItem = ({ course, onAddToCart, isInCart, isEnrolled, studentId, curr
 
     const enrollCourse = async (studentId, course) => {
         await enrollmentAPI.enrollCourse(studentId, course);
-    }
+    };
+
+    const addInterest = async (studentId, course) => {
+        const openingId = course.openingId;
+        await enrollmentAPI.addInterest(studentId, openingId);
+    };
 
     // scheduleDetails에서 해당 courseId에 대한 시간표 가져오기
     const formatSchedule = (courseId) => {
@@ -52,7 +57,7 @@ const CourseItem = ({ course, onAddToCart, isInCart, isEnrolled, studentId, curr
                 </button>
             </td>
             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                <button>
+                <button onClick={() => addInterest(studentId, course)}>
                     담기
                 </button>
             </td>

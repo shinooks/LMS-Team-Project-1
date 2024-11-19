@@ -32,7 +32,7 @@ const UseEnrollmentService = (initialEnrolledCourses) => {
     const getInterestList = async (studentId) => {
         try{
             const result = await enrollmentAPI.getInterestList(studentId);
-            return result;
+            return result.data;
         }catch(error){
             console.log("장바구니 목록 가져오기 실패 : ", error);
             throw error;
