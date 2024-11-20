@@ -1,5 +1,6 @@
 package com.sesac.backend.board.service;
 
+import com.sesac.backend.board.constant.BoardConstants;
 import com.sesac.backend.board.dto.request.CommentRequestDTO;
 import com.sesac.backend.board.dto.response.CommentResponseDTO;
 import com.sesac.backend.board.repository.CommentRepository;
@@ -32,16 +33,16 @@ public class CommentService {
     @Transactional
     public CommentResponseDTO createComment(CommentRequestDTO requestDTO, UUID userId) {
         Post post = postRepository.findById(requestDTO.getPostId())
-                .orElseThrow(() -> new EntityNotFoundException("게시글을 찾을 수 없습니다."));
+                .orElseThrow(() -> new EntityNotFoundException(BoardConstants.Comment.ERROR_POST_NOT_FOUND));
 
         UserAuthentication author = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new EntityNotFoundException(BoardConstants.Comment.ERROR_USER_NOT_FOUND));
 
         Comment comment = Comment.builder()
                 .post(post)
                 .author(author)
                 .content(requestDTO.getContent())
-                .anonymous(requestDTO.isAnonymous())  // 변경
+                .anonymous(requestDTO.isAnonymous())
                 .build();
         comment.setCreatedBy(author.getName());
         Comment savedComment = commentRepository.save(comment);
@@ -52,16 +53,16 @@ public class CommentService {
     @Transactional
     public CommentResponseDTO updateComment(UUID commentId, CommentRequestDTO requestDTO, UUID userId) {
         Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new EntityNotFoundException("댓글을 찾을 수 없습니다."));
+                .orElseThrow(() -> new EntityNotFoundException(BoardConstants.Comment.ERROR_NOT_FOUND));
 
-        UserAuthentication user = userRepository.findById(userId)  // 수정자 정보 조회
-                .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
+        UserAuthentication user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException(BoardConstants.Comment.ERROR_USER_NOT_FOUND));
 
-        log.info("Before update - anonymous: {}", comment.isAnonymous());
+        log.info(BoardConstants.Comment.LOG_BEFORE_UPDATE, comment.isAnonymous());
         comment.setContent(requestDTO.getContent());
         comment.setAnonymous(requestDTO.isAnonymous());
         comment.setUpdatedBy(user.getName());
-        log.info("After update - anonymous: {}", comment.isAnonymous());
+        log.info(BoardConstants.Comment.LOG_AFTER_UPDATE, comment.isAnonymous());
 
         return convertToResponseDTO(comment);
     }
@@ -70,14 +71,14 @@ public class CommentService {
     @Transactional
     public void deleteComment(UUID commentId) {
         Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new EntityNotFoundException("댓글을 찾을 수 없습니다."));
+                .orElseThrow(() -> new EntityNotFoundException(BoardConstants.Comment.ERROR_NOT_FOUND));
         commentRepository.delete(comment);
     }
 
     // 게시글별 댓글 목록 조회
     public List<CommentResponseDTO> getCommentsByPost(UUID postId) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new EntityNotFoundException("게시글을 찾을 수 없습니다."));
+                .orElseThrow(() -> new EntityNotFoundException(BoardConstants.Comment.ERROR_POST_NOT_FOUND));
 
         return commentRepository.findByPostOrderByCreatedAtDesc(post).stream()
                 .map(this::convertToResponseDTO)
@@ -89,7 +90,7 @@ public class CommentService {
                 .commentId(comment.getCommentId())
                 .postId(comment.getPost().getPostId())
                 .content(comment.getContent())
-                .authorName(comment.isAnonymous() ? "익명" : comment.getAuthor().getName())
+                .authorName(comment.isAnonymous() ? BoardConstants.Comment.ANONYMOUS_USER : comment.getAuthor().getName())
                 .anonymous(comment.isAnonymous())
                 .createdAt(comment.getCreatedAt())
                 .createdBy(comment.getCreatedBy())

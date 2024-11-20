@@ -1,9 +1,11 @@
 package com.sesac.backend.course.repository;
 
 import com.sesac.backend.course.constant.CourseStatus;
+import com.sesac.backend.course.dto.CourseOpeningDto;
 import com.sesac.backend.entity.Course;
 import com.sesac.backend.entity.CourseOpening;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -33,4 +35,9 @@ public interface CourseOpeningRepository extends JpaRepository<CourseOpening, UU
     List<CourseOpening> findByStatus(CourseStatus status);
 
     List<CourseOpening> findAllBySemesterAndProfessorIdAndYearAndCourseCourseId(String semester, String professorId, int year, UUID courseId);
+
+    //gnuke
+    @Query("Select co From CourseOpening co JOIN co.courseTimes ct JOIN Course c ON ct.courseOpening = co " +
+    "WHERE c.courseId = :courseId")
+    List<CourseOpening> findByCourseId(UUID courseId);
 }

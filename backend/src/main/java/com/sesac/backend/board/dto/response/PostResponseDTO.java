@@ -20,7 +20,7 @@ public class PostResponseDTO {
     private String title;           // 제목
     private String content;         // 내용
     private String authorName;      // 작성자 이름
-    private boolean isAnonymous;    // 익명 여부
+    private boolean anonymous;    // 익명 여부
     private int viewCount;          // 조회수
     private int likeCount;          // 좋아요 수
     private LocalDateTime createdAt;// 작성일시

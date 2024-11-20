@@ -29,4 +29,8 @@ public class PostFileResponseDTO {
     private LocalDateTime updatedAt;   // 수정 일시
     private String createdBy;          // 생성자
     private String updatedBy;          // 수정자
+
+    // 삭제 관련 필드 추가
+    private boolean isDeleted;         // 삭제 여부
+    private LocalDateTime deletedAt;   // 삭제 일시
 }
