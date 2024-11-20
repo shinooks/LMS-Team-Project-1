@@ -28,11 +28,22 @@ const UseEnrollmentService = (initialEnrolledCourses) => {
         }
     };
 
+    const getTimeTableData = async (studentId) => {
+        try{
+            console.log("getTimeTableData : " + studentId);
+            const result = await enrollmentAPI.getStudentTimeTableData(studentId);
+            return result;
+        }catch(error){
+            console.log("시간표 정보 가져오기 실패 : ", error);
+            throw error;
+        }
+    }
+
     // 장바구니 목록
     const getInterestList = async (studentId) => {
         try{
             const result = await enrollmentAPI.getInterestList(studentId);
-            return result;
+            return result.data;
         }catch(error){
             console.log("장바구니 목록 가져오기 실패 : ", error);
             throw error;
@@ -91,13 +102,13 @@ const UseEnrollmentService = (initialEnrolledCourses) => {
     };
 
     return {
-        cartItems,
         enrolledCourses,
         handleEnrollCourse,
         setEnrolledCourses, // 필요시 상태 업데이트를 위해 반환
         getAllCourses,
         getEnrollment,
-        getInterestList
+        getInterestList,
+        getTimeTableData
     };
 };
 

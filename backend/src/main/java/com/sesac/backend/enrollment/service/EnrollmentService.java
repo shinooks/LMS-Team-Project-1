@@ -281,6 +281,7 @@ public class EnrollmentService {
     }
 
 
+    @Transactional
     public void requestEnrollment(UUID studentId, UUID openingId) {
         try {
             EnrollmentMessageDto message = new EnrollmentMessageDto(

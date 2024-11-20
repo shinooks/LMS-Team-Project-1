@@ -24,19 +24,24 @@ export const enrollmentAPI = {
   // 2024/11/16 gnuke
   enrollCourse: async (studentId, course) => {
     try {
-      // 각 강의에 대해 수강신청 요청 보내기
-      // 이렇게 courses를 배열화 하면 여러 강의에 대한 수강신청을
-      // 한 번에 실행할 수 있는 기능을 구현할 수도 있을 거 같습니다.
-      await axios.post('http://localhost:8081/enrollment', {
+      const response = await axios.post('http://localhost:8081/enrollment', {
         studentId: studentId,
         openingId: course.openingId
       });
-      console.log("수강신청 요청 전송됨");
-      // 모든 수강신청 요청이 완료될 때까지 기다림
-      // await Promise.all(enrollList);
+
+      // 응답 상태 확인
+      // if (response.data.status === 'pending') {
+      //   alert(response.data.message || "수강신청이 요청되었습니다. 결과를 기다려주세요");
+      // } else if (response.data.status === 'error') {
+      //   alert(response.data.message || "수강신청 실패");
+      // }
+
+      console.log("응답 데이터 : " + JSON.stringify(response.data))
+      //return response.data;
     } catch (error) {
-      console.error("수강신청 요청 실패 : ", error);
-      alert("수강시청 요청 중 오류가 발생했습니다")
+      console.error("수강신청 요청 실패:", error);
+      alert(error.response?.data?.message || "수강신청 요청 중 오류가 발생했습니다");
+      throw error;
     }
   },
 
@@ -75,10 +80,75 @@ export const enrollmentAPI = {
     }
   },
 
+  // 시간표 데이터 가져오기
+  getStudentTimeTableData: async (studentId) => {
+    try{
+      const res = await axios.get(`http://localhost:8081/myclasslist/${studentId}`);
+      if(res.status === 200){
+        // 일단 myClassList만 반환
+        return res.data.myTimeTable;
+      }
+    }catch (error){
+      console.log("연결 실패");
+    }
+  },
+
   // 장바구니 목록 가져오기
   getInterestList: async (studentId) => {
     const result = await axios.get(`http://localhost:8081/interestList/${studentId}`);
     return result;
+  },
+
+  addInterest: async (studentId, openingId) => {
+    try {
+      const res = await axios.post('http://localhost:8081/saveStudentInterest', {
+        studentId: studentId,
+        openingId: openingId
+      });
+
+      if (res.status === 201) {
+        // 201 Created 응답 처리
+        alert("관심 강의가 등록되었습니다.");
+        // 추가적인 UI 업데이트나 상태 변경 로직을 여기에 추가
+      } else {
+        // 다른 상태 코드에 대한 처리
+        console.error("예상치 못한 응답:", res);
+      }
+    } catch (error) {
+      if (error.response) {
+        // 서버가 응답을 했지만 상태 코드가 2xx가 아닌 경우
+        if (error.response.status === 409) {
+          // 409 Conflict 응답 처리
+          console.error("관심 강의 등록 중 충돌 발생:", error.response.data);
+          alert("이미 등록된 관심강의입니다.")
+          // 사용자에게 알림을 주거나 UI 업데이트
+        } else if (error.response.status === 500) {
+          // 500 Internal Server Error 응답 처리
+          console.error("서버 오류:", error.response.data);
+          // 사용자에게 알림을 주거나 UI 업데이트
+        } else {
+          // 기타 상태 코드 처리
+          console.error("기타 오류:", error.response.data);
+        }
+      } else if (error.request) {
+        // 요청이 이루어졌지만 응답을 받지 못한 경우
+        console.error("서버 응답 없음:", error.request);
+      } else {
+        // 오류를 발생시킨 요청 설정
+        console.error("오류 발생:", error.message);
+      }
+    }
+  },
+
+  deleteInterest: async (studentId, course) => {
+    const openingId = course.openingId;
+
+    const res = await axios.delete(`http://localhost:8081/deleteStudentInterest/${studentId}/${openingId}`);
+    if (res.status === 200) {
+      alert("관심강의 삭제에 성공하였습니다.");
+    }else{
+      alert("삭제 실패");
+    }
   },
 
   // 선수과목 확인

@@ -1,13 +1,27 @@
 import React from 'react';
 import { scheduleDetails } from '../../../../api/mock/data/scheduleDetails'; // 상세 시간표 데이터
-import { scheduleStrings } from '../../../../api/mock/data/schedules'; // 간단한 시간표 문자열
 import { enrollmentAPI } from '../../../../api/services/enrollmentAPI';
+import useEnrollmentService from "../useEnrollmentService";
 
-const CourseItem = ({ course, onAddToCart, isInCart, isEnrolled, studentId, currentEnrollments }) => {
+const CourseItem = ({ course, onAddToCart, isInCart, isEnrolled, studentId, currentEnrollments, refreshInterests }) => {
+    const { getTimeTableData } = useEnrollmentService();
 
     const enrollCourse = async (studentId, course) => {
+        console.log(studentId);
         await enrollmentAPI.enrollCourse(studentId, course);
-    }
+
+        await getTimeTableData(studentId);
+    };
+
+    const addInterest = async (studentId, course) => {
+        try {
+            const openingId = course.openingId;
+            await enrollmentAPI.addInterest(studentId, openingId);
+            await refreshInterests();
+        } catch (error) {
+            console.error("관심과목 담기 실패 : " + error);
+        }
+    };
 
     // scheduleDetails에서 해당 courseId에 대한 시간표 가져오기
     const formatSchedule = (courseId) => {
@@ -21,38 +35,44 @@ const CourseItem = ({ course, onAddToCart, isInCart, isEnrolled, studentId, curr
 
     return (
         <tr key={course.openingId}>
-            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 text-center">
                 {course.courseCode}
             </td>
-            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
                 {course.courseName}
             </td>
-            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
                 {course.professorName}
             </td>
-            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
                 {course.credit}
             </td>
-            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                <span className={course.currentStudents >= course.maxStudents ? 'text-red-600' : ''}>
-                    {/*{currentStudents}/{maxStudents}*/}
-                    {
-                        currentEnrollments[course.openingId] !== undefined
-                            ? `${currentEnrollments[course.openingId]}/${course.maxStudents}`
-                            : `${course.currentStudents}/${course.maxStudents}`
-                    }
-                </span>
+            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+            <span className={course.currentStudents >= course.maxStudents ? 'text-red-600' : ''}>
+                {
+                    currentEnrollments[course.openingId] !== undefined
+                        ? `${currentEnrollments[course.openingId]}/${course.maxStudents}`
+                        : `${course.currentStudents}/${course.maxStudents}`
+                }
+            </span>
             </td>
-            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {course.day} {course.startTime} - {course.endTime}
+            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                {course.day}
             </td>
-            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                <button onClick={() => enrollCourse(studentId, course)}>
+            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                {course.startTime} - {course.endTime}
+            </td>
+            <td className="px-6 py-4 whitespace-nowrap text-center">
+                <button onClick={() => enrollCourse(studentId, course)} className="bg-blue-600 text-white rounded-md hover:bg-blue-700
+                focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
+                text-sm py-1 px-2">
                     신청
                 </button>
             </td>
-            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                <button>
+            <td className="px-6 py-4 whitespace-nowrap text-center">
+                <button onClick={() => addInterest(studentId, course)} className="bg-blue-600 text-white rounded-md hover:bg-blue-700
+                focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
+                text-sm py-1 px-2">
                     담기
                 </button>
             </td>

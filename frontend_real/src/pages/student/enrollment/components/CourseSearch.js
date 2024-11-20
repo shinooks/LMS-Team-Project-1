@@ -3,7 +3,7 @@ import SearchFilters from './SearchFilters';
 import CourseList from './CourseList';
 import { courseAPI } from '../../../../api/services';
 
-const CourseSearch = ({ onAddToCart, enrolledCourses, cartItems, courses, studentId, currentEnrollments }) => {
+const CourseSearch = ({ onAddToCart, enrolledCourses, cartItems, courses, studentId, currentEnrollments, refreshInterests }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [filters, setFilters] = useState({
@@ -12,23 +12,6 @@ const CourseSearch = ({ onAddToCart, enrolledCourses, cartItems, courses, studen
     category: '',
     search: ''
   });
-
-  // useEffect(() => {
-  //   const fetchCourses = async () => {
-  //     setLoading(true);
-  //     try {
-  //       const data = await courseAPI.getCourses(filters);
-  //       setCourses(data);
-  //     } catch (err) {
-  //       setError('강의 목록을 불러오는데 실패했습니다.');
-  //       console.error('Error fetching courses:', err);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-  //
-  //   fetchCourses();
-  // }, [filters]);
 
   const handleFilterChange = (filterName, value) => {
     setFilters(prev => ({
@@ -61,6 +44,7 @@ const CourseSearch = ({ onAddToCart, enrolledCourses, cartItems, courses, studen
           onAddToCart={onAddToCart}
           enrolledCourses={enrolledCourses}
           cartItems={cartItems}
+          refreshInterests={refreshInterests}
         />
       )}
     </div>
