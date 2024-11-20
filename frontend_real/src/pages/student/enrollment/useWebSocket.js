@@ -14,7 +14,7 @@ const useWebSocket = (studentId, courses) => {
             heartbeatIncoming: 4000,
             heartbeatOutgoing: 4000,
             debug: function (str) {
-                console.log('STOMP Debug', str);
+                //console.log('STOMP Debug', str);
             },
             onConnect: () => {
                 console.log("WebSocket Connected Successfully!");

@@ -9,7 +9,7 @@ const EnrollmentHistory = ({ studentId }) => {
   const [error, setError] = useState(null);
   const [enrollments, setEnrollments] = useState([]);
 
-  const { getEnrollment } = useEnrollmentService();
+  const { getEnrollment, getTimeTableData } = useEnrollmentService();
 
   // 내가 신청한 강의의 상태를 새로 가져오는 함수
   useEffect(() => {
@@ -25,11 +25,12 @@ const EnrollmentHistory = ({ studentId }) => {
     getEnrollmentInComponent();
   }, [studentId]);
 
-  const cancelEnrollment = async (enrollmentId) => {
+  const cancelEnrollment = async (studentId, enrollmentId) => {
     try {
       await enrollmentAPI.deleteCourse(enrollmentId);
       const updatedEnrollments = await getEnrollment(studentId);
       setEnrollments(updatedEnrollments);
+      await getTimeTableData(studentId);
     } catch (err) {
       console.error("수강신청 취소 중 오류 발생:", err);
       setError(err);
@@ -162,7 +163,11 @@ const EnrollmentHistory = ({ studentId }) => {
                     {/*  {enrollment.enrolledAt}*/}
                     {/*</td>*/}
                     <td>
-                      <button onClick={() => cancelEnrollment(enrollment.enrollmentId)}>신청 취소</button>
+                      <button className="bg-blue-600 text-white rounded-md hover:bg-blue-700
+                          focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
+                          text-sm py-1 px-2" onClick={() => cancelEnrollment(enrollment.enrollmentId)}>
+                        신청취소
+                      </button>
                     </td>
                   </tr>
               ))}

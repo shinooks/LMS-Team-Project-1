@@ -66,6 +66,7 @@ public class InterestEnrollmentService {
             courseInfo.put("courseCode", courseOpening.getCourse().getCourseCode());
             courseInfo.put("courseName", courseOpening.getCourse().getCourseName());
             courseInfo.put("credits", courseOpening.getCourse().getCredits());
+            courseInfo.put("professorName", courseOpening.getProfessor().getName());
 
             // 강의 시간 정보 추가
             for (CourseTime courseTime : courseOpening.getCourseTimes()) {

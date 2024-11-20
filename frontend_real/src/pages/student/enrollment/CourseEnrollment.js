@@ -16,18 +16,30 @@ const CourseEnrollment = () => {
   const { loading: loadingInitial, error: errorInitial } = useFetchInitialData();
   const { loading: loadingCourses, error: errorCourses } = useFetchCourses();
   const {
-    cartItems,
     handleAddToCart,
     getAllCourses,
+      getInterestList
   } = useEnrollmentService(); // 훅 사용
 
   const [activeTab, setActiveTab] = useState('search');
   //const [studentEnrollments, setStudentEnrollments] = useState([]);
   const [courses, setCourses] = useState([]);
+  const [interests, setInterests] = useState([]);
 
   const studentId = 'eeeeeeee-1111-1111-1111-111111111111';
 
   const currentEnrollments = useWebSocket(studentId, courses);
+
+  // 장바구니 목록 가져오기
+  const refreshInterests = async () => {
+    try {
+      const result = await getInterestList(studentId);
+      const resultArray = Object.values(result);
+      setInterests(resultArray);
+    } catch (error) {
+      console.error("장바구니 목록을 가져오는 중 오류 발생:", error);
+    }
+  };
 
   // 모든 강의의 상태를 새로 가져오는 함수
   useEffect(() => {
@@ -42,6 +54,12 @@ const CourseEnrollment = () => {
 
     getAllCoursesInComponent();
   }, []);
+
+
+  // 장바구니 개수 가져오기
+  useEffect(() => {
+    refreshInterests();
+  }, [studentId]);
 
 
   // 로딩 및 오류 처리
@@ -79,7 +97,7 @@ const CourseEnrollment = () => {
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 } w-1/4 py-4 px-1 text-center border-b-2 font-medium`}
             >
-              장바구니 ({cartItems.length})
+              장바구니 ({Array.isArray(interests) ? interests.length : 0})
             </button>
             <button
               onClick={() => setActiveTab('history')}
@@ -108,16 +126,18 @@ const CourseEnrollment = () => {
             <CourseSearch
               onAddToCart={handleAddToCart}
               //enrolledCourses={enrolledCourses}
-              cartItems={cartItems}
               courses={courses}
               studentId={studentId}
               currentEnrollments={currentEnrollments}
+              interest
+              refreshInterests={refreshInterests}
             />
             // 강의 검색 컴포넌트
           )}
           {activeTab === 'cart' && (
             <CartList
                 studentId={studentId}
+                refreshInterests={refreshInterests}
             />
             // 장바구니 컴포넌트
           )}
@@ -128,9 +148,9 @@ const CourseEnrollment = () => {
             //신청 내역 컴포넌트
           )}
           {activeTab === 'timetable' && (
-            // <TimeTablePreview courses={[...enrolledCourses, ...cartItems]} />
-            // 시간표 컴포넌트
-              <div>시간표</div>
+            <TimeTablePreview
+              studentId={studentId}
+            />
           )}
         </div>
       </div>
