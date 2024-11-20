@@ -28,7 +28,7 @@ public class ExamProblem {
     @JoinColumn(name = "examId", nullable = false)
     private Exam exam;
 
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false)
     private Integer number;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
