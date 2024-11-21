@@ -64,7 +64,6 @@ export const enrollmentAPI = {
     try{
         const res = await axios.get(`http://localhost:8081/myclasslist/${studentId}`);
         if(res.status === 200){
-          console.log("연결 성공");
           // 일단 myClassList만 반환
           return res.data.myClassList;
         }

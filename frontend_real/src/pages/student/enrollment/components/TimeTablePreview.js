@@ -2,15 +2,15 @@ import React, { useEffect, useMemo, useState } from 'react';
 import useEnrollmentService from "../useEnrollmentService";
 
 const TimeTablePreview = ({ studentId }) => {
-  const { getTimeTableData } = useEnrollmentService();
+  const { getTimeTableData, getEnrollment } = useEnrollmentService();
   const [timeTableData, setTimeTableData] = useState(null);
+  const [enrolledData, setEnrolledData] = useState([]);
 
   // 요일과 시간 설정
   const days = ['월', '화', '수', '목', '금'];
   const timeSlots = Array.from({ length: 9 }, (_, i) => `${i + 1}교시`);
 
   const timeTableDatas = async () => {
-    console.log("TimeTable에서 studentId : " + studentId);
     try {
       const result = await getTimeTableData(studentId);
       setTimeTableData(result);
@@ -19,8 +19,18 @@ const TimeTablePreview = ({ studentId }) => {
     }
   };
 
+  const enrolledDatas = async () => {
+    try{
+      const enrollmentData = await getEnrollment(studentId);
+      setEnrolledData(enrollmentData);
+    }catch(error){
+      console.error("강의 데이터를 불러오는 중 오류 발생 : ", error);
+    }
+  }
+
   useEffect(() => {
     timeTableDatas();
+    enrolledDatas();
   }, [studentId]);
 
   // 고유한 과목 목록 추출 및 색상 할당
@@ -60,7 +70,7 @@ const TimeTablePreview = ({ studentId }) => {
         <div className="bg-white p-4 rounded-lg shadow">
           <h3 className="text-lg font-medium text-gray-900">수강신청 시간표</h3>
           <p className="text-sm text-gray-500 mt-1">
-            총 {timeTableData.length}과목 / {timeTableData.reduce((sum, course) => sum + course.credits, 0)}학점
+            총 {enrolledData.length}과목 / {enrolledData.reduce((sum, course) => sum + course.credit, 0)}학점
           </p>
         </div>
 
