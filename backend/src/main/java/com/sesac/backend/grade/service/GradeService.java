@@ -4,6 +4,7 @@ import com.sesac.backend.course.dto.CourseDto;
 import com.sesac.backend.course.dto.CourseOpeningDto;
 import com.sesac.backend.course.repository.CourseOpeningRepository;
 import com.sesac.backend.course.repository.CourseRepository;
+import com.sesac.backend.course.repository.ProfessorRepository;
 import com.sesac.backend.entity.Course;
 import com.sesac.backend.entity.CourseOpening;
 import com.sesac.backend.entity.Grade;
@@ -32,6 +33,7 @@ public class GradeService {
     private final GradeRepository gradeRepository;
     private final ScoreService scoreService;
     private final CourseOpeningRepository courseOpeningRepository;
+    private final ProfessorRepository professorRepository;
 
 
     public List<GradeDto> findAll() {
@@ -78,9 +80,14 @@ public class GradeService {
 
 
     // 전체 조회
-    public List<GradeDto> findAllByCourseCourseIdAndCourseOpeningSemesterAndCourseOpeningYear(String semester, int year, UUID courseId, Professor professor) {
+    public List<GradeDto> findAllByCourseCourseIdAndCourseOpeningSemesterAndCourseOpeningYear(
+            String semester, int year, UUID courseId, UUID professorId) {
+        Professor professor = professorRepository.findById(professorId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 교수 정보가 없습니다. id=" + professorId));
+
         // 1차 필터링: 선택한 강의id, 학기에 해당하는 과목 조회 -> 선택한 강의명, 학기에 해당되는 강의 리스트가 나옴
-        List<CourseOpening> courseOpenings = courseOpeningRepository.findAllBySemesterAndProfessorAndYearAndCourseCourseId(semester, professor, year, courseId);
+        List<CourseOpening> courseOpenings = courseOpeningRepository
+                .findAllBySemesterAndProfessorAndYearAndCourseCourseId(semester, professor, year, courseId);
         List<Grade> grades = new ArrayList<>();
         courseOpenings.forEach(courseOpening -> grades.addAll(gradeRepository.findByCourseOpening(courseOpening)));
         // 2차 필터링: 각 과목에 해당하는 성적 조회 -> 각 과목에 해당되는 성적 리스트가 나옴
