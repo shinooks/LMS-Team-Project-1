@@ -61,4 +61,11 @@ public class GradeAppealController {
             @Parameter(description = "성적 ID") @PathVariable UUID gradeId) {
         return ResponseEntity.ok(appealService.getAppealsByGrade(gradeId));
     }
+
+    @Operation(summary = "전체 이의신청 조회", description = "모든 이의신청을 조회합니다.")
+    @ApiResponse(responseCode = "200", description = "조회 성공")
+    @GetMapping
+    public ResponseEntity<List<GradeAppealDto>> getAllAppeals() {
+        return ResponseEntity.ok(appealService.getAllAppeals());
+    }
 }

@@ -2,6 +2,7 @@ package com.sesac.backend.grade.dto;
 
 import com.sesac.backend.entity.AppealStatus;
 import com.sesac.backend.entity.GradeAppeal;
+import com.sesac.backend.entity.Grade;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -16,48 +17,41 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 public class GradeAppealDto {
-    private UUID appealId;          // 이의신청 ID
-    private UUID gradeId;           // 성적 ID
-    private String studentName;     // 학생 이름
-    private String studentNumber;   // 학번
-    private String courseName;      // 과목명
-    private String content;         // 이의신청 내용
-    private AppealStatus status;    // 처리 상태 (PENDING, APPROVED, REJECTED)
-    private LocalDateTime createdAt;// 신청일시
+    private UUID appealId;
+    private String content;
+    private AppealStatus status;
+    private LocalDateTime createdAt;
+    
+    // 학생 정보
+    private String studentName;
+    private String studentNumber;
+    
+    // 과목 정보
+    private String courseName;
+    
+    // 점수 정보
+    private Integer requestedAssignScore;
+    private Integer requestedMidtermScore;
+    private Integer requestedFinalScore;
 
-    // 현재 점수
-    private int currentAssignScore;
-    private int currentMidtermScore;
-    private int currentFinalScore;
-
-    // 요청 점수
-    private int requestedAssignScore;
-    private int requestedMidtermScore;
-    private int requestedFinalScore;
-
-
-
-    /**
-     * GradeAppeal 엔티티를 GradeAppealDto로 변환
-     * @param appeal 변환할 GradeAppeal 엔티티
-     * @return 변환된 GradeAppealDto
-     */
     public static GradeAppealDto from(GradeAppeal appeal) {
         GradeAppealDto dto = new GradeAppealDto();
-        dto.appealId = appeal.getAppealId();
-        dto.gradeId = appeal.getGrade().getGradeId();
-        dto.studentName = appeal.getGrade().getStudentName();
-        dto.studentNumber = appeal.getGrade().getStudentNumber();
-        dto.courseName = appeal.getGrade().getCourseName();
-        dto.content = appeal.getContent();
-        dto.status = appeal.getStatus();
-        dto.createdAt = appeal.getCreatedAt();
-        dto.currentAssignScore = appeal.getGrade().getAssignScore();
-        dto.currentMidtermScore = appeal.getGrade().getMidtermScore();
-        dto.currentFinalScore = appeal.getGrade().getFinalScore();
-        dto.requestedAssignScore = appeal.getRequestedAssignScore();
-        dto.requestedMidtermScore = appeal.getRequestedMidtermScore();
-        dto.requestedFinalScore = appeal.getRequestedFinalScore();
+        dto.setAppealId(appeal.getAppealId());
+        dto.setContent(appeal.getContent());
+        dto.setStatus(appeal.getStatus());
+        dto.setCreatedAt(appeal.getCreatedAt());
+        
+        // Grade 엔티티에서 정보 가져오기
+        Grade grade = appeal.getGrade();
+        if (grade != null) {
+            dto.setStudentName(grade.getStudentName());
+            dto.setStudentNumber(grade.getStudentNumber());
+            dto.setCourseName(grade.getCourseName());
+            dto.setRequestedAssignScore(appeal.getRequestedAssignScore());
+            dto.setRequestedMidtermScore(appeal.getRequestedMidtermScore());
+            dto.setRequestedFinalScore(appeal.getRequestedFinalScore());
+        }
+        
         return dto;
     }
 }
