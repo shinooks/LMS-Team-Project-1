@@ -4,7 +4,13 @@ import com.sesac.backend.evaluation.enums.Type;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 /**
  * @author dongjin
@@ -26,8 +32,8 @@ public class ExamCreationRequest {
      * endTime:         종료시간
      */
     private UUID openingId;
-    private List<ExamProblemCreationDto> problems;
     private Type type;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
+    private List<ExamProblemCreationDto> problems;
 }

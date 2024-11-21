@@ -1,18 +1,24 @@
 package com.sesac.backend.evaluation.assignment.controller;
 
-import com.sesac.backend.evaluation.assignment.dto.AssignCreationRequest;
-import com.sesac.backend.evaluation.assignment.dto.AssignResponse;
-import com.sesac.backend.evaluation.assignment.dto.AssignScoreRequest;
-import com.sesac.backend.evaluation.assignment.dto.AssignSubmissionRequest;
+import com.sesac.backend.evaluation.assignment.dto.request.AssignCreationRequest;
+import com.sesac.backend.evaluation.assignment.dto.request.AssignScoreRequest;
+import com.sesac.backend.evaluation.assignment.dto.request.AssignSubmissionRequest;
+import com.sesac.backend.evaluation.assignment.dto.response.AssignResponse;
+import com.sesac.backend.evaluation.assignment.dto.response.AssignSubmissionResponse;
 import com.sesac.backend.evaluation.assignment.service.AssignmentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * @author dongjin 과제 controller http 요청을 받아 Assignment service 호출
@@ -28,6 +34,36 @@ public class AssignmentController {
 
     public AssignmentController(AssignmentService assignmentService) {
         this.assignmentService = assignmentService;
+    }
+
+    @GetMapping("/{studentId}")
+    @Operation(summary = "학생별 과제 조회", description = "학생아이디(studentId)")
+    public ResponseEntity<List<AssignResponse>> getAllAssignment(@PathVariable UUID studentId) {
+        try {
+            return ResponseEntity.ok(assignmentService.getAllAssignments(studentId));
+        } catch (RuntimeException e) {
+            log.error(e.getMessage());
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    /**
+     * 과제 조회 컨트롤러
+     *
+     * @param openingId
+     * @param studentId
+     * @return
+     */
+    @GetMapping("/{openingId}/{studentId}")
+    @Operation(summary = "과제 조회", description = "수강신청아이디(openingId), 학생아이디(studentId)")
+    public ResponseEntity<AssignResponse> getAssignment(@PathVariable UUID openingId,
+        @PathVariable UUID studentId) {
+        try {
+            return ResponseEntity.ok(assignmentService.findAssign(openingId, studentId));
+        } catch (RuntimeException e) {
+            log.error(e.getMessage());
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     /**
@@ -51,22 +87,16 @@ public class AssignmentController {
     /**
      * 과제 제출 컨트롤러
      *
-     * @param studentId
-     * @param openingId
-     * @param multipartFile
-     * @param fileName
-     * @return
+     * @param request 과제 제출 요청
+     * @return AssignSubmissionRequest
      */
     @PostMapping("/submit")
     @Operation(summary = "과제 제출", description = "학생아이디(studentId), 강의개설아이디(openingId), 업로드파일(file), 파일명(fileName)")
-    public ResponseEntity<AssignSubmissionRequest> submitAssignment(UUID studentId, UUID openingId,
-        MultipartFile multipartFile, String fileName) {
+    public ResponseEntity<AssignSubmissionResponse> submitAssignment(
+        AssignSubmissionRequest request) {
         try {
-            AssignSubmissionRequest request = new AssignSubmissionRequest(studentId, openingId,
-                multipartFile.getBytes(), fileName);
-
             return ResponseEntity.ok(assignmentService.submitAssignment(request));
-        } catch (RuntimeException | IOException e) {
+        } catch (RuntimeException e) {
             log.error(e.getMessage());
             return ResponseEntity.badRequest().build();
         }
@@ -84,25 +114,6 @@ public class AssignmentController {
         @RequestBody AssignScoreRequest request) {
         try {
             return ResponseEntity.ok(assignmentService.updateAssignScore(request));
-        } catch (RuntimeException e) {
-            log.error(e.getMessage());
-            return ResponseEntity.badRequest().build();
-        }
-    }
-
-    /**
-     * 과제 조회 컨트롤러
-     *
-     * @param openingId
-     * @param studentId
-     * @return
-     */
-    @GetMapping("/{openingId}/{studentId}")
-    @Operation(summary = "과제 조회", description = "수강신청아이디(openingId), 학생아이디(studentId)")
-    public ResponseEntity<AssignResponse> getAssignment(@PathVariable UUID openingId,
-        @PathVariable UUID studentId) {
-        try {
-            return ResponseEntity.ok(assignmentService.findAssign(openingId, studentId));
         } catch (RuntimeException e) {
             log.error(e.getMessage());
             return ResponseEntity.badRequest().build();

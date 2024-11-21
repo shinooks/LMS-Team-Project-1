@@ -1,5 +1,7 @@
-package com.sesac.backend.evaluation.assignment.dto;
+package com.sesac.backend.evaluation.assignment.dto.request;
 
+import java.time.LocalDateTime;
+import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,7 +16,13 @@ import lombok.ToString;
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class AssignResponse {
+public class AssignUpdateRequest {
+
+    private UUID assignId;
+    private UUID openingId;
+    private UUID studentId;
     private String title;
     private String description;
+    private LocalDateTime openAt;
+    private LocalDateTime deadline;
 }

@@ -1,6 +1,7 @@
 package com.sesac.backend.entity;
 
 import com.sesac.backend.course.constant.CourseStatus;
+import com.sesac.backend.course.dto.CourseOpeningDto;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Data;
@@ -64,5 +65,16 @@ public class CourseOpening extends BaseEntity {
         this.status = status;
         this.currentStudents = 0;               // 현재수강인원 초기값
         this.courseTimes = new ArrayList<>();   // 강의 시간 목록 초기화
+    }
+
+    // DTO로부터 엔티티 업데이트를 위한 메서드 추가
+    public void updateFromDto(CourseOpeningDto dto) {
+        this.course = Course.builder().courseId(dto.getCourseId()).build();
+        this.professor = Professor.builder().professorId(dto.getProfessor().getProfessorId()).build();
+        this.semester = dto.getSemester();
+        this.year = dto.getYear();
+        this.maxStudents = dto.getMaxStudents();
+        this.currentStudents = dto.getCurrentStudents();
+        this.status = dto.getStatus();
     }
 }

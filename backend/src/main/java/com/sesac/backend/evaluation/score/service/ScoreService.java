@@ -6,12 +6,17 @@ import com.sesac.backend.entity.Student;
 import com.sesac.backend.evaluation.assignment.domain.Assignment;
 import com.sesac.backend.evaluation.assignment.repository.AssignmentRepository;
 import com.sesac.backend.evaluation.assignment.repository.StudentRepositoryDemo;
+import com.sesac.backend.evaluation.enums.Type;
 import com.sesac.backend.evaluation.exam.domain.Exam;
+import com.sesac.backend.evaluation.exam.domain.ExamProblem;
+import com.sesac.backend.evaluation.exam.dto.response.ExamProblemResultDto;
 import com.sesac.backend.evaluation.exam.repository.ExamRepository;
 import com.sesac.backend.evaluation.score.domain.Score;
+import com.sesac.backend.evaluation.score.dto.ScoreDetailResponse;
 import com.sesac.backend.evaluation.score.dto.ScoreDto;
 import com.sesac.backend.evaluation.score.repository.ScoreRepository;
-import java.util.*;
+import java.util.List;
+import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -34,6 +39,16 @@ public class ScoreService {
         this.examRepository = examRepository;
         this.studentRepositoryDemo = studentRepositoryDemo;
         this.courseOpeningRepository = courseOpeningRepository;
+    }
+
+    public ScoreDetailResponse findResult(UUID examId) {
+        Exam exam = examRepository.findById(examId).orElseThrow(RuntimeException::new);
+
+        Score score = exam.getType() == Type.MIDTERM ? scoreRepository.findByMidtermExam(exam).orElseThrow(RuntimeException::new)
+            : scoreRepository.findByFinalExam(exam).orElseThrow(RuntimeException::new);
+
+        List<ExamProblemResultDto> examProblems = exam.getExamProblems().stream().map(this::convertToExamProblemResultDto).toList();
+        return convertToScoreDetailResponse(score, exam, examProblems);
     }
 
     public ScoreDto findById(UUID scoreId) {
@@ -87,5 +102,38 @@ public class ScoreService {
         return new Score(dto.getScoreId(), assignment, midtermExam, finalExam, courseOpening,
             student, dto.getAssignScore(), dto.getMidtermExamScore(), dto.getFinalExamScore(),
             dto.getVisibility());
+    }
+
+    private ExamProblemResultDto convertToExamProblemResultDto(ExamProblem entity) {
+        return new ExamProblemResultDto(
+            entity.getProblemId(),
+            entity.getNumber(),
+            entity.getQuestion(),
+            entity.getCorrectness(),
+            entity.getDifficulty().getPoint(),
+            entity.getSelectedAnswer(),
+            entity.getCorrectAnswer(),
+            entity.getChoices()
+        );
+    }
+
+    private ScoreDetailResponse convertToScoreDetailResponse(Score entity, Exam exam, List<ExamProblemResultDto> examProblems) {
+        CourseOpening courseOpening = exam.getCourseOpening();
+
+        StringBuffer title = new StringBuffer(String.valueOf(courseOpening.getYear())).append("학년도 ")
+            .append(courseOpening.getSemester()).append("학기 ")
+            .append(courseOpening.getCourse().getCourseName()).append(" ")
+            .append(exam.getType().getValue());
+
+        return new ScoreDetailResponse(
+            exam.getExamId(),
+            title.toString(),
+            exam.getType(),
+            exam.getStartTime(),
+            exam.getEndTime(),
+            entity.getMidtermExamScore(),
+            entity.getFinalExamScore(),
+            examProblems
+        );
     }
 }

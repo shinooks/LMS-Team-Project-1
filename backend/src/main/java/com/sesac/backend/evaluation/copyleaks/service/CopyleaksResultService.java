@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class CopyleaksResultService {
 
-    public void downloadResult(String accessToken, UUID scanId, String resultId) throws IOException {
+    public void downloadResult(String accessToken, UUID scanId) throws IOException {
         String resultEndpoint = String.format("https://api.copyleaks.com/v3/downloads/%s/result.json", scanId);
 
         CloseableHttpClient client = HttpClients.createDefault();

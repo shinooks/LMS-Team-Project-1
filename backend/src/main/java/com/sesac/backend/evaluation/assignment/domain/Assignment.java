@@ -1,14 +1,27 @@
 package com.sesac.backend.evaluation.assignment.domain;
 
 import com.sesac.backend.entity.BaseEntity;
-import com.sesac.backend.entity.Course;
 import com.sesac.backend.entity.CourseOpening;
 import com.sesac.backend.entity.Student;
-import com.sesac.backend.evaluation.enums.Visibility;
-import jakarta.persistence.*;
-import java.time.LocalDateTime;
-import java.util.*;
-import lombok.*;
+import com.sesac.backend.evaluation.enums.Priority;
+import com.sesac.backend.evaluation.enums.Status;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import java.time.LocalDate;
+import java.util.UUID;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 /**
  * @author dongjin
@@ -45,10 +58,10 @@ public class Assignment extends BaseEntity {
     @Column(nullable = false)
     private String description;
     private UUID scanId;
-    @Column(columnDefinition = "bytea")
-    private byte[] file;
-    private String fileName;
+    private String savedFileName;
     private String copyleaksResult;
-    private LocalDateTime openAt;
-    private LocalDateTime deadline;
+    private LocalDate openAt;
+    private LocalDate deadline;
+    private Status status;
+    private Priority priority;
 }
