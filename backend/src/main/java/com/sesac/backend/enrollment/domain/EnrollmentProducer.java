@@ -9,6 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -28,18 +30,18 @@ public class EnrollmentProducer {
             kafkaTemplate.send(ENROLLMENT_REQUEST_TOPIC, partitionKey, messageJson)
                     .whenComplete((result, ex) -> {
                         if (ex == null) {
-                            log.debug("수강신청 메시지 전송 선공: opening={}, partition={}, offset={}",
+                            log.debug("Producer수강신청 메시지 전송 선공: opening={}, partition={}, offset={}",
                                     partitionKey,
                                     result.getRecordMetadata().partition(),
                                     result.getRecordMetadata().offset());
                         } else {
-                            log.error("수강신청 요청 메시지 전송 실패: opening={}, error={}", partitionKey, ex.getMessage());
+                            log.error("Producer수강신청 요청 메시지 전송 실패: opening={}, error={}", partitionKey, ex.getMessage());
                         }
                     });
 
         } catch (JsonProcessingException e) {
-            log.error("메시지 직렬화 실패: {}", e.getMessage());
-            throw new RuntimeException("메시지 전송 실패", e);
+            log.error("Producer메시지 직렬화 실패: {}", e.getMessage());
+            throw new RuntimeException("Producer메시지 전송 실패", e);
         }
     }
 
@@ -51,19 +53,19 @@ public class EnrollmentProducer {
             kafkaTemplate.send(ENROLLMENT_UPDATE_TOPIC, partitionKey, messageJson)
                             .whenComplete((result, ex) -> {
                                 if (ex == null) {
-                                    log.debug("수강인원 업데이트 메시지 전송 성공: opening={}, count={}, partition={}, offset={}",
+                                    log.debug("Producer수강인원 업데이트 메시지 전송 성공: opening={}, count={}, partition={}, offset={}",
                                             partitionKey,
                                             message.getCurrentEnrollment(),
                                             result.getRecordMetadata().partition(),
                                             result.getRecordMetadata().offset());
                                 } else {
-                                    log.error("수강인원 업데이트 메시지 전송 실패: opening={}, error={}", partitionKey, ex.getMessage());
+                                    log.error("Producer수강인원 업데이트 메시지 전송 실패: opening={}, error={}", partitionKey, ex.getMessage());
                                 }
                             });
 
         } catch (JsonProcessingException e) {
-            log.error("메시지 직렬화 실패: {}", e.getMessage());
-            throw new RuntimeException("메시지 전송 실패", e);
+            log.error("Producer메시지 직렬화 실패: {}", e.getMessage());
+            throw new RuntimeException("Producer메시지 전송 실패", e);
         }
     }
 }

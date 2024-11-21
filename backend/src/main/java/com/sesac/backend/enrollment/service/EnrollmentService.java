@@ -74,6 +74,7 @@ public class EnrollmentService {
             String courseName = course.getCourseName();
             Integer credit = course.getCredits();
 
+            String professorName = opening.getProfessor().getName();
             Integer maxStudents = opening.getMaxStudents();
             Integer currentStudents = opening.getCurrentStudents();
 
@@ -91,6 +92,7 @@ public class EnrollmentService {
             courseInfo.put("courseId", courseId);
             courseInfo.put("courseCode", courseCode);
             courseInfo.put("courseName", courseName);
+            courseInfo.put("professorName", professorName);
             courseInfo.put("credit", credit);
             courseInfo.put("day", day);
             courseInfo.put("startTime", startTime);
@@ -119,6 +121,7 @@ public class EnrollmentService {
             String courseName = c.getCourseOpening().getCourse().getCourseName();
             Integer credit = c.getCourseOpening().getCourse().getCredits();
 
+            String professorName = c.getCourseOpening().getProfessor().getName();
             Integer maxStudents = c.getCourseOpening().getMaxStudents();
             Integer currentStudents = c.getCourseOpening().getCurrentStudents();
 
@@ -136,6 +139,7 @@ public class EnrollmentService {
             enrolledCourseInfo.put("openingId", openingId);
             enrolledCourseInfo.put("courseCode", courseCode);
             enrolledCourseInfo.put("courseName", courseName);
+            enrolledCourseInfo.put("professorName", professorName);
             enrolledCourseInfo.put("credit", credit);
             enrolledCourseInfo.put("day", day);
             enrolledCourseInfo.put("startTime", startTime);
@@ -266,7 +270,9 @@ public class EnrollmentService {
                         info.getOpeningId(),
                         info.getCurrentStudents());
             }
-            log.info("수강신청 카운트 초기화 완료: {} 개 강의", infos.size());
+            log.info("수강신청 카운트 초기화 완료: {} 개 강의, 현재 수강 학생 수: {}",
+                    infos.size(),
+                    infos.stream().mapToInt(CourseOpening::getCurrentStudents).sum()); // 전체 수강 학생 수 합산
 
         } catch (Exception e) {
             log.error("수강신청 카운트 초기화 실패: {}", e.getMessage());
@@ -275,6 +281,7 @@ public class EnrollmentService {
     }
 
 
+    @Transactional
     public void requestEnrollment(UUID studentId, UUID openingId) {
         try {
             EnrollmentMessageDto message = new EnrollmentMessageDto(
@@ -352,7 +359,7 @@ public class EnrollmentService {
             Integer currentEnrollment = redisTemplate.opsForValue().increment(redisKey).intValue();
             Integer maxEnrollment = courseInfo.getMaxStudents();
 
-            // 4. 수강인언 초과 체크
+            // 4. 수강인원 초과 체크
             if (currentEnrollment > maxEnrollment) {
                 // 수강인원 초과 시 카운트 감소
                 redisTemplate.opsForValue().decrement(redisKey);

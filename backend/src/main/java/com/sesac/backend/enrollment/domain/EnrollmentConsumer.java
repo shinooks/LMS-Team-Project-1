@@ -37,7 +37,7 @@ public class EnrollmentConsumer {
             );
 
         } catch (JsonProcessingException e) {
-            log.error("메시지 역직렬화 실패", e);
+            log.error("Consumer메시지 역직렬화 실패", e);
         }
     }
 
@@ -53,12 +53,12 @@ public class EnrollmentConsumer {
             messagingTemplate.convertAndSend(
                     "/topic/enrollment-updates/" + updateDto.getOpeningId(), updateDto);
 
-            log.info("수강인원 업데이트 전송: openingId={}, currentEnrollment={}",
+            log.info("Consumer수강인원 업데이트 전송: openingId={}, currentEnrollment={}",
                     updateDto.getOpeningId(), updateDto.getCurrentEnrollment());
         } catch (JsonProcessingException e) {
-            log.error("수강인원 업데이트 메시지 처리 실패", e);
+            log.error("Consumer수강인원 업데이트 메시지 처리 실패", e);
         } catch (Exception e) {
-            log.error(" 수강인원 업데이트 처리 중 오류 발생", e);
+            log.error("Consumer수강인원 업데이트 처리 중 오류 발생", e);
         }
     }
 
