@@ -27,6 +27,7 @@ const EnrollmentHistory = ({ studentId }) => {
 
   const cancelEnrollment = async (studentId, enrollmentId) => {
     try {
+      console.log("aaa : " + enrollmentId)
       await enrollmentAPI.deleteCourse(enrollmentId);
       const updatedEnrollments = await getEnrollment(studentId);
       setEnrollments(updatedEnrollments);
@@ -133,6 +134,8 @@ const EnrollmentHistory = ({ studentId }) => {
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 학점
               </th>
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              </th>
             </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -165,7 +168,7 @@ const EnrollmentHistory = ({ studentId }) => {
                     <td>
                       <button className="bg-blue-600 text-white rounded-md hover:bg-blue-700
                           focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
-                          text-sm py-1 px-2" onClick={() => cancelEnrollment(enrollment.enrollmentId)}>
+                          text-sm py-1 px-2" onClick={() => cancelEnrollment(studentId, enrollment.enrollmentId)}>
                         신청취소
                       </button>
                     </td>

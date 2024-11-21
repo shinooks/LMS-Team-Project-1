@@ -29,15 +29,8 @@ export const enrollmentAPI = {
         openingId: course.openingId
       });
 
-      // 응답 상태 확인
-      // if (response.data.status === 'pending') {
-      //   alert(response.data.message || "수강신청이 요청되었습니다. 결과를 기다려주세요");
-      // } else if (response.data.status === 'error') {
-      //   alert(response.data.message || "수강신청 실패");
-      // }
+      //console.log("응답 데이터 : " + JSON.stringify(response.data))
 
-      console.log("응답 데이터 : " + JSON.stringify(response.data))
-      //return response.data;
     } catch (error) {
       console.error("수강신청 요청 실패:", error);
       alert(error.response?.data?.message || "수강신청 요청 중 오류가 발생했습니다");
@@ -45,11 +38,11 @@ export const enrollmentAPI = {
     }
   },
 
-  getEnrollments: async () => {
-    const response = await fetch('/api/enrollments');
-    if (!response.ok) throw new Error('Failed to fetch enrollments');
-    return response.json();
-  },
+  // getEnrollments: async () => {
+  //   const response = await fetch('/api/enrollments');
+  //   if (!response.ok) throw new Error('Failed to fetch enrollments');
+  //   return response.json();
+  // },
 
   // 수강 취소
   deleteCourse: async (enrollmentId) => {
@@ -99,6 +92,7 @@ export const enrollmentAPI = {
     return result;
   },
 
+  // 장바구니 추가
   addInterest: async (studentId, openingId) => {
     try {
       const res = await axios.post('http://localhost:8081/saveStudentInterest', {
@@ -140,6 +134,7 @@ export const enrollmentAPI = {
     }
   },
 
+  // 장바구니 삭제
   deleteInterest: async (studentId, course) => {
     const openingId = course.openingId;
 
@@ -150,6 +145,8 @@ export const enrollmentAPI = {
       alert("삭제 실패");
     }
   },
+
+  //========================================================================================
 
   // 선수과목 확인
   checkPrerequisites: async (studentId, courseId) => {

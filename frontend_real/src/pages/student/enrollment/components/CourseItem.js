@@ -3,11 +3,10 @@ import { scheduleDetails } from '../../../../api/mock/data/scheduleDetails'; // 
 import { enrollmentAPI } from '../../../../api/services/enrollmentAPI';
 import useEnrollmentService from "../useEnrollmentService";
 
-const CourseItem = ({ course, onAddToCart, isInCart, isEnrolled, studentId, currentEnrollments, refreshInterests }) => {
+const CourseItem = ({ course, studentId, currentEnrollments, refreshInterests }) => {
     const { getTimeTableData } = useEnrollmentService();
 
     const enrollCourse = async (studentId, course) => {
-        console.log(studentId);
         await enrollmentAPI.enrollCourse(studentId, course);
 
         await getTimeTableData(studentId);
@@ -23,15 +22,15 @@ const CourseItem = ({ course, onAddToCart, isInCart, isEnrolled, studentId, curr
         }
     };
 
-    // scheduleDetails에서 해당 courseId에 대한 시간표 가져오기
-    const formatSchedule = (courseId) => {
-        const schedule = scheduleDetails[courseId];
-        if (!Array.isArray(schedule)) {
-            console.error('Schedule is not an array:', schedule);
-            return '일정 없음'; // 기본값 반환
-        }
-        return schedule.map(s => `${s.day} ${s.startTime}-${s.endTime} (${s.room})`).join(', ');
-    };
+    // // scheduleDetails에서 해당 courseId에 대한 시간표 가져오기
+    // const formatSchedule = (courseId) => {
+    //     const schedule = scheduleDetails[courseId];
+    //     if (!Array.isArray(schedule)) {
+    //         console.error('Schedule is not an array:', schedule);
+    //         return '일정 없음'; // 기본값 반환
+    //     }
+    //     return schedule.map(s => `${s.day} ${s.startTime}-${s.endTime} (${s.room})`).join(', ');
+    // };
 
     return (
         <tr key={course.openingId}>
