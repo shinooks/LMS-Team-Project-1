@@ -13,15 +13,20 @@ import java.util.UUID;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString// 객체의 문자열 표현을 위한 toString 메서드 자동 생성
+@Builder
+@AllArgsConstructor
 public class GradeDto {
     private UUID gradeId;            // 성적 고유 ID
     private UUID scoreId;           // 추가
     private UUID courseOpeningId;   // 추가
+    private UUID courseId;   // 추가
     private String courseName;       // 과목명
     private String courseCode;       // 과목 코드
     private String studentNumber;    // 학번
     private String studentName;      // 학생 이름
     private String semester;         // 학기 정보
+    private int year;                // 년도
+    private String professorId;    // 교수 ID
     private int assignmentScore;     // 과제 점수
     private int midtermScore;        // 중간고사 점수
     private int finalScore;          // 기말고사 점수
@@ -52,6 +57,9 @@ public class GradeDto {
         dto.visibility = grade.isVisibility();
         dto.visibilityStartDate = grade.getVisibilityStartDate();
         dto.visibilityEndDate = grade.getVisibilityEndDate();
+        dto.year = grade.getYear();
+        dto.courseId = grade.getCourseId(); // 추가
+        dto.professorId = grade.getProfessorId(); // 추가
         return dto;
 
     }

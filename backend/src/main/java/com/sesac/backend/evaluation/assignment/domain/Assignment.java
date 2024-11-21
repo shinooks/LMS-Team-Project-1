@@ -42,7 +42,6 @@ public class Assignment extends BaseEntity {
     private Student student;
     @Column(nullable = false)
     private String title;
-    @Lob
     @Column(nullable = false)
     private String description;
     private UUID scanId;
