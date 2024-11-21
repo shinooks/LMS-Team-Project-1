@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.UUID;  // 이 import 추가
 
 
-import com.sesac.backend.entity.Professor;
-import com.sesac.backend.evaluation.score.dto.ScoreDto;
 import com.sesac.backend.grade.dto.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -54,9 +52,9 @@ public class GradeController {
     public ResponseEntity<List<GradeDto>> getAllGradesByCourseAndSemester(
             @Parameter(description = "강의ID") @RequestParam UUID courseId,
             @Parameter(description = "학기 (예:1, 2)") @RequestParam String semester ,
-            @Parameter(description =  "교수ID") @RequestParam Professor professor,
+            @Parameter(description =  "교수ID") @RequestParam UUID professorId,
             @Parameter(description = "년도") @RequestParam int year) {
-        return ResponseEntity.ok(gradeService.findAllByCourseCourseIdAndCourseOpeningSemesterAndCourseOpeningYear(semester,year ,courseId ,professor));
+        return ResponseEntity.ok(gradeService.findAllByCourseCourseIdAndCourseOpeningSemesterAndCourseOpeningYear(semester,year ,courseId , professorId));
     }
 
     @Operation(summary = "성적 일괄 수정", description = "여러 학생의 성적을 한 번에 수정합니다.")
