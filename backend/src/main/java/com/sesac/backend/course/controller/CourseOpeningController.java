@@ -3,6 +3,7 @@ package com.sesac.backend.course.controller;
 import com.sesac.backend.course.constant.CourseStatus;
 import com.sesac.backend.course.dto.CourseOpeningDto;
 import com.sesac.backend.course.service.CourseOpeningService;
+import com.sesac.backend.entity.Professor;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -117,32 +118,6 @@ public class CourseOpeningController {
         }
     }
 
-    // 특정 교수의 특정 학기 강의 목록 조회
-    @Operation(
-        summary = "특정 교수의 특정 학기 강의 목록 조회",
-        description = "특정 교수의 특정 학기에 해당하는 모든 강의 개설을 조회합니다."
-    )
-    @ApiResponse(responseCode = "200", description = "교수의 강의 목록을 성공적으로 조회했습니다.")
-    @ApiResponse(responseCode = "500", description = "내부 서버 오류")
-    @GetMapping("/professor/{professorId}")
-    public ResponseEntity<?> getProfessorCourses(
-            @PathVariable String professorId,
-            @RequestParam Integer year,
-            @RequestParam String semester) {
-        try {
-            log.info("Fetching courses for professor: {}, year: {}, semester: {}", professorId, year, semester);
-            List<CourseOpeningDto> courses = courseOpeningService
-                    .getProfessorCourses(professorId, year, semester);
-            return ResponseEntity.ok(courses);
-        } catch (Exception e) {
-            log.error("Error fetching professor courses", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of(
-                            "message", e.getMessage(),
-                            "error", e.getClass().getSimpleName()
-                    ));
-        }
-    }
 
     // 특정 상태의 강의 목록 조회
     @Operation(

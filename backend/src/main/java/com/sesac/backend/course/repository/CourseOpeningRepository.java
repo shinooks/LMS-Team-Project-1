@@ -1,7 +1,6 @@
 package com.sesac.backend.course.repository;
 
 import com.sesac.backend.course.constant.CourseStatus;
-import com.sesac.backend.course.dto.CourseOpeningDto;
 import com.sesac.backend.entity.Course;
 import com.sesac.backend.entity.CourseOpening;
 import com.sesac.backend.entity.Professor;
@@ -31,6 +30,8 @@ public interface CourseOpeningRepository extends JpaRepository<CourseOpening, UU
             Integer year,
             String semester
     );
+
+    List<CourseOpening> findAllBySemesterAndProfessorAndYearAndCourseCourseId(String semester, Professor professor, int year, UUID courseId);
 
     // 특정 상태의 강의 목록 조회
     List<CourseOpening> findByStatus(CourseStatus status);
