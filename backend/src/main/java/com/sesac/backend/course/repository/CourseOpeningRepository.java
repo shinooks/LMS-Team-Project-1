@@ -1,9 +1,9 @@
 package com.sesac.backend.course.repository;
 
 import com.sesac.backend.course.constant.CourseStatus;
-import com.sesac.backend.course.dto.CourseOpeningDto;
 import com.sesac.backend.entity.Course;
 import com.sesac.backend.entity.CourseOpening;
+import com.sesac.backend.entity.Professor;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -20,16 +20,16 @@ public interface CourseOpeningRepository extends JpaRepository<CourseOpening, UU
 
 
     // 동일 강의의 특정 학기 중복 개설 확인
-    boolean existsByCourseAndYearAndSemesterAndProfessorId(
+    boolean existsByCourseAndYearAndSemesterAndProfessor(
             Course course,
             Integer year,
             String semester,
-            String professorId
+            Professor professor
     );
 
     // 특정 교수의 특정 학기 강의 목록 조회
-    List<CourseOpening> findByProfessorIdAndYearAndSemester(
-            String professorId,
+    List<CourseOpening> findByProfessorAndYearAndSemester(
+            Professor professor,
             Integer year,
             String semester
     );

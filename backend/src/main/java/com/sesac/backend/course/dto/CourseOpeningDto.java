@@ -1,6 +1,7 @@
 package com.sesac.backend.course.dto;
 
 import com.sesac.backend.course.constant.CourseStatus;
+import com.sesac.backend.entity.Professor;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -22,7 +23,7 @@ public class CourseOpeningDto {
     private UUID courseId;  // Course 엔티티의 ID
 
     @NotBlank(message = "교수 정보는 필수입니다")
-    private String professorId;
+    private ProfessorDto professor;
 
     @NotBlank(message = "학기는 필수입니다")
     private String semester;
