@@ -76,6 +76,7 @@ dependencies {
 
     implementation 'com.google.guava:guava:31.1-jre'
     testImplementation 'io.projectreactor:reactor-test'
+    implementation 'org.springframework.security:spring-security-ldap:6.3.4' // Gradle의 아티팩트 문제로 직접 추가해야 한다
 }
 
 tasks.named('test') {
