@@ -29,7 +29,7 @@ export const enrollmentAPI = {
         openingId: course.openingId
       });
 
-      //console.log("응답 데이터 : " + JSON.stringify(response.data))
+      console.log("응답 데이터 : " + JSON.stringify(response.data))
 
     } catch (error) {
       console.error("수강신청 요청 실패:", error);

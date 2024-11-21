@@ -14,7 +14,7 @@ const CourseList = () => {
     const getEnrollmentInComponent = async () => {
       try{
         const result = await getEnrollment(studentId);
-        //console.log("수강 강의 목록 : " + JSON.stringify(result));
+        console.log("수강 강의 목록 : " + JSON.stringify(result));
         setEnrollments(result);
       }catch(error){
         console.error("강의 정보를 가져오는 중 오류 발생 : ", error);
@@ -22,19 +22,6 @@ const CourseList = () => {
     };
     getEnrollmentInComponent();
   }, [studentId]);
-
-  // const courses = [
-  //   {
-  //     id: 1,
-  //     name: '웹 프로그래밍',
-  //     professor: '김교수',
-  //     schedule: '월,수 10:30-12:00',
-  //     room: '공학관 401호',
-  //     progress: 85,
-  //     attendance: 95
-  //   },
-  //   // ... 더 많은 강의 데이터
-  // ];
 
   return (
     <div className="space-y-6">
@@ -44,7 +31,7 @@ const CourseList = () => {
         {enrollments.map(course => (
           <Link 
             key={course.enrollmentId}
-            to={`/student/courses/${course.enrollmentId}`}
+            to={`/student/courses/${course.openingId}`}
             className="block bg-white rounded-lg shadow hover:shadow-md transition-shadow"
           >
             <div className="p-6">
@@ -53,6 +40,15 @@ const CourseList = () => {
               {/*<p className="text-sm text-gray-500 mb-4">{enrollments.schedule} | {course.room}</p>*/}
               
               <div className="space-y-2">
+                <div>
+                  <div className="flex justify-between text-sm mb-1">
+                    <span>{course.courseCode}</span>
+                    <span>{course.credit} 학점</span>
+                  </div>
+                  <div className={"flex justify-end"}>
+                    <div>{course.day}요일 {course.startTime.split(':').slice(0, 2).join(':')} - {course.endTime.split(':').slice(0, 2).join(':')}</div>
+                  </div>
+                </div>
                 {/*<div>*/}
                 {/*  <div className="flex justify-between text-sm mb-1">*/}
                 {/*    <span>진도율</span>*/}
