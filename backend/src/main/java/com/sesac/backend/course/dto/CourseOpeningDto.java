@@ -1,6 +1,7 @@
 package com.sesac.backend.course.dto;
 
 import com.sesac.backend.course.constant.CourseStatus;
+import com.sesac.backend.entity.Professor;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;

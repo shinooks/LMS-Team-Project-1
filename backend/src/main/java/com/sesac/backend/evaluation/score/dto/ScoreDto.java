@@ -1,9 +1,12 @@
 package com.sesac.backend.evaluation.score.dto;
 
 import com.sesac.backend.evaluation.enums.Visibility;
-import lombok.*;
-
 import java.util.UUID;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter

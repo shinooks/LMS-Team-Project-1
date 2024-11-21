@@ -1,6 +1,5 @@
-package com.sesac.backend.evaluation.exam.dto.request;
+package com.sesac.backend.evaluation.assignment.dto.response;
 
-import java.util.List;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -14,11 +13,12 @@ import lombok.ToString;
 @Setter
 @Builder
 @ToString
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class ExamSubmissionRequest {
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class AssignScoreResponse {
 
-    private UUID examId;
+    private UUID assignId;
+    private UUID openingId;
     private UUID studentId;
-    private List<ExamAnswerDto> answers;
+    private int score;
 }

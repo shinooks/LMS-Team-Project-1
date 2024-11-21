@@ -1,5 +1,6 @@
 package com.sesac.backend.evaluation.score.controller;
 
+import com.sesac.backend.evaluation.score.dto.ScoreDetailResponse;
 import com.sesac.backend.evaluation.score.dto.ScoreDto;
 import com.sesac.backend.evaluation.score.service.ScoreService;
 import java.net.URI;
@@ -8,7 +9,14 @@ import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @Slf4j
@@ -24,13 +32,13 @@ public class ScoreController {
         this.scoreService = scoreService;
     }
 
-    @GetMapping("/{scoreId}")
-    public ResponseEntity<ScoreDto> getScore(@PathVariable UUID scoreId) {
+    @GetMapping("/{examId}")
+    public ResponseEntity<ScoreDetailResponse> getScore(@PathVariable UUID examId) {
         try {
-            return ResponseEntity.ok(scoreService.findById(scoreId));
+            return ResponseEntity.ok(scoreService.findResult(examId));
         } catch (RuntimeException e) {
             log.error(e.getMessage());
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.badRequest().build();
         }
     }
 

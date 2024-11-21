@@ -2,6 +2,7 @@ package com.sesac.backend.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sesac.backend.course.constant.DayOfWeek;
+import com.sesac.backend.course.dto.CourseTimeDto;
 import com.sesac.backend.entity.CourseOpening;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -41,4 +42,11 @@ public class CourseTime {  // 단순 시간 정보라 상속 불필요
 
     @Column(nullable = false)
     private String classroom;      // 강의실 위치
+
+    public void updateFromDto(CourseTimeDto dto) {
+        this.dayOfWeek = dto.getDayOfWeek();
+        this.startTime = dto.getStartTime();
+        this.endTime = dto.getEndTime();
+        this.classroom = dto.getClassroom();
+    }
 }

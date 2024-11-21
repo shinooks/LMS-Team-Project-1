@@ -7,13 +7,14 @@ import com.sesac.backend.entity.Enrollment;
 import com.sesac.backend.entity.Student;
 import com.sesac.backend.evaluation.enums.Correctness;
 import com.sesac.backend.evaluation.enums.Type;
+import com.sesac.backend.evaluation.enums.Visibility;
 import com.sesac.backend.evaluation.exam.domain.Exam;
 import com.sesac.backend.evaluation.exam.domain.ExamProblem;
 import com.sesac.backend.evaluation.exam.dto.request.ExamAnswerDto;
 import com.sesac.backend.evaluation.exam.dto.request.ExamCreationRequest;
 import com.sesac.backend.evaluation.exam.dto.request.ExamProblemCreationDto;
-import com.sesac.backend.evaluation.exam.dto.request.ExamSubmissionRequest;
 import com.sesac.backend.evaluation.exam.dto.request.ExamRequest;
+import com.sesac.backend.evaluation.exam.dto.request.ExamSubmissionRequest;
 import com.sesac.backend.evaluation.exam.dto.response.ExamCreationResponse;
 import com.sesac.backend.evaluation.exam.dto.response.ExamProblemReadDto;
 import com.sesac.backend.evaluation.exam.dto.response.ExamReadResponse;
@@ -23,6 +24,8 @@ import com.sesac.backend.evaluation.exam.repository.ExamRepository;
 import com.sesac.backend.evaluation.score.domain.Score;
 import com.sesac.backend.evaluation.score.repository.ScoreRepository;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,7 +68,13 @@ public class ExamService {
         enrollmentRepository
             .findAllByCourseOpeningOpeningId(request.getOpeningId()).stream()
             .map(Enrollment::getStudent)
-            .forEach(student -> examRepository.save(convertToEntity(request, student)));
+            .forEach(student -> {
+                Exam saved = examRepository.save(convertToEntity(request, student));
+                List<ExamProblem> problems = new ArrayList<>();
+                request.getProblems().stream().map(dto -> convertToProblem(dto, saved))
+                    .forEach(problems::add);
+                saved.setExamProblems(problems);
+            });
 
         return new ExamCreationResponse(request.getOpeningId(), request.getType(),
             request.getStartTime(), request.getEndTime());
@@ -77,17 +86,24 @@ public class ExamService {
      * @param request 시험 목록 요청
      * @return 시험 목록
      */
-    public ExamResponse getMyExam(ExamRequest request) {
-        Exam exam = examRepository.findByCourseOpeningOpeningIdAndStudentStudentIdAndType(
-                request.getOpeningId(), request.getStudentId(), request.getType())
-            .orElseThrow(RuntimeException::new);
+    public List<ExamResponse> getMyExam(ExamRequest request) {
+        List<Exam> exams = examRepository.findAllByCourseOpeningOpeningIdAndStudentStudentId(
+            request.getOpeningId(), request.getStudentId());
 
-        CourseOpening courseOpening = exam.getCourseOpening();
+        List<ExamResponse> responses = new ArrayList<>();
 
-        StringBuffer title = new StringBuffer(courseOpening.getYear()).append("학년도 ")
-            .append(courseOpening.getSemester()).append("학기 ").append(exam.getType().getValue());
+        exams.forEach(exam -> {
+            CourseOpening courseOpening = exam.getCourseOpening();
+            StringBuffer title = new StringBuffer(String.valueOf(courseOpening.getYear())).append(
+                    "-")
+                .append(courseOpening.getSemester()).append(" ")
+                .append(courseOpening.getCourse().getCourseName()).append(" ")
+                .append(exam.getType().getValue());
+            responses.add(new ExamResponse(exam.getExamId(), title.toString(), exam.getType(),
+                exam.getStartTime(), exam.getEndTime()));
+        });
 
-        return new ExamResponse(exam.getExamId(), title.toString());
+        return responses;
     }
 
     /**
@@ -139,7 +155,8 @@ public class ExamService {
 
         // `Score`가 기존에 존재하는지 확인 후 생성 또는 업데이트
         Score score = scoreRepository.findByStudentAndCourseOpening(student, courseOpening)
-            .orElseGet(() -> Score.builder().student(student).build());
+            .orElseGet(() -> Score.builder().student(student).visibility(Visibility.PRIVATE)
+                .courseOpening(courseOpening).build());
 
         if (exam.getType() == Type.MIDTERM) {
             score.setMidtermExam(exam);
@@ -161,31 +178,35 @@ public class ExamService {
         List<ExamProblemReadDto> problemReadDtos = entity.getExamProblems().stream()
             .map(this::convertToProblemReadDto).toList();
 
-        return new ExamReadResponse(entity.getExamId(), problemReadDtos, entity.getStartTime(),
-            entity.getEndTime());
+        String title = entity.getType().getValue();
+        String courseName = entity.getCourseOpening().getCourse().getCourseName();
+        String duration = String.valueOf(
+            ChronoUnit.MINUTES.between(entity.getStartTime(), entity.getEndTime()));
+        int totalQuestions = problemReadDtos.size();
+
+        return new ExamReadResponse(entity.getExamId(), title, courseName, duration,
+            problemReadDtos, entity.getStartTime(),
+            entity.getEndTime(), totalQuestions);
     }
 
     private ExamProblemReadDto convertToProblemReadDto(ExamProblem problem) {
         return new ExamProblemReadDto(problem.getProblemId(), problem.getNumber(),
-            problem.getDifficulty(), problem.getQuestion(), problem.getChoices());
+            problem.getQuestion(), problem.getDifficulty().getPoint(), problem.getChoices());
     }
 
     private Exam convertToEntity(ExamCreationRequest request, Student student) {
         CourseOpening courseOpening = courseOpeningRepository.findById(request.getOpeningId())
             .orElseThrow(RuntimeException::new);
 
-        List<ExamProblem> examProblems = request.getProblems().stream()
-            .map(this::convertToProblem).toList();
-
         return Exam.builder().courseOpening(courseOpening)
-            .student(student)
-            .examProblems(examProblems).type(request.getType()).startTime(request.getStartTime())
+            .student(student).type(request.getType()).startTime(request.getStartTime())
             .endTime(request.getEndTime()).build();
     }
 
-    private ExamProblem convertToProblem(ExamProblemCreationDto dto) {
-        return ExamProblem.builder().number(dto.getNumber()).correctAnswer(dto.getCorrectAnswer())
-            .difficulty(dto.getDifficulty()).question(
-                dto.getQuestion()).choices(dto.getChoices()).build();
+    private ExamProblem convertToProblem(ExamProblemCreationDto dto, Exam exam) {
+        return ExamProblem.builder().exam(exam).number(dto.getNumber())
+            .correctAnswer(dto.getCorrectAnswer())
+            .difficulty(dto.getDifficulty()).question(dto.getQuestion()).choices(dto.getChoices())
+            .build();
     }
 }

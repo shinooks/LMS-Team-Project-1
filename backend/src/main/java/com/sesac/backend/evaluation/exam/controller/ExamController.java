@@ -1,25 +1,30 @@
 package com.sesac.backend.evaluation.exam.controller;
 
 import com.sesac.backend.evaluation.exam.dto.request.ExamCreationRequest;
-import com.sesac.backend.evaluation.exam.dto.request.ExamSubmissionRequest;
 import com.sesac.backend.evaluation.exam.dto.request.ExamRequest;
+import com.sesac.backend.evaluation.exam.dto.request.ExamSubmissionRequest;
 import com.sesac.backend.evaluation.exam.dto.response.ExamCreationResponse;
 import com.sesac.backend.evaluation.exam.dto.response.ExamReadResponse;
 import com.sesac.backend.evaluation.exam.dto.response.ExamResponse;
 import com.sesac.backend.evaluation.exam.service.ExamService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
+import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.UUID;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/exams")
+@RequestMapping("/exams")
 @Tag(name = "시험 관리 API", description = "시험 생성, 응시, 제출, 채점 관련 엔드포인트")
 public class ExamController {
 
@@ -38,7 +43,7 @@ public class ExamController {
      */
     @PostMapping("")
     @Operation(summary = "시험 출제", description = "시험아이디(examId), 강의개설아이디(openingId), 학생아이디(studentId), 문제목록(problems[problemId, number, correctAnswer, difficulty, question, choices]), 시험타입(Type), 시작시간(startTime), 종료시간(endTime)")
-    public ResponseEntity<ExamCreationResponse> createExam(ExamCreationRequest request) {
+    public ResponseEntity<ExamCreationResponse> createExam(@RequestBody ExamCreationRequest request) {
         try {
             ExamCreationResponse createdExam = examService.createExam(request);
             return ResponseEntity.status(HttpStatus.CREATED).body(createdExam);
@@ -51,13 +56,18 @@ public class ExamController {
     /**
      * 시험 목록 조회
      *
-     * @param request 시험 정보를 찾을 요청
+     * @param openingId 수강신청아이디
+     * @param studentId 학생아이디
      * @return 응시할 시험
      */
-    private ResponseEntity<ExamResponse> getExamProblems(ExamRequest request) {
+    @GetMapping("/{openingId}/{studentId}")
+    private ResponseEntity<List<ExamResponse>> getExamProblems(
+        @PathVariable UUID openingId,
+        @PathVariable UUID studentId
+    ) {
         try {
-            ExamResponse savedExam = examService.getMyExam(request);
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedExam);
+            List<ExamResponse> responses = examService.getMyExam(new ExamRequest(openingId, studentId));
+            return ResponseEntity.ok().body(responses);
         } catch (RuntimeException e) {
             log.error(e.getMessage());
             return ResponseEntity.badRequest().build();
@@ -90,9 +100,9 @@ public class ExamController {
      * @return 채점된 점수
      */
     @Operation(summary = "시험 응시", description = "시험아이디(examId), 학생아이디(studentId), 응답(answers[problemId, number, selectedAnswer])")
-    @PostMapping("/{examId}/submit")
+    @PostMapping("/submit")
     public ResponseEntity<ExamSubmissionRequest> submitExam(
-        ExamSubmissionRequest examSubmissionRequest) {
+        @RequestBody ExamSubmissionRequest examSubmissionRequest) {
         ExamSubmissionRequest request = examService.submit(examSubmissionRequest);
         return ResponseEntity.ok(request);
     }

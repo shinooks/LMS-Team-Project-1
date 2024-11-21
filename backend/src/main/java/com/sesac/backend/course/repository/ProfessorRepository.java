@@ -20,6 +20,4 @@ public interface ProfessorRepository extends JpaRepository<Professor, UUID> {
     // 교수 번호로 교수 목록 조회 (단일 결과)
     Optional<Professor> findByProfessorNumber(String professorNumber);
 
-
-
 }

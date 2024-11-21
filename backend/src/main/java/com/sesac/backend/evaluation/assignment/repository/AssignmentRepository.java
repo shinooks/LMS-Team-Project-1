@@ -3,7 +3,8 @@ package com.sesac.backend.evaluation.assignment.repository;
 import com.sesac.backend.entity.CourseOpening;
 import com.sesac.backend.entity.Student;
 import com.sesac.backend.evaluation.assignment.domain.Assignment;
-import java.util.*;
+import java.util.List;
+import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -17,4 +18,6 @@ public interface AssignmentRepository extends JpaRepository<Assignment, UUID> {
     Assignment findByStudentAndCourseOpening(Student student, CourseOpening courseOpening);
 
     Assignment findByScanId(UUID scanId);
+
+    List<Assignment> findAllByStudentStudentId(UUID studentId);
 }

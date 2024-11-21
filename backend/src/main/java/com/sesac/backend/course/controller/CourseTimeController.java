@@ -1,6 +1,7 @@
 package com.sesac.backend.course.controller;
 
 import com.sesac.backend.course.constant.DayOfWeek;
+import com.sesac.backend.course.dto.CompleteUpdateRequestDto;
 import com.sesac.backend.course.dto.CourseTimeDto;
 import com.sesac.backend.course.service.CourseTimeService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -180,6 +181,21 @@ public class CourseTimeController {
                     .body(Map.of("message", "강의 시간이 성공적으로 삭제되었습니다."));
         } catch (Exception e) {
             return handleException(e, "deleting course time");
+        }
+    }
+
+    @PutMapping("/course-openings/{openingId}/complete-update")
+    @Operation(summary = "강의 개설 및 시간 정보 동시 수정")
+    public ResponseEntity<?> updateCourseOpeningAndTimes(
+            @PathVariable UUID openingId,
+            @RequestBody CompleteUpdateRequestDto requestDto
+    ) {
+        try {
+            courseTimeService.updateCourseOpeningAndTimes(openingId, requestDto);
+            return ResponseEntity.ok()
+                    .body(Map.of("message", "강의 개설 정보가 성공적으로 수정되었습니다."));
+        } catch (Exception e) {
+            return handleException(e, "updating course opening and times");
         }
     }
 

@@ -20,7 +20,11 @@ import lombok.ToString;
 public class ExamReadResponse {
 
     private UUID examId;
-    private List<ExamProblemReadDto> problems;
+    private String title;
+    private String courseName;
+    private String duration;
+    private List<ExamProblemReadDto> questions;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
+    private int totalQuestions;
 }

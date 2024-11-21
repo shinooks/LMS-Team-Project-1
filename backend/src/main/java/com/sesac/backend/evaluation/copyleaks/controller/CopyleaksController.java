@@ -18,8 +18,12 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "표절 검사 요청 API", description = "표절 검사 요청 엔드포인트")
 public class CopyleaksController {
 
+    private final CopyleaksService copyleaksService;
+
     @Autowired
-    private CopyleaksService copyleaksService;
+    public CopyleaksController(CopyleaksService copyleaksService) {
+        this.copyleaksService = copyleaksService;
+    }
 
     @PostMapping("/check/{assignId}")
     @Operation(summary = "copyleaks 요청", description = "과제아이디(assignId)")

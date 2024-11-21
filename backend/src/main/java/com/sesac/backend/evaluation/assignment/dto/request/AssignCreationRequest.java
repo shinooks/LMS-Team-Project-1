@@ -1,5 +1,6 @@
-package com.sesac.backend.evaluation.exam.dto.request;
+package com.sesac.backend.evaluation.assignment.dto.request;
 
+import java.time.LocalDate;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -13,10 +14,14 @@ import lombok.ToString;
 @Setter
 @Builder
 @ToString
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class ExamRequest {
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class AssignCreationRequest {
 
     private UUID openingId;
     private UUID studentId;
+    private String title;
+    private String description;
+    private LocalDate openAt;
+    private LocalDate deadline;
 }
