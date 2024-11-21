@@ -359,7 +359,7 @@ public class EnrollmentService {
             Integer currentEnrollment = redisTemplate.opsForValue().increment(redisKey).intValue();
             Integer maxEnrollment = courseInfo.getMaxStudents();
 
-            // 4. 수강인언 초과 체크
+            // 4. 수강인원 초과 체크
             if (currentEnrollment > maxEnrollment) {
                 // 수강인원 초과 시 카운트 감소
                 redisTemplate.opsForValue().decrement(redisKey);

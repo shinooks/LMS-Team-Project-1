@@ -18,11 +18,10 @@ const CourseEnrollment = () => {
   const {
     handleAddToCart,
     getAllCourses,
-      getInterestList
+    getInterestList
   } = useEnrollmentService(); // 훅 사용
 
   const [activeTab, setActiveTab] = useState('search');
-  //const [studentEnrollments, setStudentEnrollments] = useState([]);
   const [courses, setCourses] = useState([]);
   const [interests, setInterests] = useState([]);
 
@@ -125,7 +124,6 @@ const CourseEnrollment = () => {
           {activeTab === 'search' && (
             <CourseSearch
               onAddToCart={handleAddToCart}
-              //enrolledCourses={enrolledCourses}
               courses={courses}
               studentId={studentId}
               currentEnrollments={currentEnrollments}
