@@ -68,5 +68,12 @@ public class GradeAppealService {
                 .map(GradeAppealDto::from)
                 .collect(Collectors.toList());
     }
+
+    public List<GradeAppealDto> getAllAppeals() {
+        List<GradeAppeal> appeals = appealRepository.findAll();
+        return appeals.stream()
+                .map(GradeAppealDto::from)
+                .collect(Collectors.toList());
+    }
 }
 
