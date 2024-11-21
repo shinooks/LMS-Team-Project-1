@@ -170,7 +170,7 @@ public class CourseTimeService {
                 .orElseThrow(() -> new RuntimeException("강의 개설 정보를 찾을 수 없습니다."));
 
         List<CourseTime> professorTimes = courseTimeRepository.findAll().stream()
-                .filter(time -> time.getCourseOpening().getProfessorId().equals(courseOpening.getProfessorId()))
+                .filter(time -> time.getCourseOpening().getProfessor().equals(courseOpening.getProfessor()))
                 .filter(time -> time.getDayOfWeek() == newTime.getDayOfWeek())
                 .collect(Collectors.toList());
 
