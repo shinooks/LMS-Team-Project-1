@@ -74,7 +74,7 @@ const CourseEnrollment = () => {
     <div className="space-y-6 p-6">
       {/* 수강신청 현황 */}
       {/*<EnrollmentStatus enrolledCourses={enrolledCourses} />*/}
-      <div>enrollmentStatus</div>
+      {/*<div>enrollmentStatus</div>*/}
 
       {/* 탭 메뉴 */}
       <div className="bg-white rounded-lg shadow">
