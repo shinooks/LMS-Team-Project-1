@@ -1,5 +1,6 @@
 package com.sesac.backend.grade.repository;
 
+import com.sesac.backend.entity.CourseOpening;
 import com.sesac.backend.entity.Grade;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -14,7 +15,7 @@ import java.util.UUID;
 public interface GradeRepository extends JpaRepository<Grade, UUID> {
 //    List<Grade> findAllByCourseCourseNameAndCourseOpeningSemester(String courseName, String semester);
 
-    List<Grade> findAllByCourseOpeningSemesterAndCourseOpeningCourseCourseName(String semester, String courseName);
+//    List<Grade> findAllByCourseOpeningSemesterAndCourseOpeningCourseCourseIdAndCourseOpeningYear(String semester, UUID courseId , int year);
 
     // Score ID로 Grade 목록 조회
     List<Grade> findByScore_ScoreId(UUID scoreId);
@@ -22,7 +23,7 @@ public interface GradeRepository extends JpaRepository<Grade, UUID> {
     // CourseOpening ID로 Grade 목록 조회
     List<Grade> findByCourseOpening_OpeningId(UUID openingId);
 
-
+    List<Grade> findByCourseOpening(CourseOpening courseOpening);
 
 
 

@@ -1,5 +1,6 @@
 package com.sesac.backend.board.service;
 
+import com.sesac.backend.board.constant.BoardConstants;
 import com.sesac.backend.board.constant.BoardType;
 import com.sesac.backend.board.constant.UserType;
 import com.sesac.backend.board.dto.request.PostRequestDTO;
@@ -17,6 +18,7 @@ import com.sesac.backend.entity.UserAuthentication;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -29,6 +31,8 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 
+
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -42,21 +46,22 @@ public class PostService {
     @Transactional
     public PostResponseDTO createPost(PostRequestDTO requestDTO, UUID userId) {
         Board board = boardRepository.findById(requestDTO.getBoardId())
-                .orElseThrow(() -> new EntityNotFoundException("게시판을 찾을 수 없습니다."));
+                .orElseThrow(() -> new EntityNotFoundException(BoardConstants.Post.ERROR_BOARD_NOT_FOUND));
 
         UserAuthentication author = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new EntityNotFoundException(BoardConstants.Common.ERROR_USER_NOT_FOUND));
 
         Post post = Post.builder()
                 .board(board)
                 .author(author)
                 .title(requestDTO.getTitle())
                 .content(requestDTO.getContent())
-                .isAnonymous(requestDTO.isAnonymous())
+                .anonymous(requestDTO.isAnonymous())
                 .viewCount(0)
                 .build();
 
         post.setCreatedBy(author.getName());
+        log.info(BoardConstants.Post.LOG_CREATE, requestDTO);
         Post savedPost = postRepository.save(post);
         return convertToResponseDTO(savedPost);
     }
@@ -65,9 +70,10 @@ public class PostService {
     @Transactional
     public PostResponseDTO getPost(UUID postId) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new EntityNotFoundException("게시글을 찾을 수 없습니다."));
+                .orElseThrow(() -> new EntityNotFoundException(BoardConstants.Post.ERROR_NOT_FOUND));
 
         post.setViewCount(post.getViewCount() + 1);
+        log.info(BoardConstants.Post.LOG_GET, postId);
         return convertToResponseDTO(post);
     }
 
@@ -75,13 +81,13 @@ public class PostService {
     @Transactional
     public PostResponseDTO updatePost(UUID postId, PostRequestDTO requestDTO, UUID userId) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new EntityNotFoundException("게시글을 찾을 수 없습니다."));
+                .orElseThrow(() -> new EntityNotFoundException(BoardConstants.Post.ERROR_NOT_FOUND));
 
         UserAuthentication user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new EntityNotFoundException(BoardConstants.Common.ERROR_USER_NOT_FOUND));
 
         if (!hasPermissionToModify(post, user)) {
-            throw new IllegalStateException("게시글을 수정할 권한이 없습니다.");
+            throw new IllegalStateException(BoardConstants.Post.ERROR_NO_PERMISSION_MODIFY);
         }
 
         post.setTitle(requestDTO.getTitle());
@@ -89,6 +95,7 @@ public class PostService {
         post.setAnonymous(requestDTO.isAnonymous());
         post.setUpdatedBy(user.getName());
 
+        log.info(BoardConstants.Post.LOG_UPDATE, postId);
         return convertToResponseDTO(post);
     }
 
@@ -96,19 +103,16 @@ public class PostService {
     @Transactional
     public void deletePost(UUID postId, UUID userId) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new EntityNotFoundException("게시글을 찾을 수 없습니다."));
+                .orElseThrow(() -> new EntityNotFoundException(BoardConstants.Post.ERROR_NOT_FOUND));
 
         UserAuthentication user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
-
-        if (!post.getBoard().isAllowDelete()) {
-            throw new IllegalStateException("이 게시판은 게시글 삭제가 허용되지 않습니다.");
-        }
+                .orElseThrow(() -> new EntityNotFoundException(BoardConstants.Common.ERROR_USER_NOT_FOUND));
 
         if (!hasPermissionToModify(post, user)) {
-            throw new IllegalStateException("게시글을 삭제할 권한이 없습니다.");
+            throw new IllegalStateException(BoardConstants.Post.ERROR_NO_PERMISSION_DELETE);
         }
 
+        log.info(BoardConstants.Post.LOG_DELETE, postId);
         postRepository.delete(post);
     }
 
@@ -119,7 +123,9 @@ public class PostService {
             Pageable pageable) {
 
         Board board = boardRepository.findById(boardId)
-                .orElseThrow(() -> new EntityNotFoundException("게시판을 찾을 수 없습니다."));
+                .orElseThrow(() -> new EntityNotFoundException(BoardConstants.Post.ERROR_BOARD_NOT_FOUND));
+
+        log.info(BoardConstants.Post.LOG_SEARCH, searchDto);
 
         Specification<Post> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
@@ -166,7 +172,7 @@ public class PostService {
                 .title(post.getTitle())
                 .content(post.getContent())
                 .authorName(post.isAnonymous() ? "익명" : post.getAuthor().getName())
-                .isAnonymous(post.isAnonymous())
+                .anonymous(post.isAnonymous())
                 .viewCount(post.getViewCount())
                 .likeCount(post.getLikes().size())
                 .likes(post.getLikes().stream()

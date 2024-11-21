@@ -1,10 +1,13 @@
 package com.sesac.backend.grade.service;
 
+import com.sesac.backend.course.dto.CourseDto;
+import com.sesac.backend.course.dto.CourseOpeningDto;
 import com.sesac.backend.course.repository.CourseOpeningRepository;
 import com.sesac.backend.course.repository.CourseRepository;
 import com.sesac.backend.entity.Course;
 import com.sesac.backend.entity.CourseOpening;
 import com.sesac.backend.entity.Grade;
+import com.sesac.backend.entity.Professor;
 import com.sesac.backend.evaluation.score.domain.Score;
 import com.sesac.backend.evaluation.score.dto.ScoreDto;
 import com.sesac.backend.evaluation.score.service.ScoreService;
@@ -31,6 +34,27 @@ public class GradeService {
     private final CourseOpeningRepository courseOpeningRepository;
 
 
+    public List<GradeDto> findAll() {
+        return gradeRepository.findAll().stream().map(this::convertToDto).toList();
+    }
+
+
+    private GradeDto convertToDto(Grade entity) {
+        return GradeDto.builder()
+                .gradeId(entity.getGradeId())
+                .assignmentScore(entity.getAssignScore())
+                .midtermScore(entity.getMidtermScore())
+                .finalScore(entity.getFinalScore())
+                .totalScore(entity.getTotalScore())
+                .studentNumber(entity.getStudentNumber())
+                .studentName(entity.getStudentName())
+                .visibility(entity.isVisibility())
+                .visibilityStartDate(entity.getVisibilityStartDate())
+                .visibilityEndDate(entity.getVisibilityEndDate())
+                .build();
+    }
+
+
     /**
      * Grade 생성 - 다른 서비스에서 호출하여 사용
      */
@@ -45,7 +69,6 @@ public class GradeService {
     }
 
 
-
     // 학생 ID로 조회
     public GradeDto findById(UUID gradeId) {
         Grade grade = gradeRepository.findById(gradeId)
@@ -55,12 +78,14 @@ public class GradeService {
 
 
     // 전체 조회
-    public List<GradeDto> findAllByCourseCourseNameAndCourseOpeningSemester(String courseName, String semester) {
-        // 1차 필터링: 선택한 강의명, 학기에 해당하는 과목 조회 -> 선택한 강의명, 학기에 해당되는 강의 리스트가 나옴
-        List<Grade> grades = gradeRepository.findAllByCourseOpeningSemesterAndCourseOpeningCourseCourseName(semester, courseName);
+    public List<GradeDto> findAllByCourseCourseIdAndCourseOpeningSemesterAndCourseOpeningYear(String semester, int year, UUID courseId, Professor professor) {
+        // 1차 필터링: 선택한 강의id, 학기에 해당하는 과목 조회 -> 선택한 강의명, 학기에 해당되는 강의 리스트가 나옴
+        List<CourseOpening> courseOpenings = courseOpeningRepository.findAllBySemesterAndProfessorAndYearAndCourseCourseId(semester, professor, year, courseId);
+        List<Grade> grades = new ArrayList<>();
+        courseOpenings.forEach(courseOpening -> grades.addAll(gradeRepository.findByCourseOpening(courseOpening)));
         // 2차 필터링: 각 과목에 해당하는 성적 조회 -> 각 과목에 해당되는 성적 리스트가 나옴
         // Comparator 사용 해서 정렬
-        Collections.sort(grades, Comparator.comparing(
+        grades.sort(Comparator.comparing(
                 grade -> -(grade.getAssignScore() +
                         grade.getMidtermScore() +
                         grade.getFinalScore())
@@ -102,14 +127,14 @@ public class GradeService {
 
     //여러 성적 일괄 수정
     @Transactional
-    public List<GradeDto> updateMultipleGradeScores(List<GradeUpdateRequest> requests){
+    public List<GradeDto> updateMultipleGradeScores(List<GradeUpdateRequest> requests) {
         return requests.stream()
                 .map(this::updateGradeScores)
                 .collect(Collectors.toList());
     }
 
 
-//--------------------------------------------------------------------
+    //--------------------------------------------------------------------
     // 학점 계산
     public GpaCalculationDto calculateGpa(UUID scoreId) {
         // Score 로 해당 학생의 모든 Grage 조회
@@ -141,9 +166,10 @@ public class GradeService {
                 .map(GradeDto::from)
                 .collect(Collectors.toList()));
 
-        return  result;
+        return result;
 
     }
+
     /**
      * 점수를 GPA로 변환
      */
@@ -160,11 +186,8 @@ public class GradeService {
     }
 
 
-
-
     /**
      * 강의별 성적 통계 조회
-     *
      */
     public GradeStatisticsDto getGradeStatistics(UUID openingId) {
         // 강의 개설 정보 조회
@@ -199,8 +222,6 @@ public class GradeService {
                 .lowestScore((int) stats.getMin())
                 .build();
     }
-
-
 
 
     /**
@@ -242,7 +263,7 @@ public class GradeService {
         int sameRankCount = 0;
 
         for (Grade grade : grades) {
-            if(prevScore != grade.getTotalScore()) {
+            if (prevScore != grade.getTotalScore()) {
                 rank += sameRankCount;
                 sameRankCount = 1;
             } else {
@@ -259,7 +280,7 @@ public class GradeService {
             result.add(dto);
             prevScore = grade.getTotalScore();
         }
-        return  result;
+        return result;
 
 
     }
@@ -279,9 +300,9 @@ public class GradeService {
 
         //모든 성적의 공개 설정 업데이트
         grades.forEach(grade -> {
-        grade.setVisibility(true);
-        grade.setVisibilityStartDate(request.getStartDate());
-        grade.setVisibilityEndDate(request.getEndDate());
+            grade.setVisibility(true);
+            grade.setVisibilityStartDate(request.getStartDate());
+            grade.setVisibilityEndDate(request.getEndDate());
         });
 
         gradeRepository.saveAll(grades);
@@ -299,18 +320,6 @@ public class GradeService {
                 now.isAfter(grade.getVisibilityStartDate()) &&
                 now.isBefore(grade.getVisibilityEndDate());
     }
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 }

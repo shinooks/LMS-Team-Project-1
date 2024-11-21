@@ -29,6 +29,4 @@ public abstract class BaseFile extends BaseEntity {
     @Column(nullable = false)
     private String fileType;            // MIME 타입
 
-    @Column(columnDefinition = "bytea")
-    private byte[] fileData;           // 실제 파일 데이터
 }

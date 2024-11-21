@@ -12,4 +12,5 @@ public interface PostRepository extends JpaRepository<Post, UUID>, JpaSpecificat
     // JpaSpecificationExecutor를 통해 모든 검색 기능 구현
     // 게시판별 게시글 수 조회 메서드 추가
     long countByBoard(Board board);
+
 }

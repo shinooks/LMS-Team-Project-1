@@ -1,5 +1,6 @@
 package com.sesac.backend.board.service;
 
+import com.sesac.backend.board.constant.BoardConstants;
 import com.sesac.backend.board.dto.response.PostLikeResponseDTO;
 import com.sesac.backend.board.repository.PostLikeRepository;
 import com.sesac.backend.board.repository.PostRepository;
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 import java.util.UUID;
 
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -28,10 +30,10 @@ public class PostLikeService {
     @Transactional
     public PostLikeResponseDTO toggleLike(UUID postId, UUID userId) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new EntityNotFoundException("게시글을 찾을 수 없습니다."));
+                .orElseThrow(() -> new EntityNotFoundException(BoardConstants.PostLike.ERROR_POST_NOT_FOUND));
 
         UserAuthentication user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new EntityNotFoundException(BoardConstants.Common.ERROR_USER_NOT_FOUND));
 
         Optional<PostLike> existingLike = postLikeRepository.findByPostAndUser(post, user);
 
@@ -55,17 +57,17 @@ public class PostLikeService {
     // 게시글의 좋아요 수 조회
     public long getLikeCount(UUID postId) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new EntityNotFoundException("게시글을 찾을 수 없습니다."));
+                .orElseThrow(() -> new EntityNotFoundException(BoardConstants.PostLike.ERROR_POST_NOT_FOUND));
         return postLikeRepository.countByPost(post);
     }
 
     // 사용자가 좋아요 했는지 확인
     public boolean hasUserLiked(UUID postId, UUID userId) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new EntityNotFoundException("게시글을 찾을 수 없습니다."));
+                .orElseThrow(() -> new EntityNotFoundException(BoardConstants.PostLike.ERROR_POST_NOT_FOUND));
 
         UserAuthentication user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new EntityNotFoundException(BoardConstants.Common.ERROR_USER_NOT_FOUND));
 
         return postLikeRepository.existsByPostAndUser(post, user);
     }

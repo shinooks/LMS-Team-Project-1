@@ -23,5 +23,5 @@ public class PostRequestDTO {
     @NotBlank(message = "내용은 필수입니다")
     private String content;         // 내용
 
-    private boolean isAnonymous;    // 익명 여부
+    private boolean anonymous;    // 익명 여부
 }
