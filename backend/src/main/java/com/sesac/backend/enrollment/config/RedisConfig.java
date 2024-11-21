@@ -30,6 +30,14 @@ public class RedisConfig {
 //    }
 
     @Bean
+    public LettuceConnectionFactory redisConnectionFactory() {
+        RedisStandaloneConfiguration config = new RedisStandaloneConfiguration();
+        config.setHostName("127.0.0.1");
+        config.setPort(6380);  // SSH 터널링 포트
+        return new LettuceConnectionFactory(config);
+    }
+
+    @Bean
     public RedisTemplate<String, String> redisTemplate(RedisConnectionFactory connectionFactory) {
         RedisTemplate<String, String> template = new RedisTemplate<>();
         template.setConnectionFactory(connectionFactory);

@@ -67,7 +67,7 @@ const EnrollmentHistory = ({ studentId }) => {
     return schedule.map(s => `${s.day} ${s.startTime}-${s.endTime} (${s.room})`).join(', ');
   };
 
-  const totalCredits = history.reduce((sum, course) => sum + course.credits, 0);
+  const totalCredits = enrollments.reduce((sum, enrollment) => sum + enrollment.credit, 0);
 
   // if (loading) {
   //   return <div className="text-center py-8">로딩 중...</div>;
@@ -92,7 +92,7 @@ const EnrollmentHistory = ({ studentId }) => {
             <option value="2023-1">2023년 1학기</option>
           </select>
           <div className="text-sm text-gray-600">
-            총 {history.length}과목 / {totalCredits}학점
+            총 {enrollments.length}과목 / {totalCredits}학점
           </div>
         </div>
       </div>
@@ -108,55 +108,55 @@ const EnrollmentHistory = ({ studentId }) => {
             <thead className="bg-gray-50">
             <tr>
               <th scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                 과목코드
               </th>
               <th scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                 과목명
               </th>
               <th scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                 담당교수
               </th>
               <th scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                 요일
               </th>
               <th scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                 강의시간
               </th>
               {/*<th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">*/}
               {/*  신청일시*/}
               {/*</th>*/}
               <th scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                 학점
               </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
               </th>
             </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
             {enrollments.map((enrollment) => (
                 <tr key={enrollment.enrollmentId}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    <td className="px-6 py-4 text-center whitespace-nowrap text-sm font-medium text-gray-900">
                       {enrollment.courseCode}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-6 py-4 text-center whitespace-nowrap text-sm text-gray-500">
                       {enrollment.courseName}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-6 py-4 text-center whitespace-nowrap text-sm text-gray-500">
                       {enrollment.professorName}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-6 py-4 text-center whitespace-nowrap text-sm text-gray-500">
                       {enrollment.day}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-6 py-4 text-center whitespace-nowrap text-sm text-gray-500">
                       {enrollment.startTime.split(':').slice(0, 2).join(':')} ~ {enrollment.endTime.split(':').slice(0, 2).join(':')}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-6 py-4 text-center whitespace-nowrap text-sm text-gray-500">
                       {enrollment.credit}
                     </td>
                     {/*<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">*/}
@@ -165,15 +165,16 @@ const EnrollmentHistory = ({ studentId }) => {
                     {/*<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">*/}
                     {/*  {enrollment.enrolledAt}*/}
                     {/*</td>*/}
-                    <td>
-                      <button className="bg-blue-600 text-white rounded-md hover:bg-blue-700
-                          focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
-                          text-sm py-1 px-2" onClick={() => cancelEnrollment(studentId, enrollment.enrollmentId)}>
-                        신청취소
+                    <td className="px-6 py-4 text-center flex justify-center items-center">
+                      <button
+                        className="bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 text-sm py-1 px-2"
+                        onClick={() => cancelEnrollment(studentId, enrollment.enrollmentId)}
+                      >
+                      신청취소
                       </button>
                     </td>
-                  </tr>
-              ))}
+                </tr>
+            ))}
             </tbody>
           </table>
         </div>
@@ -183,7 +184,7 @@ const EnrollmentHistory = ({ studentId }) => {
       <div className="bg-gray-50 p-4 rounded-lg">
         <h4 className="text-sm font-medium text-gray-800 mb-2">수강신청 내역 안내</h4>
         <ul className="text-sm text-gray-600 list-disc list-inside space-y-1">
-          <li>수강신청 변경기간: 2024.03.02 ~ 2024.03.08</li>
+        <li>수강신청 변경기간: 2024.03.02 ~ 2024.03.08</li>
           <li>수강신청 취소는 변경기간 내에만 가능합니다.</li>
           <li>문의사항은 학사지원팀으로 연락주세요.</li>
         </ul>

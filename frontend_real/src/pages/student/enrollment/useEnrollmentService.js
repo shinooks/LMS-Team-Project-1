@@ -30,7 +30,6 @@ const UseEnrollmentService = (initialEnrolledCourses) => {
 
     const getTimeTableData = async (studentId) => {
         try{
-            console.log("getTimeTableData : " + studentId);
             const result = await enrollmentAPI.getStudentTimeTableData(studentId);
             return result;
         }catch(error){
