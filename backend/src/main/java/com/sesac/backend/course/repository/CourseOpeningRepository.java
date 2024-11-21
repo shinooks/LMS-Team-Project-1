@@ -16,6 +16,9 @@ public interface CourseOpeningRepository extends JpaRepository<CourseOpening, UU
     // 특정 강의의 개설 목록 조회
     List<CourseOpening> findByCourse(Course course);
 
+
+
+
     // 동일 강의의 특정 학기 중복 개설 확인
     boolean existsByCourseAndYearAndSemesterAndProfessor(
             Course course,
@@ -31,10 +34,10 @@ public interface CourseOpeningRepository extends JpaRepository<CourseOpening, UU
             String semester
     );
 
+    List<CourseOpening> findAllBySemesterAndProfessorAndYearAndCourseCourseId(String semester, Professor professor, int year, UUID courseId);
+
     // 특정 상태의 강의 목록 조회
     List<CourseOpening> findByStatus(CourseStatus status);
-
-    List<CourseOpening> findAllBySemesterAndProfessorIdAndYearAndCourseCourseId(String semester, String professorId, int year, UUID courseId);
 
     //gnuke
     @Query("Select co From CourseOpening co JOIN co.courseTimes ct JOIN Course c ON ct.courseOpening = co " +
