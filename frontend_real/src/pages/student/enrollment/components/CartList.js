@@ -125,7 +125,7 @@ const CartList = ({ studentId, refreshInterests }) => {
                         {course.professorName}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">
-                        {course.timeInfo ? course.timeInfo.day : '시간 정보 없음'}
+                        {course.timeInfo && course.timeInfo.day ? course.timeInfo.day : '시간 정보 없음'}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">
                         {course.timeInfo ? (

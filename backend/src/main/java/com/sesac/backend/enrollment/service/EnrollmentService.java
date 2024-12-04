@@ -417,34 +417,34 @@ public class EnrollmentService {
         }
     }
 
-private void notifyStudent(UUID studentId, EnrollmentResultDto result) {
-    log.info("수강신청 결과 전송: student={}, success={}, message={}",
-            studentId, result.isSuccess(), result.getMessage());
-    messagingTemplate.convertAndSendToUser(
-            studentId.toString(),
-            "/topic/enrollment-result",
-            result
-    );
-}
-
-private void notifyAllStudents(UUID openingId, int currentEnrollment, int maxEnrollment) {
-    try {
-        CourseOpening courseInfo = courseOpeningRepository.findById(openingId).orElseThrow(() -> new EntityNotFoundException("강의를 찾을 수 없습니다"));
-
-        Map<String, Object> status = Map.of(
-                "openingId", openingId,
-                "courseCode", courseInfo.getCourse().getCourseCode(),
-                "courseName", courseInfo.getCourse().getCourseName(),
-                "currentEnrollment", currentEnrollment,
-                "maxEnrollment", maxEnrollment
+    private void notifyStudent(UUID studentId, EnrollmentResultDto result) {
+        log.info("수강신청 결과 전송: student={}, success={}, message={}",
+                studentId, result.isSuccess(), result.getMessage());
+        messagingTemplate.convertAndSendToUser(
+                studentId.toString(),
+                "/topic/enrollment-result",
+                result
         );
-
-        messagingTemplate.convertAndSend("/topic/course-status/" + openingId, status);
-
-    } catch (Exception e) {
-        log.error("전체 알림 전송 실패: course={}, error={}", openingId, e.getMessage());
     }
-}
+
+    private void notifyAllStudents(UUID openingId, int currentEnrollment, int maxEnrollment) {
+        try {
+            CourseOpening courseInfo = courseOpeningRepository.findById(openingId).orElseThrow(() -> new EntityNotFoundException("강의를 찾을 수 없습니다"));
+
+            Map<String, Object> status = Map.of(
+                    "openingId", openingId,
+                    "courseCode", courseInfo.getCourse().getCourseCode(),
+                    "courseName", courseInfo.getCourse().getCourseName(),
+                    "currentEnrollment", currentEnrollment,
+                    "maxEnrollment", maxEnrollment
+            );
+
+            messagingTemplate.convertAndSend("/topic/course-status/" + openingId, status);
+
+        } catch (Exception e) {
+            log.error("전체 알림 전송 실패: course={}, error={}", openingId, e.getMessage());
+        }
+    }
 
 }
 

@@ -56,13 +56,13 @@ const CourseItem = ({ course, studentId, currentEnrollments, refreshInterests })
             </span>
             </td>
             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
-                {course.day}
+                {course.day || ''}
             </td>
             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
-                {course.startTime.split(':').slice(0, 2).join(':')} - {course.endTime.split(':').slice(0, 2).join(':')}
+                {course.startTime ? course.startTime.split(':').slice(0, 2).join(':') : ''} - {course.endTime ? course.endTime.split(':').slice(0, 2).join(':') : ''}
             </td>
             <td className="px-6 py-4 whitespace-nowrap text-center">
-                <button onClick={() => enrollCourse(studentId, course)} className="bg-blue-600 text-white rounded-md hover:bg-blue-700
+            <button onClick={() => enrollCourse(studentId, course)} className="bg-blue-600 text-white rounded-md hover:bg-blue-700
                 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
                 text-sm py-1 px-2">
                     신청

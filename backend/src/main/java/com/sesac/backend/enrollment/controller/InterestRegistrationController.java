@@ -40,13 +40,13 @@ public class InterestRegistrationController {
         return interestEnrollmentService.getStudentInterests(studentId);
     }
 
-    @GetMapping("/interestTimeTable/{studentId}")
-    public Map getInterestTimeTable(@PathVariable UUID studentId) {
-        Map map = new HashMap();
-        map.put("interestTimeTable", interestEnrollmentService.getTimeTableById(studentId));
-
-        //System.out.println("프런트로 넘어갈 배열 : " + Arrays.deepToString((Object[]) map.get("interestTimeTable")));
-        return map;
-    }
+//    @GetMapping("/interestTimeTable/{studentId}")
+//    public Map getInterestTimeTable(@PathVariable UUID studentId) {
+//        Map map = new HashMap();
+//        map.put("interestTimeTable", interestEnrollmentService.getTimeTableById(studentId));
+//
+//        //System.out.println("프런트로 넘어갈 배열 : " + Arrays.deepToString((Object[]) map.get("interestTimeTable")));
+//        return map;
+//    }
 
 }

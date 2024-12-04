@@ -150,14 +150,14 @@ const EnrollmentHistory = ({ studentId }) => {
                     <td className="px-6 py-4 text-center whitespace-nowrap text-sm text-gray-500">
                       {enrollment.professorName}
                     </td>
-                    <td className="px-6 py-4 text-center whitespace-nowrap text-sm text-gray-500">
-                      {enrollment.day}
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                      {enrollment.day || ''}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                      {enrollment.startTime ? enrollment.startTime.split(':').slice(0, 2).join(':') : ''} - {enrollment.endTime ? enrollment.endTime.split(':').slice(0, 2).join(':') : ''}
                     </td>
                     <td className="px-6 py-4 text-center whitespace-nowrap text-sm text-gray-500">
-                      {enrollment.startTime.split(':').slice(0, 2).join(':')} ~ {enrollment.endTime.split(':').slice(0, 2).join(':')}
-                    </td>
-                    <td className="px-6 py-4 text-center whitespace-nowrap text-sm text-gray-500">
-                      {enrollment.credit}
+                    {enrollment.credit}
                     </td>
                     {/*<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">*/}
                     {/*  {getStatusBadge(enrollment.status)}*/}

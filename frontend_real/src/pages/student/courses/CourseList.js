@@ -46,7 +46,11 @@ const CourseList = () => {
                     <span>{course.credit} 학점</span>
                   </div>
                   <div className={"flex justify-end"}>
-                    <div>{course.day}요일 {course.startTime.split(':').slice(0, 2).join(':')} - {course.endTime.split(':').slice(0, 2).join(':')}</div>
+                    <div>
+                      {course.day && course.startTime && course.endTime
+                          ? `${course.day}요일 ${course.startTime.split(':').slice(0, 2).join(':')} - ${course.endTime.split(':').slice(0, 2).join(':')}`
+                          : ''}
+                    </div>
                   </div>
                 </div>
                 {/*<div>*/}

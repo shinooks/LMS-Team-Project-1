@@ -50,55 +50,55 @@ public class InterestEnrollmentService {
 
     // 관심강의 등록
     public void saveStudentInterest(UUID studentId, UUID openingId) throws JsonProcessingException {
-            String key = "student:" + studentId + ":interest_course:" + openingId;
+        String key = "student:" + studentId + ":interest_course:" + openingId;
 
-            // 이미 등록된 관심 강의가 있는지 확인
-            if (redisTemplate.hasKey(key)) {
-                throw new RuntimeException("이미 등록된 관심 강의입니다: " + openingId);
-            }
+        // 이미 등록된 관심 강의가 있는지 확인
+        if (redisTemplate.hasKey(key)) {
+            throw new RuntimeException("이미 등록된 관심 강의입니다: " + openingId);
+        }
 
-            CourseOpening courseOpening = courseOpeningRepository.findById(openingId)
-                    .orElseThrow(() -> new RuntimeException("Course opening not found"));
+        CourseOpening courseOpening = courseOpeningRepository.findById(openingId)
+                .orElseThrow(() -> new RuntimeException("Course opening not found"));
 
-            // 관심 과목에 필요한 정보 수집
-            Map<String, Object> courseInfo = new HashMap<>();
-            courseInfo.put("openingId", courseOpening.getOpeningId());
-            courseInfo.put("courseCode", courseOpening.getCourse().getCourseCode());
-            courseInfo.put("courseName", courseOpening.getCourse().getCourseName());
-            courseInfo.put("credits", courseOpening.getCourse().getCredits());
-            courseInfo.put("professorName", courseOpening.getProfessor().getName());
+        // 관심 과목에 필요한 정보 수집
+        Map<String, Object> courseInfo = new HashMap<>();
+        courseInfo.put("openingId", courseOpening.getOpeningId());
+        courseInfo.put("courseCode", courseOpening.getCourse().getCourseCode());
+        courseInfo.put("courseName", courseOpening.getCourse().getCourseName());
+        courseInfo.put("credits", courseOpening.getCourse().getCredits());
+        courseInfo.put("professorName", courseOpening.getProfessor().getName());
 
-            // 강의 시간 정보 추가
-            for (CourseTime courseTime : courseOpening.getCourseTimes()) {
-                Map<String, Object> timeInfo = new HashMap<>();
-                timeInfo.put("day", courseTime.getDayOfWeek().getDescription());
-                timeInfo.put("startTime", courseTime.getStartTime().toString());
-                timeInfo.put("endTime", courseTime.getEndTime().toString());
-                timeInfo.put("classroom", courseTime.getClassroom());
-                courseInfo.put("timeInfo", timeInfo);  // 각 시간 정보를 저장
-            }
+        // 강의 시간 정보 추가
+        for (CourseTime courseTime : courseOpening.getCourseTimes()) {
+            Map<String, Object> timeInfo = new HashMap<>();
+            timeInfo.put("day", courseTime.getDayOfWeek().getDescription());
+            timeInfo.put("startTime", courseTime.getStartTime().toString());
+            timeInfo.put("endTime", courseTime.getEndTime().toString());
+            timeInfo.put("classroom", courseTime.getClassroom());
+            courseInfo.put("timeInfo", timeInfo);  // 각 시간 정보를 저장
+        }
 
-            // JSON 변환 후 Redis에 저장
-            String courseInfoJson = objectMapper.writeValueAsString(courseInfo);
-            redisTemplate.opsForValue().set("student:" + studentId + ":interest_course:" + openingId, courseInfoJson);
+        // JSON 변환 후 Redis에 저장
+        String courseInfoJson = objectMapper.writeValueAsString(courseInfo);
+        redisTemplate.opsForValue().set("student:" + studentId + ":interest_course:" + openingId, courseInfoJson);
     }
 
     // 관심강의 삭제
     public void deleteStudentInterest(UUID studentId, UUID openingId) {
         String key = "student:" + studentId + ":interest_course:" + openingId;
 
-        // 시간표에서 해당 강의 정보 삭제
-        InterestTimeTableDto[][] timeTable = getTimeTableById(studentId);
-        if (timeTable != null) {
-            for (int i = 0; i < timeTable.length; i++) {
-                for (int j = 0; j < timeTable[i].length; j++) {
-                    if (timeTable[i][j] != null &&
-                            timeTable[i][j].getOpeningId().equals(openingId)) {
-                        timeTable[i][j] = null; // 시간표에서 해당 강의 정보 삭제
-                    }
-                }
-            }
-        }
+//        // 시간표에서 해당 강의 정보 삭제
+//        InterestTimeTableDto[][] timeTable = getTimeTableById(studentId);
+//        if (timeTable != null) {
+//            for (int i = 0; i < timeTable.length; i++) {
+//                for (int j = 0; j < timeTable[i].length; j++) {
+//                    if (timeTable[i][j] != null &&
+//                            timeTable[i][j].getOpeningId().equals(openingId)) {
+//                        timeTable[i][j] = null; // 시간표에서 해당 강의 정보 삭제
+//                    }
+//                }
+//            }
+//        }
 
         redisTemplate.delete(key);
     }
@@ -130,30 +130,30 @@ public class InterestEnrollmentService {
     }
 
 
-    public InterestTimeTableDto[][] getTimeTableById(UUID studentId) {
-        // Redis에서 학생의 관심 강의 목록 가져오기
-        List<Map<String, Object>> interests = getStudentInterests(studentId);
-
-        // 시간표에 필요한 데이터 구조 만들기
-        List<InterestTimeTableDto> interestsForTable = new ArrayList<>();
-
-        for (Map<String, Object> courseInfo : interests) {
-            // 시간 정보가 있는지 확인
-            Map<String, Object> timeInfos = (Map<String, Object>) courseInfo.get("timeInfo");
-            if (timeInfos != null) {
-
-                interestsForTable.add(new InterestTimeTableDto(
-                        UUID.fromString((String) courseInfo.get("openingId")), // String을 UUID로 변환
-                        (String) courseInfo.get("courseCode"),
-                        (String) courseInfo.get("courseName"),
-                        (String) timeInfos.get("day"), // 요일 정보
-                        (String) timeInfos.get("startTime"), // 시작 시간
-                        (String) timeInfos.get("endTime"), // 종료 시간
-                        (String) timeInfos.get("classroom") // 강의실 정보
-                ));
-            }
-        }
-
-        return scheduleChecker.interestTimeTableMaker(interestsForTable);
-    }
+//    public InterestTimeTableDto[][] getTimeTableById(UUID studentId) {
+//        // Redis에서 학생의 관심 강의 목록 가져오기
+//        List<Map<String, Object>> interests = getStudentInterests(studentId);
+//
+//        // 시간표에 필요한 데이터 구조 만들기
+//        List<InterestTimeTableDto> interestsForTable = new ArrayList<>();
+//
+//        for (Map<String, Object> courseInfo : interests) {
+//            // 시간 정보가 있는지 확인
+//            Map<String, Object> timeInfos = (Map<String, Object>) courseInfo.get("timeInfo");
+//            if (timeInfos != null) {
+//
+//                interestsForTable.add(new InterestTimeTableDto(
+//                        UUID.fromString((String) courseInfo.get("openingId")), // String을 UUID로 변환
+//                        (String) courseInfo.get("courseCode"),
+//                        (String) courseInfo.get("courseName"),
+//                        (String) timeInfos.get("day"), // 요일 정보
+//                        (String) timeInfos.get("startTime"), // 시작 시간
+//                        (String) timeInfos.get("endTime"), // 종료 시간
+//                        (String) timeInfos.get("classroom") // 강의실 정보
+//                ));
+//            }
+//        }
+//
+//        return scheduleChecker.interestTimeTableMaker(interestsForTable);
+//    }
 }
