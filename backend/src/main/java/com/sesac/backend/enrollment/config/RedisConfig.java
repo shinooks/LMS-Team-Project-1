@@ -33,7 +33,7 @@ public class RedisConfig {
     public LettuceConnectionFactory redisConnectionFactory() {
         RedisStandaloneConfiguration config = new RedisStandaloneConfiguration();
         config.setHostName("127.0.0.1");
-        config.setPort(6380);  // SSH 터널링 포트
+        config.setPort(6379);  // SSH 터널링 포트
         return new LettuceConnectionFactory(config);
     }
 
