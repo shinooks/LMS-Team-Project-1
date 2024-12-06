@@ -1,11 +1,48 @@
+<<<<<<< HEAD
 HELP.md
 .gradle
 build/
+=======
+<<<<<<< HEAD
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# testing
+/coverage
+
+# production
+/build
+
+# misc
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+=======
+*.yml
+**/src/main/resources/application.yml
+
+##### backend #####
+**/.env
+**/HELP.md
+**/.gradle
+**/build/
+>>>>>>> develop
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
 
 ### STS ###
+<<<<<<< HEAD
 .apt_generated
 .classpath
 .factorypath
@@ -14,19 +51,38 @@ build/
 .springBeans
 .sts4-cache
 bin/
+=======
+**/.apt_generated
+**/.classpath
+**/.factorypath
+**/.project
+**/.settings
+**/.springBeans
+**/.sts4-cache
+**/bin/
+>>>>>>> develop
 !**/src/main/**/bin/
 !**/src/test/**/bin/
 
 ### IntelliJ IDEA ###
+<<<<<<< HEAD
 .idea
 *.iws
 *.iml
 *.ipr
 out/
+=======
+**/.idea
+**/*.iws
+**/*.iml
+**/*.ipr
+**/out/
+>>>>>>> develop
 !**/src/main/**/out/
 !**/src/test/**/out/
 
 ### NetBeans ###
+<<<<<<< HEAD
 /nbproject/private/
 /nbbuild/
 /dist/
@@ -35,3 +91,16 @@ out/
 
 ### VS Code ###
 .vscode/
+=======
+**/nbproject/private/
+**/nbbuild/
+**/dist/
+**/nbdist/
+**/.nb-gradle/
+
+### VS Code ###
+**/.vscode/
+
+##### frontend #####
+>>>>>>> 93fa5df2ec29e4b380ff9a49cb6b7bb4807ab85d
+>>>>>>> develop
