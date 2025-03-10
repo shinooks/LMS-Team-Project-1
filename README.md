@@ -39,7 +39,3 @@
 
 ## 배포 프로세스 및 Git 전략
 ![image](https://github.com/user-attachments/assets/9ff1a935-73df-4dc5-8d41-1219a0a351a9)
-
-
-
-[화면API기술명세서.pdf](https://www.notion.so/API-PDF-14e6137c2d3f809ba5b6ddefc98f24a7)
