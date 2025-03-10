@@ -31,11 +31,14 @@
 - Spring oAuth2 활용 사용자 토큰 관리
 - 로그인 사용자에 따라 다른 대시보드 출력
 - 로그인 사용자에 따라 API 요청 권한 부여
+- 학생/교수/관리자 기능 분리
 <hr>
 
 ## 인프라 아키텍처
+![image](https://github.com/user-attachments/assets/f0622c7e-97d2-45ce-bfd9-86e83f049f3d)
 
-## 시스템 아키텍처
+## 배포 프로세스 및 Git 전략
+![image](https://github.com/user-attachments/assets/9ff1a935-73df-4dc5-8d41-1219a0a351a9)
 
 
 
