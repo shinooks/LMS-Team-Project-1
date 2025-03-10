@@ -1,58 +1,42 @@
 # 서비스 소개
 
 <aside>
-💡 🌱새싹대학교🌱 LMS 학사관리시스템 서비스입니다. 
-새싹대학교의 학생, 교수, 관리자로 나뉘어서 필요한 기능을 만들었습니다.
-대표적으로 강의 개설, 수강신청, 시험, 출석, 성적 조회 등등 기능을 구성했고
-각각의 기능은 로그인한 계정의 권한에 따라 다르게 작동하도록 구현하였습니다.
-
+💡 이 프로젝트는 Spring Boot를 기반으로 가상의 대학교인 🌱새싹대학교🌱에 대한 학사지원 시스템의 주요 기능을 개발하였습니다.
 </aside>
+<hr>
 
+## 🕗 프로젝트 기간
+24.10.14 - 24.11.15 (4주)
 
-# 기술 스택
-
-## Frontend
-- **HTML**
-- **CSS (SCSS)**
-- **JavaScript**
-- **React.js**
-- **Tailwind CSS**
-
-## Backend
-- **Java**
-- **Spring**
-- **Spring Boot**
-- **Spring Security**
-- **PostgreSQL**
-- **Redis**
-
-## Tools
-- **Figma**
-- **Git**
-- **SourceTree**
-
-## Collaboration
-- **GitHub**
-- **Notion**
-- **Slack**
-- **Trello**
-
-## Infra
-- **Docker**
-- **AWS EC2**
-- **AWS S3**
-
-
-
+## 👨‍💻 개발 인원 및 역할
 | 이름 | 담당 |
 | --- | --- |
-| 신동진(리더) | 시험출제, 응시, 채점 |
-| 김경환 | 출석체크, 게시판 |
-| 박은화 | 강의개설 |
+| 신동진(리더) | 시험출제, 응시, 채점, CI/CD |
+| 김경환 | 출석체크, 게시판, 프론트엔드 |
+| 박은화 | 강의개설, UI/UX |
 | 성기범 | 수강신청 |
 | 정진욱 | 수강신청 |
 | 홍인표 | 성적 조회, 수정, 확정 |
-| 황신욱 | 인프라, 권한인증 |
+| 황신욱 | 권한인증, 인프라 구축 |
+<hr>
+
+## 🛠 활용 기술
+
+![image](https://github.com/user-attachments/assets/1d8e7d5f-380d-4a82-9bdc-186bc242d4b5)
+<hr>
+
+## 핵심 기능
+- 오픈소스 Redis 및 Apache Kafka을 활용한 실시간 수강신청 인원 제한
+- Spring Security, Spring LDAP을 활용한 사용자 인증 및 토큰 발급
+- Spring oAuth2 활용 사용자 토큰 관리
+- 로그인 사용자에 따라 다른 대시보드 출력
+- 로그인 사용자에 따라 API 요청 권한 부여
+<hr>
+
+## 인프라 아키텍처
+
+## 시스템 아키텍처
+
 
 
 [화면API기술명세서.pdf](https://www.notion.so/API-PDF-14e6137c2d3f809ba5b6ddefc98f24a7)
