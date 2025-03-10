@@ -1,4 +1,9 @@
 <<<<<<< HEAD
+HELP.md
+.gradle
+build/
+=======
+<<<<<<< HEAD
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
@@ -31,11 +36,22 @@ yarn-error.log*
 **/HELP.md
 **/.gradle
 **/build/
+>>>>>>> develop
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
 
 ### STS ###
+<<<<<<< HEAD
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+bin/
+=======
 **/.apt_generated
 **/.classpath
 **/.factorypath
@@ -44,19 +60,38 @@ yarn-error.log*
 **/.springBeans
 **/.sts4-cache
 **/bin/
+>>>>>>> develop
 !**/src/main/**/bin/
 !**/src/test/**/bin/
 
 ### IntelliJ IDEA ###
+<<<<<<< HEAD
+.idea
+*.iws
+*.iml
+*.ipr
+out/
+=======
 **/.idea
 **/*.iws
 **/*.iml
 **/*.ipr
 **/out/
+>>>>>>> develop
 !**/src/main/**/out/
 !**/src/test/**/out/
 
 ### NetBeans ###
+<<<<<<< HEAD
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+### VS Code ###
+.vscode/
+=======
 **/nbproject/private/
 **/nbbuild/
 **/dist/
@@ -68,3 +103,4 @@ yarn-error.log*
 
 ##### frontend #####
 >>>>>>> 93fa5df2ec29e4b380ff9a49cb6b7bb4807ab85d
+>>>>>>> develop
